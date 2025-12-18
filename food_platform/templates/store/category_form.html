@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>{% if category %}Editar{% else %}Nova{% endif %} Categoria</h1>
+
+<form method="post">
+  {% csrf_token %}
+  <input type="text" name="name"
+         placeholder="Nome da categoria"
+         value="{{ category.name|default:'' }}"
+         required>
+  <button type="submit">Salvar</button>
+</form>
+
+<a href="{% url 'category_list' %}">Voltar</a>
+
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Produtos</h1>
+
+<a href="{% url 'product_create' %}">➕ Novo produto</a>
+
+<hr>
+
+<ul>
+  {% for product in products %}
+    <li>
+      <strong>{{ product.name }}</strong>
+      — {{ product.category.name }}
+      — R$ {{ product.price }}
+    </li>
+  {% empty %}
+    <li>Nenhum produto cadastrado</li>
+  {% endfor %}
+</ul>
+{% endblock %}

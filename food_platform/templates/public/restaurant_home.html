@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>{{ restaurant.name }}</h1>
+<p>{{ restaurant.description }}</p>
+
+{% for category in categories %}
+<div class="category">
+    <h2>{{ category.name }}</h2>
+    <div class="products">
+        {% for item in category.items.all %}
+        <div class="card">
+            <strong>{{ item.name }}</strong>
+            <p>R$ {{ item.price }}</p>
+            <a class="btn-add" href="{% url 'add_to_cart' item.id %}">Adicionar ao carrinho</a>
+        </div>
+        {% empty %}
+            <p>Nenhum produto nesta categoria.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endfor %}
+{% endblock %}

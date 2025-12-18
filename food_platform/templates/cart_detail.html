@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}Meu Carrinho{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f9f9f9;
+        margin: 0;
+        padding: 0;
+    }
+
+    main {
+        max-width: 900px;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+        text-align: center;
+        color: #333;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    table th, table td {
+        border: 1px solid #ddd;
+        padding: 12px;
+        text-align: center;
+    }
+
+    table th {
+        background-color: #ff6b6b;
+        color: white;
+    }
+
+    table td {
+        color: #555;
+    }
+
+    .total {
+        text-align: right;
+        margin-top: 20px;
+        font-size: 1.2em;
+        font-weight: bold;
+    }
+
+    .whatsapp-button {
+        display: block;
+        width: 100%;
+        text-align: center;
+        margin-top: 20px;
+        padding: 12px;
+        background-color: #25D366;
+        color: white;
+        font-weight: bold;
+        text-decoration: none;
+        border-radius: 5px;
+        transition: background 0.3s ease;
+    }
+
+    .whatsapp-button:hover {
+        background-color: #1ebe5d;
+    }
+
+    .empty-cart {
+        text-align: center;
+        font-size: 1.1em;
+        margin-top: 40px;
+        color: #777;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<main>
+    <h1>Meu Carrinho</h1>
+
+    {% if cart %}
+    <table>
+        <thead>
+            <tr>
+                <th>Produto</th>
+                <th>Quantidade</th>
+                <th>Preço Unitário</th>
+                <th>Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in cart %}
+            <tr>
+                <td>{{ item.name }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>R$ {{ item.price|floatformat:2 }}</td>
+                <td>R$ {{ item.subtotal|floatformat:2 }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="total">Total: R$ {{ total|floatformat:2 }}</div>
+
+    <a href="{{ whatsapp_url }}" target="_blank" class="whatsapp-button">
+        Enviar pedido pelo WhatsApp
+    </a>
+
+    {% else %}
+    <p class="empty-cart">Seu carrinho está vazio.</p>
+    <div style="text-align: center; margin-top: 20px;">
+        <a href="{% url 'home' %}" style="color: #ff6b6b;">Voltar para o cardápio</a>
+    </div>
+    {% endif %}
+</main>
+{% endblock %}

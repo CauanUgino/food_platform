@@ -1,0 +1,93 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Food Platform{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="{% url 'home' %}">Food Platform</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav align-items-center">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <span class="nav-link">Olá, {{ user.username }}</span>
+                        </li>
+
+                        <!-- Logout via POST -->
+                        <li class="nav-item">
+                            <form method="POST" action="{% url 'logout' %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-outline-danger ms-2">Sair</button>
+                            </form>
+                        </li>
+
+                        <!-- Carrinho -->
+                        <li class="nav-item ms-2">
+                            <a class="nav-link position-relative btn btn-outline-success" href="{% url 'cart_detail' %}">
+                                🛒 Carrinho
+                                {% with total_qty=0 %}
+                                    {% if request.session.cart %}
+                                        {% for key, item in request.session.cart.items %}
+                                            {% if item.quantity %}
+                                                {% with total_qty=total_qty|add:item.quantity %}
+                                                    {% if forloop.last %}{{ total_qty }}{% endif %}
+                                                {% endwith %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endif %}
+                                    {% if total_qty > 0 %}
+                                        <span class="badge bg-danger position-absolute top-0 start-100 translate-middle">{{ total_qty }}</span>
+                                    {% endif %}
+                                {% endwith %}
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link btn btn-outline-primary" href="{% url 'login' %}">Entrar</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO / HEADER -->
+    <header class="bg-warning text-white text-center py-5 mb-4 shadow-sm">
+        <div class="container">
+            <h1 class="display-5 fw-bold">{% block header_title %}Bem-vindo à Food Platform{% endblock %}</h1>
+            <p class="lead">{% block header_subtitle %}Descubra os melhores restaurantes e faça seu pedido online{% endblock %}</p>
+        </div>
+    </header>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main class="container flex-grow-1 mb-5">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-dark text-white text-center py-4 mt-auto shadow-top">
+        <div class="container">
+            <p class="mb-1">© {{ now|date:"Y" }} Food Platform</p>
+            <small>Desenvolvido por William Aragão Feitosa</small>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

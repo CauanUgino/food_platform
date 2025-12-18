@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Cadastro - Food Platform{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-sm-10">
+        <div class="card shadow-sm border-0 mt-5">
+            <div class="card-body">
+                <h3 class="card-title text-center mb-4">Cadastro de Usuário</h3>
+
+                {% if form.errors %}
+                    <div class="alert alert-danger text-center">
+                        Por favor, corrija os erros abaixo.
+                    </div>
+                {% endif %}
+
+                <form method="post" action="">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="id_username" class="form-label">Usuário</label>
+                        {{ form.username }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="id_password1" class="form-label">Senha</label>
+                        {{ form.password1 }}
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_password2" class="form-label">Confirmar Senha</label>
+                        {{ form.password2 }}
+                    </div>
+
+                    <div class="d-grid mt-3">
+                        <button type="submit" class="btn btn-primary">Cadastrar</button>
+                    </div>
+                </form>
+
+                <p class="text-center mt-3">
+                    Já tem conta? <a href="{% url 'login' %}">Entrar</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

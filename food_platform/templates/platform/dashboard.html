@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Painel da Plataforma</h1>
+
+<!-- Ações principais -->
+<div style="margin-bottom: 20px;">
+  <a href="{% url 'create_restaurant' %}">➕ Criar nova vitrine</a> |
+  <a href="{% url 'create_store_admin' %}">👤 Criar admin da loja</a>
+</div>
+
+<hr>
+
+<!-- Gerenciamento -->
+<h2>Gerenciamento</h2>
+<ul>
+  <li>
+    <a href="{% url 'category_list' %}">📂 Gerenciar Categorias</a>
+  </li>
+  <li>
+    <a href="{% url 'product_list' %}">🍔 Gerenciar Produtos</a>
+  </li>
+</ul>
+
+<hr>
+
+<!-- Vitrines -->
+<h2>Vitrines cadastradas</h2>
+
+<ul>
+  {% for restaurant in restaurants %}
+    <li>
+      <strong>{{ restaurant.name }}</strong>
+      — <a href="/r/{{ restaurant.slug }}/" target="_blank">
+        /r/{{ restaurant.slug }}/
+      </a>
+    </li>
+  {% empty %}
+    <li>Nenhuma vitrine cadastrada</li>
+  {% endfor %}
+</ul>
+
+{% endblock %}

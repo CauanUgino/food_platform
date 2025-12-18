@@ -1,0 +1,37 @@
+from django.urls import path
+from django.contrib.auth.views import LogoutView
+from . import views
+from .views import (
+    home,
+    custom_login,
+    restaurant_home,
+    platform_dashboard,
+    create_restaurant, create_store_admin, store_dashboard, category_list, category_create, product_list,
+    product_create, product_edit, product_delete, cart_detail, add_to_cart, category_edit, category_delete
+)
+
+urlpatterns = [
+    path("", home, name="home"),
+    path("r/<slug:slug>/", restaurant_home, name="restaurant_home"),
+    path("login/", custom_login, name="login"),
+    path('register/', views.register_user, name='register_user'),
+    path('register/', views.register_user, name='register_superuser'),
+    path('logout/', LogoutView.as_view(template_name= 'login.html'), name='logout'),
+    path("platform/", platform_dashboard, name="platform_dashboard"),
+    path("platform/restaurants/new/", create_restaurant, name="create_restaurant"),
+    path("r/<slug:slug>/", restaurant_home, name="restaurant_home"),
+    path("platform/store-admin/new/", create_store_admin, name="create_store_admin"),
+    path("store/dashboard/", store_dashboard, name="store_dashboard"),
+    path("store/categories/", category_list, name="category_list"),
+    path("store/categories/new/", category_create, name="category_create"),
+    path("store/categories/<int:pk>/edit/", category_edit, name="category_edit"),
+    path("store/categories/<int:pk>/delete/", category_delete, name="category_delete"),
+    path("store/products/", product_list, name="product_list"),
+    path("store/products/new/", product_create, name="product_create"),
+    path("store/products/<int:pk>/edit/", product_edit, name="product_edit"),
+    path("store/products/<int:pk>/delete/", product_delete, name="product_delete"),
+    path("cart/", cart_detail, name="cart_detail"),
+    path("cart/add/<int:item_id>/", add_to_cart, name="add_to_cart"),
+
+    
+]

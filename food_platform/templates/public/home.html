@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}
+{{ restaurant.name }}
+{% endblock %}
+
+{% block content %}
+
+<h1>{{ restaurant.name }}</h1>
+<p>{{ restaurant.description }}</p>
+
+<hr>
+
+{% for category in categories %}
+  <h2>{{ category.name }}</h2>
+
+  <ul>
+    {% for item in category.items.all %}
+      <li>
+        <strong>{{ item.name }}</strong>
+        — R$ {{ item.price }}
+
+        <!-- BOTÃO DO CARRINHO -->
+        <a href="{% url 'add_to_cart' item.id %}">
+          ➕ Adicionar
+        </a>
+      </li>
+    {% empty %}
+      <li>Nenhum produto nesta categoria</li>
+    {% endfor %}
+  </ul>
+
+{% empty %}
+  <p>Nenhuma categoria cadastrada.</p>
+{% endfor %}
+
+<hr>
+
+<!-- LINK PARA O CARRINHO -->
+<a href="{% url 'cart_detail' %}">
+  🛒 Ver carrinho
+</a>
+
+{% endblock %}

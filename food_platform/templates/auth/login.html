@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Food Platform{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-sm-10">
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <h3 class="card-title text-center mb-4">Bem-vindo à Food Platform</h3>
+
+                <!-- Erros de login -->
+                {% if form.errors %}
+                    <div class="alert alert-danger text-center">
+                        Usuário ou senha inválidos. Tente novamente.
+                    </div>
+                {% endif %}
+
+                <!-- FORMULÁRIO DE LOGIN -->
+                <form method="post" action="{% url 'login' %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="id_username" class="form-label">Usuário</label>
+                        <input type="text" name="username" autofocus class="form-control" id="id_username" placeholder="Digite seu usuário">
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_password" class="form-label">Senha</label>
+                        <input type="password" name="password" class="form-control" id="id_password" placeholder="Digite sua senha">
+                    </div>
+                    <div class="d-grid mb-3">
+                        <button type="submit" class="btn btn-warning text-white fw-bold">Entrar</button>
+                    </div>
+                </form>
+
+                <hr>
+
+                <!-- OPÇÕES DE CADASTRO -->
+                <div class="text-center">
+                    <p>Não tem uma conta?</p>
+                    <a href="{% url 'register_user' %}" class="btn btn-outline-primary me-2">Cadastrar como usuário</a>
+                    <a href="{% url 'register_superuser' %}" class="btn btn-outline-danger">Cadastrar como admin</a>
+                </div>
+
+                <p class="text-center mt-4 mb-0">&copy; {{ now|date:"Y" }} Food Platform</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
