@@ -22,16 +22,22 @@ urlpatterns = [
     path("r/<slug:slug>/", restaurant_home, name="restaurant_home"),
     path("platform/store-admin/new/", create_store_admin, name="create_store_admin"),
     path("store/dashboard/", store_dashboard, name="store_dashboard"),
+    path('dashboard/', views.dashboard_view, name='dashboard'),
     path("store/categories/", category_list, name="category_list"),
     path("store/categories/new/", category_create, name="category_create"),
     path("store/categories/<int:pk>/edit/", category_edit, name="category_edit"),
     path("store/categories/<int:pk>/delete/", category_delete, name="category_delete"),
+
     path("store/products/", product_list, name="product_list"),
     path("store/products/new/", product_create, name="product_create"),
     path("store/products/<int:pk>/edit/", product_edit, name="product_edit"),
     path("store/products/<int:pk>/delete/", product_delete, name="product_delete"),
+    
     path("cart/", cart_detail, name="cart_detail"),
-    path("cart/add/<int:item_id>/", add_to_cart, name="add_to_cart"),
+    path('add-to-cart/<int:item_id>/', views.add_to_cart, name='add_to_cart'),
+    path("cart/remove/<int:item_id>/", views.remove_from_cart, name="remove_from_cart"),
+    path("cart/clear/", views.clear_cart, name="clear_cart"),
+
 
     
 ]

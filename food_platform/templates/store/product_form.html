@@ -1,12 +1,106 @@
 {% extends "base.html" %}
+
+{% block header_title %}{{ title }}{% endblock %}
+{% block header_subtitle %}Preencha os dados abaixo para atualizar seu cardápio.{% endblock %}
+
 {% block content %}
+<div class="row justify-content-center mb-5">
+    <div class="col-12 col-md-8 col-lg-6">
+        <div class="card border-0 shadow-lg rounded-5 overflow-hidden">
+            <div class="card-header bg-white border-0 pt-5 pb-0 text-center">
+                <div class="bg-light d-inline-block p-3 rounded-circle mb-3">
+                    <i class="bi bi-box-seam fs-1 text-danger"></i>
+                </div>
+                <h3 class="fw-800 text-dark">{{ title }}</h3>
+                <p class="text-muted small px-4">Certifique-se de que os preços e nomes estão corretos para seus clientes.</p>
+            </div>
 
-<h1>{{ title }}</h1>
+            <div class="card-body p-4 p-md-5">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    
+                    {% for field in form %}
+                    <div class="mb-4">
+                        <label for="{{ field.id_for_label }}" class="form-label fw-bold text-dark small ms-1">
+                            {{ field.label }}
+                        </label>
+                        
+                        {# Injetando classes do Bootstrap no widget do Django #}
+                        <div class="input-group">
+                            {% if "Preço" in field.label %}
+                                <span class="input-group-text bg-white border-end-0 rounded-start-pill text-muted">R$</span>
+                            {% endif %}
+                            
+                            <input type="{{ field.field.widget.input_type }}" 
+                                   name="{{ field.html_name }}" 
+                                   id="{{ field.id_for_label }}"
+                                   class="form-control {% if field.errors %}is-invalid{% endif %} {% if "Preço" in field.label %}border-start-0 rounded-end-pill{% else %}rounded-pill{% endif %} px-3 py-2-5"
+                                   placeholder="Digite o {{ field.label|lower }}..."
+                                   value="{{ field.value|default:'' }}">
+                        </div>
 
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Salvar</button>
-</form>
+                        {% if field.errors %}
+                            <div class="text-danger small mt-1 ms-3">
+                                {{ field.errors|striptags }}
+                            </div>
+                        {% endif %}
+                        
+                        {% if field.help_text %}
+                            <div class="form-text ms-3">{{ field.help_text }}</div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
 
+                    <div class="d-grid gap-2 mt-5">
+                        <button type="submit" class="btn btn-danger btn-lg rounded-pill fw-bold shadow-sm py-3 transition-hover" style="background: var(--nav-gradient); border: none;">
+                            <i class="bi bi-check-lg me-2"></i>Salvar Produto
+                        </button>
+                        <a href="{% url 'product_list' %}" class="btn btn-link text-muted text-decoration-none fw-bold small mt-2">
+                            Cancelar e Voltar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .fw-800 { font-weight: 800; }
+    
+    .form-control {
+        border: 2px solid #f1f3f5;
+        background-color: #f8f9fa;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        background-color: #fff;
+        border-color: var(--brand-main);
+        box-shadow: 0 0 0 4px rgba(234, 29, 44, 0.1);
+        color: var(--text-dark);
+    }
+
+    .py-2-5 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+
+    .input-group-text {
+        border: 2px solid #f1f3f5;
+        padding-left: 1.25rem;
+    }
+
+    .transition-hover:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 15px rgba(234, 29, 44, 0.2) !important;
+        filter: brightness(1.1);
+    }
+
+    /* Estilização para o campo select (categoria), caso exista */
+    select.form-control {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 1.25rem center;
+        background-size: 16px 12px;
+    }
+</style>
 {% endblock %}

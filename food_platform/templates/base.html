@@ -3,91 +3,318 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %}Food Platform{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}FoodPlatform | Delivery Profissional{% endblock %}</title>
 
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <style>
+        :root {
+            --brand-main: #ea1d2c;
+            --brand-dark: #b8121f;
+            --bg-body: #f8f9fa;
+            --surface: #ffffff;
+            --text-dark: #1a1d23;
+            --text-muted: #6c757d;
+            --nav-gradient: linear-gradient(90deg, #ea1d2c 0%, #d41926 100%);
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-dark);
+        }
+
+        /* NAVBAR PREMIUM */
+        .navbar {
+            background: var(--nav-gradient) !important;
+            box-shadow: 0 4px 12px rgba(234, 29, 44, 0.15);
+            padding: 12px 0;
+        }
+
+        .navbar-brand {
+            font-weight: 800;
+            color: white !important;
+            letter-spacing: -0.5px;
+            font-size: 1.4rem;
+        }
+
+        .navbar .nav-link {
+            color: rgba(255, 255, 255, 0.9) !important;
+            font-weight: 500;
+        }
+
+        /* CARRINHO UX */
+        .cart-pill {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(5px);
+            color: white !important;
+            padding: 8px 18px;
+            border-radius: 100px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .cart-pill:hover {
+            background: white;
+            color: var(--brand-main) !important;
+            transform: translateY(-2px);
+        }
+
+        .cart-badge {
+            background: white;
+            color: var(--brand-main);
+            font-weight: 800;
+            padding: 1px 7px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+        }
+
+        /* TOASTS */
+        .ux-toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            background: #1a1d23;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 100px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideUp 0.4s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { bottom: -50px; opacity: 0; }
+            to { bottom: 30px; opacity: 1; }
+        }
+
+        /* HERO HEADER */
+        .hero-ux {
+            background-color: var(--surface);
+            padding: 60px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            margin-bottom: 40px;
+        }
+
+        /* FOOTER ESTILIZADO */
+        footer {
+            background: #fff;
+            border-top: 1px solid #eee;
+            padding: 5rem 0 2rem;
+            margin-top: auto;
+        }
+
+        .footer-brand {
+            font-weight: 800;
+            color: var(--brand-main);
+            font-size: 1.6rem;
+            letter-spacing: -1px;
+        }
+
+        .footer-heading {
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .footer-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: 0.2s;
+            display: block;
+            margin-bottom: 0.8rem;
+            font-size: 0.9rem;
+        }
+
+        .footer-link:hover {
+            color: var(--brand-main);
+            padding-left: 5px;
+        }
+
+        .partner-card {
+            background-color: #f8f9fa;
+            border: 1px solid transparent;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            text-align: left;
+        }
+
+        .partner-card:hover {
+            border-color: var(--brand-main);
+            background-color: #fff;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+    </style>
     {% block extra_css %}{% endblock %}
 </head>
+
 <body class="d-flex flex-column min-vh-100">
 
-    <!-- NAVBAR -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="{% url 'home' %}">Food Platform</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
+<nav class="navbar navbar-expand-lg sticky-top">
+    <div class="container">
+        <a class="navbar-brand" href="{% url 'home' %}">
+            <i class="bi bi-lightning-fill me-1"></i>FoodPlatform
+        </a>
+        
+        <div class="d-flex align-items-center gap-3 order-lg-last">
+            <a href="{% url 'cart_detail' %}" class="cart-pill text-decoration-none">
+                <i class="bi bi-bag-check-fill"></i>
+                <span class="d-none d-md-inline">Meu Carrinho</span>
+                {% if cart_count > 0 %}
+                    <span class="cart-badge">{{ cart_count }}</span>
+                {% endif %}
+            </a>
+
+            <button class="navbar-toggler border-0 text-white shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navContent">
+                <i class="bi bi-list fs-1"></i>
             </button>
-            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-                <ul class="navbar-nav align-items-center">
-                    {% if user.is_authenticated %}
-                        <li class="nav-item">
-                            <span class="nav-link">Olá, {{ user.username }}</span>
-                        </li>
+        </div>
 
-                        <!-- Logout via POST -->
-                        <li class="nav-item">
-                            <form method="POST" action="{% url 'logout' %}">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-outline-danger ms-2">Sair</button>
-                            </form>
-                        </li>
+        <div class="collapse navbar-collapse" id="navContent">
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                {% if user.is_authenticated %}
+                    <li class="nav-item"><span class="nav-link">Olá, <strong>{{ user.username }}</strong></span></li>
+                    <li class="nav-item">
+                        <form method="POST" action="{% url 'logout' %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-link nav-link border-0" style="text-decoration: none;">Sair</button>
+                        </form>
+                    </li>
+                {% else %}
+                    <li class="nav-item"><a class="nav-link fw-bold" href="{% url 'login' %}">Entrar</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
 
-                        <!-- Carrinho -->
-                        <li class="nav-item ms-2">
-                            <a class="nav-link position-relative btn btn-outline-success" href="{% url 'cart_detail' %}">
-                                🛒 Carrinho
-                                {% with total_qty=0 %}
-                                    {% if request.session.cart %}
-                                        {% for key, item in request.session.cart.items %}
-                                            {% if item.quantity %}
-                                                {% with total_qty=total_qty|add:item.quantity %}
-                                                    {% if forloop.last %}{{ total_qty }}{% endif %}
-                                                {% endwith %}
-                                            {% endif %}
-                                        {% endfor %}
-                                    {% endif %}
-                                    {% if total_qty > 0 %}
-                                        <span class="badge bg-danger position-absolute top-0 start-100 translate-middle">{{ total_qty }}</span>
-                                    {% endif %}
-                                {% endwith %}
-                            </a>
-                        </li>
-                    {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link btn btn-outline-primary" href="{% url 'login' %}">Entrar</a>
-                        </li>
-                    {% endif %}
+{% if messages %}
+    {% for message in messages %}
+    <div class="ux-toast" id="main-toast">
+        <i class="bi bi-check-circle-fill text-success"></i>
+        <span class="fw-medium">{{ message }}</span>
+    </div>
+    {% endfor %}
+{% endif %}
+
+{% block header %}
+<section class="hero-ux text-center">
+    <div class="container">
+        <h1 class="fw-bold display-5 mb-2">{% block header_title %}Sua comida favorita{% endblock %}</h1>
+        <p class="text-muted fs-5">{% block header_subtitle %}Rápido, prático e muito saboroso.{% endblock %}</p>
+    </div>
+</section>
+{% endblock %}
+
+<main class="container flex-grow-1">
+    {% block content %}{% endblock %}
+</main>
+
+<footer>
+    <div class="container text-center text-lg-start">
+        <div class="row gy-5 justify-content-center">
+            
+            <div class="col-lg-4 col-md-12">
+                <div class="footer-brand mb-3">FoodPlatform</div>
+                <p class="text-muted small mx-auto mx-lg-0" style="max-width: 320px;">
+                    A maior rede de delivery da região. Conectamos fomes vorazes aos melhores chefes da cidade em tempo recorde.
+                </p>
+                <div class="d-flex justify-content-center justify-content-lg-start gap-3 fs-5 mt-4">
+                    <a href="#" class="text-secondary"><i class="bi bi-instagram"></i></a>
+                    <a href="#" class="text-secondary"><i class="bi bi-facebook"></i></a>
+                    <a href="#" class="text-secondary"><i class="bi bi-tiktok"></i></a>
+                    <a href="#" class="text-secondary"><i class="bi bi-whatsapp"></i></a>
+                </div>
+            </div>
+
+            <div class="col-6 col-lg-2">
+                <h6 class="footer-heading">Navegação</h6>
+                <ul class="list-unstyled">
+                    <li><a href="{% url 'home' %}" class="footer-link">Início</a></li>
+                    <li><a href="#" class="footer-link">Restaurantes</a></li>
+                    <li><a href="#" class="footer-link">Sobre nós</a></li>
+                    <li><a href="#" class="footer-link">Fale Conosco</a></li>
                 </ul>
             </div>
+
+            <div class="col-6 col-lg-2">
+                <h6 class="footer-heading">Categorias</h6>
+                <ul class="list-unstyled">
+                    <li><a href="#" class="footer-link">Pizzas</a></li>
+                    <li><a href="#" class="footer-link">Hambúrgueres</a></li>
+                    <li><a href="#" class="footer-link">Doces & Bolos</a></li>
+                    <li><a href="#" class="footer-link">Bebidas</a></li>
+                </ul>
+            </div>
+
+            <div class="col-lg-4 col-md-10">
+                <h6 class="footer-heading" style="color: var(--brand-main);">Cresça com a gente</h6>
+                <div class="d-flex flex-column gap-3 align-items-center align-items-lg-start">
+                    
+                    <a href="#" class="partner-card p-3 rounded-4 d-flex align-items-center gap-3 w-100" style="max-width: 300px;">
+                        <div class="bg-white shadow-sm p-2 rounded-circle">
+                            <i class="bi bi-shop fs-4 text-danger"></i>
+                        </div>
+                        <div>
+                            <span class="d-block fw-bold text-dark" style="font-size: 0.85rem;">Seja um parceiro</span>
+                            <small class="text-muted" style="font-size: 0.75rem;">Cadastre seu restaurante</small>
+                        </div>
+                    </a>
+
+                    <a href="#" class="partner-card p-3 rounded-4 d-flex align-items-center gap-3 w-100" style="max-width: 300px;">
+                        <div class="bg-white shadow-sm p-2 rounded-circle">
+                            <i class="bi bi-bicycle fs-4 text-danger"></i>
+                        </div>
+                        <div>
+                            <span class="d-block fw-bold text-dark" style="font-size: 0.85rem;">Entregue conosco</span>
+                            <small class="text-muted" style="font-size: 0.75rem;">Aumente sua renda</small>
+                        </div>
+                    </a>
+
+                </div>
+            </div>
         </div>
-    </nav>
 
-    <!-- HERO / HEADER -->
-    <header class="bg-warning text-white text-center py-5 mb-4 shadow-sm">
-        <div class="container">
-            <h1 class="display-5 fw-bold">{% block header_title %}Bem-vindo à Food Platform{% endblock %}</h1>
-            <p class="lead">{% block header_subtitle %}Descubra os melhores restaurantes e faça seu pedido online{% endblock %}</p>
+        <hr class="my-5 opacity-10">
+        
+        <div class="row align-items-center small text-muted">
+            <div class="col-md-6 text-center text-md-start mb-2 mb-md-0">
+                © {{ now|date:"Y" }} FoodPlatform. Todos os direitos reservados.
+            </div>
+            <div class="col-md-6 text-center text-md-end">
+                Desenvolvido por <strong>Cauan Ugino Filho</strong>
+            </div>
         </div>
-    </header>
+    </div>
+</footer>
 
-    <!-- CONTEÚDO PRINCIPAL -->
-    <main class="container flex-grow-1 mb-5">
-        {% block content %}{% endblock %}
-    </main>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const toast = document.getElementById('main-toast');
+    if(toast) {
+        setTimeout(() => {
+            toast.style.transition = 'all 0.5s ease';
+            toast.style.opacity = '0';
+            toast.style.bottom = '-20px';
+            setTimeout(() => toast.remove(), 500);
+        }, 3000);
+    }
+</script>
 
-    <!-- FOOTER -->
-    <footer class="bg-dark text-white text-center py-4 mt-auto shadow-top">
-        <div class="container">
-            <p class="mb-1">© {{ now|date:"Y" }} Food Platform</p>
-            <small>Desenvolvido por William Aragão Feitosa</small>
-        </div>
-    </footer>
-
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    {% block extra_js %}{% endblock %}
+{% block extra_js %}{% endblock %}
 </body>
 </html>

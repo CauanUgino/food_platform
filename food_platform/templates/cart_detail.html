@@ -1,122 +1,173 @@
 {% extends "base.html" %}
 
-{% block title %}Meu Carrinho{% endblock %}
-
-{% block extra_css %}
-<style>
-    body {
-        font-family: Arial, sans-serif;
-        background-color: #f9f9f9;
-        margin: 0;
-        padding: 0;
-    }
-
-    main {
-        max-width: 900px;
-        margin: 20px auto;
-        padding: 20px;
-        background-color: white;
-        border-radius: 8px;
-        box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-
-    h1 {
-        text-align: center;
-        color: #333;
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 20px;
-    }
-
-    table th, table td {
-        border: 1px solid #ddd;
-        padding: 12px;
-        text-align: center;
-    }
-
-    table th {
-        background-color: #ff6b6b;
-        color: white;
-    }
-
-    table td {
-        color: #555;
-    }
-
-    .total {
-        text-align: right;
-        margin-top: 20px;
-        font-size: 1.2em;
-        font-weight: bold;
-    }
-
-    .whatsapp-button {
-        display: block;
-        width: 100%;
-        text-align: center;
-        margin-top: 20px;
-        padding: 12px;
-        background-color: #25D366;
-        color: white;
-        font-weight: bold;
-        text-decoration: none;
-        border-radius: 5px;
-        transition: background 0.3s ease;
-    }
-
-    .whatsapp-button:hover {
-        background-color: #1ebe5d;
-    }
-
-    .empty-cart {
-        text-align: center;
-        font-size: 1.1em;
-        margin-top: 40px;
-        color: #777;
-    }
-</style>
-{% endblock %}
+{% block title %}Meu Carrinho | Finalizar Pedido{% endblock %}
 
 {% block content %}
-<main>
-    <h1>Meu Carrinho</h1>
+<div class="container pb-5">
+    <div class="row justify-content-center g-4">
+        
+        {% if cart %}
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm rounded-5 overflow-hidden card-3d bg-white">
+                <div class="card-body p-4 p-md-5">
+                    <div class="d-flex align-items-center justify-content-between mb-4">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="bg-danger bg-opacity-10 p-2 rounded-3 text-danger">
+                                <i class="bi bi-bag-check-fill fs-4"></i>
+                            </div>
+                            <h4 class="fw-800 mb-0">Itens no Carrinho</h4>
+                        </div>
+                        <a href="{% url 'clear_cart' %}" class="btn btn-sm btn-light rounded-pill px-3 text-muted border small" onclick="return confirm('Deseja realmente limpar todo o carrinho?')">
+                            <i class="bi bi-trash me-1"></i> Esvaziar
+                        </a>
+                    </div>
 
-    {% if cart %}
-    <table>
-        <thead>
-            <tr>
-                <th>Produto</th>
-                <th>Quantidade</th>
-                <th>Preço Unitário</th>
-                <th>Subtotal</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in cart %}
-            <tr>
-                <td>{{ item.name }}</td>
-                <td>{{ item.quantity }}</td>
-                <td>R$ {{ item.price|floatformat:2 }}</td>
-                <td>R$ {{ item.subtotal|floatformat:2 }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+                    <div class="table-responsive">
+                        <table class="table table-borderless align-middle">
+                            <thead class="text-muted small text-uppercase fw-bold">
+                                <tr class="border-bottom">
+                                    <th>Produto</th>
+                                    <th class="text-center">Qtd</th>
+                                    <th class="text-end">Subtotal</th>
+                                    <th class="text-center"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in cart %}
+                                <tr class="border-bottom border-light">
+                                    <td class="py-4">
+                                        <span class="fw-bold text-dark d-block">{{ item.name }}</span>
+                                        <span class="text-muted small">R$ {{ item.price|floatformat:2 }} / un</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-light text-dark rounded-pill px-3 py-2 border fw-bold">
+                                            {{ item.quantity }}x
+                                        </span>
+                                    </td>
+                                    <td class="text-end fw-800 text-dark">
+                                        R$ {{ item.subtotal|floatformat:2 }}
+                                    </td>
+                                    <td class="text-center">
+                                        <a href="{% url 'remove_from_cart' item.id %}" class="btn-remove-ux" title="Remover">
+                                            <i class="bi bi-x-circle-fill fs-5"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
 
-    <div class="total">Total: R$ {{ total|floatformat:2 }}</div>
+                    <div class="mt-4">
+                        <a href="{% url 'home' %}" class="text-decoration-none text-danger fw-bold small">
+                            <i class="bi bi-arrow-left me-1"></i> Continuar escolhendo
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    <a href="{{ whatsapp_url }}" target="_blank" class="whatsapp-button">
-        Enviar pedido pelo WhatsApp
-    </a>
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-lg rounded-5 bg-dark text-white p-4 p-md-5 card-3d sticky-top" style="top: 20px;">
+                <h5 class="fw-bold mb-4 opacity-75 text-uppercase small" style="letter-spacing: 1px;">Resumo do Pedido</h5>
+                
+                <div class="d-flex justify-content-between mb-2 opacity-75">
+                    <span>Subtotal</span>
+                    <span>R$ {{ total|floatformat:2 }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-3 opacity-75">
+                    <span>Taxa de entrega</span>
+                    <span class="text-success fw-bold small">Calculada no Zap</span>
+                </div>
+                
+                <hr class="border-secondary opacity-25 my-4">
+                
+                <div class="d-flex justify-content-between align-items-end mb-5">
+                    <span class="fs-5 opacity-75">Total</span>
+                    <div class="text-end">
+                        <span class="display-5 fw-800 text-danger d-block" style="letter-spacing: -2px; line-height: 1;">
+                            R$ {{ total|floatformat:2 }}
+                        </span>
+                    </div>
+                </div>
 
-    {% else %}
-    <p class="empty-cart">Seu carrinho está vazio.</p>
-    <div style="text-align: center; margin-top: 20px;">
-        <a href="{% url 'home' %}" style="color: #ff6b6b;">Voltar para o cardápio</a>
+                <div class="d-grid gap-3">
+                    <a href="{{ whatsapp_url }}" target="_blank" class="btn btn-success btn-lg rounded-pill fw-800 py-3 shadow-success border-0 btn-finalizar-zap">
+                        <i class="bi bi-whatsapp me-2"></i> FINALIZAR NO ZAP
+                    </a>
+                </div>
+            </div>
+
+            <div class="mt-4 p-3 bg-white rounded-4 shadow-sm border d-flex align-items-center gap-3">
+                <i class="bi bi-clock-history text-danger fs-3"></i>
+                <div class="small">
+                    <strong class="d-block text-dark">Tempo Médio</strong>
+                    <span class="text-muted">30 a 50 minutos para entrega.</span>
+                </div>
+            </div>
+        </div>
+
+        {% else %}
+        <div class="col-lg-6 text-center py-5 mt-5">
+            <div class="bg-white p-5 rounded-5 shadow-sm border border-dashed">
+                <i class="bi bi-cart-x display-1 text-muted opacity-25"></i>
+                <h3 class="fw-800 mt-4">Ops! Carrinho Vazio</h3>
+                <p class="text-muted mb-4">Seu estômago não vai gostar disso. Vamos escolher algo?</p>
+                <a href="{% url 'home' %}" class="btn btn-danger rounded-pill px-5 py-3 fw-bold shadow-danger border-0" style="background: var(--nav-gradient);">
+                    VER O CARDÁPIO
+                </a>
+            </div>
+        </div>
+        {% endif %}
+
     </div>
-    {% endif %}
-</main>
+</div>
+
+<style>
+    .fw-800 { font-weight: 800; }
+    
+    .card-3d { transition: transform 0.3s ease; }
+    .card-3d:hover { transform: translateY(-5px); }
+
+    /* BOTÃO WHATSAPP PULSANTE */
+    .btn-finalizar-zap {
+        background: #25d366; /* Verde Oficial Zap */
+        font-size: 1.1rem;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        animation: pulse-green 2s infinite;
+    }
+
+    .btn-finalizar-zap:hover {
+        background: #128c7e;
+        transform: scale(1.05);
+        color: white;
+        box-shadow: 0 10px 25px rgba(37, 211, 102, 0.4) !important;
+    }
+
+    @keyframes pulse-green {
+        0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.4); }
+        70% { box-shadow: 0 0 0 15px rgba(37, 211, 102, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
+    }
+
+    /* BOTÃO REMOVER */
+    .btn-remove-ux {
+        color: #ced4da;
+        transition: color 0.2s;
+        text-decoration: none;
+    }
+    .btn-remove-ux:hover {
+        color: #ff6b6b;
+    }
+
+    .shadow-success {
+        box-shadow: 0 8px 20px rgba(37, 211, 102, 0.3) !important;
+    }
+
+    .border-dashed { border: 2px dashed #eee !important; }
+
+    @media (min-width: 992px) {
+        .sticky-top { position: sticky; top: 20px; z-index: 10; }
+    }
+</style>
 {% endblock %}

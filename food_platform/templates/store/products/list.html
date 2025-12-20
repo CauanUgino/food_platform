@@ -1,21 +1,88 @@
 {% extends "base.html" %}
 
+{% block header_title %}Cardápio Digital{% endblock %}
+{% block header_subtitle %}Gerencie seus pratos com um visual incrível.{% endblock %}
+
 {% block content %}
-<h1>Produtos</h1>
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-5 gap-3">
+    <div>
+        <h2 class="fw-800 mb-0" style="letter-spacing: -1px;">Meus Produtos</h2>
+        <p class="text-muted small mb-0">Total de {{ products|length }} itens cadastrados</p>
+    </div>
+    <a href="{% url 'product_create' %}" class="btn btn-danger btn-lg rounded-pill px-4 fw-bold shadow-lg border-0 d-flex align-items-center gap-2" style="background: var(--nav-gradient);">
+        <i class="bi bi-plus-circle-fill"></i> Adicionar ao Cardápio
+    </a>
+</div>
 
-<a href="{% url 'product_create' %}">➕ Novo produto</a>
+<div class="row g-4">
+    {% for product in products %}
+    <div class="col-12 col-md-6 col-lg-4">
+        <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden product-card">
+            <div class="position-relative">
+                <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=500&auto=format&fit=crop" class="card-img-top" alt="{{ product.name }}" style="height: 180px; object-fit: cover;">
+                <div class="position-absolute bottom-0 start-0 m-3">
+                    <span class="badge bg-white text-dark shadow-sm rounded-pill px-3 py-2 fw-800 fs-6">
+                        <span class="text-danger small">R$</span> {{ product.price }}
+                    </span>
+                </div>
+                <div class="position-absolute top-0 end-0 m-3">
+                    <span class="badge bg-dark bg-opacity-50 text-white rounded-pill px-3 py-1 small backdrop-blur">
+                        {{ product.category.name }}
+                    </span>
+                </div>
+            </div>
 
-<hr>
+            <div class="card-body p-4">
+                <h5 class="fw-bold text-dark mb-1">{{ product.name }}</h5>
+                <p class="text-muted small mb-4">Ingredientes selecionados e preparo artesanal de alta qualidade.</p>
+                
+                <div class="d-flex gap-2">
+                    <a href="{% url 'product_edit' product.id %}" class="btn btn-light rounded-pill flex-grow-1 fw-bold text-secondary border">
+                        <i class="bi bi-pencil-square me-1"></i> Editar
+                    </a>
+                    
+                    <form action="{% url 'product_delete' product.id %}" method="POST" class="d-inline" onsubmit="return confirm('Excluir {{ product.name }}?');">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-light rounded-circle p-2 border shadow-sm text-danger hover-danger">
+                            <i class="bi bi-trash3"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center py-5">
+        <div class="bg-white rounded-5 p-5 shadow-sm d-inline-block">
+            <i class="bi bi-egg-fried display-1 text-danger opacity-25"></i>
+            <h4 class="mt-4 fw-bold">Seu cardápio está vazio</h4>
+            <p class="text-muted">Que tal começar adicionando seu prato principal?</p>
+            <a href="{% url 'product_create' %}" class="btn btn-danger rounded-pill px-4 mt-2">Criar primeiro produto</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
 
-<ul>
-  {% for product in products %}
-    <li>
-      <strong>{{ product.name }}</strong>
-      — {{ product.category.name }}
-      — R$ {{ product.price }}
-    </li>
-  {% empty %}
-    <li>Nenhum produto cadastrado</li>
-  {% endfor %}
-</ul>
+<style>
+    .product-card {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .product-card:hover {
+        transform: translateY(-10px);
+        shadow: 0 15px 30px rgba(0,0,0,0.1) !important;
+    }
+    .fw-800 { font-weight: 800; }
+    .backdrop-blur { backdrop-filter: blur(8px); }
+    .hover-danger:hover {
+        background-color: #fff5f5 !important;
+        border-color: #ea1d2c !important;
+        color: #ea1d2c !important;
+    }
+    .card-img-top {
+        transition: transform 0.5s ease;
+    }
+    .product-card:hover .card-img-top {
+        transform: scale(1.1);
+    }
+</style>
 {% endblock %}

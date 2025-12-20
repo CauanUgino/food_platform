@@ -1,23 +1,192 @@
 {% extends "base.html" %}
 
-{% block content %}
-<h1>{{ restaurant.name }}</h1>
-<p>{{ restaurant.description }}</p>
+{% block title %}{{ restaurant.name }} | Cardápio Digital{% endblock %}
 
-{% for category in categories %}
-<div class="category">
-    <h2>{{ category.name }}</h2>
-    <div class="products">
-        {% for item in category.items.all %}
-        <div class="card">
-            <strong>{{ item.name }}</strong>
-            <p>R$ {{ item.price }}</p>
-            <a class="btn-add" href="{% url 'add_to_cart' item.id %}">Adicionar ao carrinho</a>
+{% block header %}
+<section class="restaurant-hero text-center py-5">
+    <div class="container">
+        <div class="hero-content p-4 p-md-5 rounded-5 shadow-lg">
+            <span class="badge-status mb-3 pulse-green">
+                <i class="bi bi-fire me-1"></i> Saindo quentinho agora
+            </span>
+            <h1 class="display-4 fw-800 text-white mb-2">{{ restaurant.name }}</h1>
+            <p class="text-white-50 fs-5 mb-0 mx-auto" style="max-width: 650px;">
+                {{ restaurant.description }}
+            </p>
         </div>
-        {% empty %}
-            <p>Nenhum produto nesta categoria.</p>
-        {% endfor %}
     </div>
+</section>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-n5 pb-5">
+
+    {% if categories %}
+        <div class="category-nav-container sticky-top py-3">
+            <div class="nav-scroll-wrapper">
+                <div class="d-flex gap-3 overflow-x-auto no-scrollbar pb-2 px-2">
+                    {% for category in categories %}
+                        {% if category.products.exists %}
+                        <a href="#cat-{{ category.id }}" class="cat-pill-modern">
+                            <span class="cat-icon"><i class="bi bi-tag-fill"></i></span>
+                            {{ category.name }}
+                        </a>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        {% for category in categories %}
+            {% if category.products.exists %}
+            <div class="category-group pt-5" id="cat-{{ category.id }}">
+                <div class="category-header d-flex align-items-center mb-4">
+                    <div class="category-title-wrapper">
+                        <h3 class="fw-800 mb-0 category-title">{{ category.name }}</h3>
+                        <span class="category-count">{{ category.products.count }} itens</span>
+                    </div>
+                    <div class="flex-grow-1 ms-4 border-bottom border-2 opacity-10"></div>
+                </div>
+
+                <div class="row g-4">
+                    {% for prod in category.products.all %}
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <div class="card h-100 product-card-modern border-0">
+                            <div class="card-body p-4 d-flex flex-column">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <div class="product-info">
+                                        <h5 class="fw-bold text-dark mb-1">{{ prod.name }}</h5>
+                                        <div class="price-display">
+                                            <span class="currency">R$</span> {{ prod.price|floatformat:2 }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="product-desc flex-grow-1">
+                                    {{ prod.description|default:"Ingredientes frescos selecionados para saciar sua fome com o melhor sabor da região." }}
+                                </p>
+                                <div class="product-footer mt-3">
+                                    <form method="post" action="{% url 'add_to_cart' prod.id %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn-hunger-anim">
+                                            <span class="btn-text">Quero matar minha fome!</span>
+                                            <div class="icon-bite"><i class="bi bi-hand-index-thumb"></i></div>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        {% endfor %}
+    {% else %}
+        <div class="empty-menu-container text-center py-5 mt-5">
+            <div class="empty-icon-box mb-4">
+                <i class="bi bi-search-heart display-1 text-muted opacity-25"></i>
+            </div>
+            <h2 class="fw-800">Cardápio não encontrado</h2>
+            <p class="text-muted">Parece que ainda estamos preparando nossas delícias. Volte mais tarde!</p>
+            {% if user.is_superuser %}
+                <a href="{% url 'dashboard' %}" class="btn btn-danger rounded-pill px-4 fw-bold mt-2">Configurar Cardápio</a>
+            {% endif %}
+        </div>
+    {% endif %}
 </div>
-{% endfor %}
+
+<style>
+    /* 1. MELHORIA DAS CATEGORIAS (NAV) */
+    .category-nav-container {
+        background: rgba(248, 249, 250, 0.95);
+        backdrop-filter: blur(15px);
+        margin: 0 -15px;
+        padding: 15px;
+        z-index: 1020;
+    }
+
+    .cat-pill-modern {
+        background: white;
+        color: #1a1d23;
+        text-decoration: none;
+        padding: 12px 24px;
+        border-radius: 20px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        white-space: nowrap;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        border: 1px solid rgba(0,0,0,0.05);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .cat-pill-modern:hover {
+        background: var(--brand-main);
+        color: white !important;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(234, 29, 44, 0.2);
+    }
+
+    .cat-icon {
+        opacity: 0.3;
+        transition: 0.3s;
+    }
+    .cat-pill-modern:hover .cat-icon { opacity: 1; transform: scale(1.2); }
+
+    /* 2. MELHORIA DOS TÍTULOS DE CATEGORIA */
+    .category-title-wrapper {
+        display: flex;
+        flex-direction: column;
+    }
+    .category-count {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        font-weight: 800;
+        color: var(--brand-main);
+        letter-spacing: 1px;
+    }
+
+    /* 3. ANIMAÇÕES DE FOME (MANTIDAS) */
+    @keyframes hunger-pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.04); }
+    }
+    @keyframes bite {
+        0% { transform: scale(1); }
+        50% { transform: scale(0.7); }
+        100% { transform: scale(1.1); }
+    }
+
+    .btn-hunger-anim {
+        width: 100%; background: #28a745; color: white; border: none; padding: 10px 10px 10px 25px;
+        border-radius: 50px; display: flex; align-items: center; justify-content: space-between;
+        font-weight: 800; font-size: 0.8rem; transition: 0.3s; box-shadow: 0 6px 15px rgba(40,167,69,0.3);
+    }
+    .btn-hunger-anim:hover { background: #ea1d2c; animation: hunger-pulse 0.6s infinite; }
+    .icon-bite { width: 38px; height: 38px; background: white; color: #28a745; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+
+    /* 4. LAYOUT GERAL */
+    .restaurant-hero { background: var(--nav-gradient); padding-bottom: 100px !important; }
+    .hero-content { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.15); }
+    .mt-n5 { margin-top: -60px !important; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .product-card-modern { border-radius: 28px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); transition: 0.4s; }
+    .product-card-modern:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,0,0,0.08); }
+</style>
+
+<script>
+    // Script suave para scroll de categorias
+    document.querySelectorAll('.cat-pill-modern').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            window.scrollTo({
+                top: target.offsetTop - 100,
+                behavior: 'smooth'
+            });
+        });
+    });
+</script>
 {% endblock %}

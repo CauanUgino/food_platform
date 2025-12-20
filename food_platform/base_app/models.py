@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 
 # Create your models here.
 
-    
+
 class Restaurant(models.Model):
     name = models.CharField(max_length=150)
     slug = models.SlugField(unique=True)

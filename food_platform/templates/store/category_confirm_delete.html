@@ -1,12 +1,91 @@
 {% extends "base.html" %}
 
-{% block content %}
-  <h1>Excluir Categoria</h1>
-  <p>Tem certeza que deseja excluir a categoria "{{ category.name }}"?</p>
+{% block header_title %}Confirmar Exclusão{% endblock %}
+{% block header_subtitle %}Esta ação não pode ser desfeita.{% endblock %}
 
-  <form method="post">
-    {% csrf_token %}
-    <button type="submit">Sim, excluir</button>
-    <a href="{% url 'category_list' %}">Cancelar</a>
-  </form>
+{% block content %}
+<div class="row justify-content-center mb-5">
+    <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+        
+        <div class="card border-0 shadow-lg rounded-5 overflow-hidden card-delete-3d">
+            <div class="card-body p-4 p-md-5 text-center">
+                
+                <div class="alert-icon-box mb-4">
+                    <i class="bi bi-exclamation-triangle-fill text-warning display-3"></i>
+                </div>
+
+                <h3 class="fw-800 text-dark mb-3">Você tem certeza?</h3>
+                
+                <p class="text-muted mb-4">
+                    Você está prestes a excluir a categoria <br>
+                    <strong class="text-dark fs-5">"{{ category.name }}"</strong>.
+                </p>
+
+                <div class="bg-warning bg-opacity-10 border border-warning border-opacity-25 rounded-4 p-3 mb-4 text-start">
+                    <div class="d-flex gap-2">
+                        <i class="bi bi-info-circle-fill text-warning"></i>
+                        <small class="text-dark fw-medium">
+                            Atenção: Verifique se existem produtos vinculados a esta categoria antes de prosseguir.
+                        </small>
+                    </div>
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-grid gap-3">
+                        <button type="submit" class="btn btn-danger btn-lg rounded-pill fw-bold py-3 shadow-danger-btn border-0 transition-hover">
+                            <i class="bi bi-trash3-fill me-2"></i>Sim, excluir agora
+                        </button>
+                        
+                        <a href="{% url 'category_list' %}" class="btn btn-light btn-lg rounded-pill fw-bold py-3 border text-muted">
+                            Não, manter categoria
+                        </a>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .fw-800 { font-weight: 800; }
+
+    /* EFEITO 3D DE FLUTUAÇÃO */
+    .card-delete-3d {
+        background: #ffffff;
+        animation: float 3s ease-in-out infinite;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.1) !important;
+    }
+
+    @keyframes float {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+        100% { transform: translateY(0px); }
+    }
+
+    /* ESTILO DO ÍCONE */
+    .alert-icon-box i {
+        filter: drop-shadow(0 5px 15px rgba(255, 193, 7, 0.4));
+    }
+
+    /* BOTÃO DE PERIGO */
+    .shadow-danger-btn {
+        box-shadow: 0 8px 20px rgba(234, 29, 44, 0.3) !important;
+    }
+
+    .transition-hover {
+        transition: all 0.3s ease;
+    }
+
+    .transition-hover:hover {
+        transform: scale(1.02);
+        filter: brightness(1.1);
+    }
+
+    /* RESPONSIVIDADE */
+    @media (max-width: 576px) {
+        .display-3 { font-size: 3rem; }
+    }
+</style>
 {% endblock %}

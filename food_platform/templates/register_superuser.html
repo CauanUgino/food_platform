@@ -1,7 +1,149 @@
-<h2>Cadastrar Administrador do Sistema</h2>
-<form method="POST">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Criar Superusuário</button>
-</form>
-<a href="{% url 'login' %}">Voltar para o Login</a>
+{% extends "base.html" %}
+
+{% block title %}Admin Master | Food Platform{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-5">
+            
+            <div class="mb-4 text-center">
+                <a href="{% url 'login' %}" class="btn-back-link">
+                    <i class="bi bi-arrow-left-circle"></i> Voltar ao Login
+                </a>
+            </div>
+
+            <div class="card border-0 shadow-lg rounded-5 overflow-hidden">
+                <div class="card-header bg-dark p-4 text-center border-0">
+                    <div class="master-badge mb-2">
+                        <i class="bi bi-shield-lock"></i>
+                    </div>
+                    <h4 class="text-white fw-bold mb-0">Painel de Controle Master</h4>
+                    <p class="text-white-50 small mb-0">Configuração de Administrador Geral</p>
+                </div>
+
+                <div class="card-body p-4 p-md-5">
+                    <form method="post" class="needs-validation">
+                        {% csrf_token %}
+                        
+                        {% for field in form %}
+                        <div class="mb-4">
+                            <label class="form-label-master" for="{{ field.id_for_label }}">
+                                {{ field.label }}
+                            </label>
+                            <div class="input-master-group">
+                                {{ field }}
+                                <i class="bi bi-gear-fill"></i>
+                            </div>
+                            {% if field.errors %}
+                                <div class="text-danger extra-small mt-1 fw-bold">
+                                    {{ field.errors|striptags }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+
+                        <div class="d-grid mt-5">
+                            <button type="submit" class="btn btn-master-action py-3 rounded-3">
+                                <i class="bi bi-person-check-fill me-2"></i>
+                                Criar Superusuário
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="card-footer bg-light border-0 py-3 text-center">
+                    <span class="text-muted extra-small">
+                        <i class="bi bi-info-circle me-1"></i> 
+                        Este usuário terá acesso total ao Django Admin e configurações do sistema.
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Estilo Master Admin */
+    .rounded-5 { border-radius: 25px !important; }
+    
+    .master-badge {
+        font-size: 2rem;
+        color: #ea1d2c;
+        background: rgba(255,255,255,0.1);
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        border-radius: 15px;
+    }
+
+    .form-label-master {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #343a40;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .input-master-group {
+        position: relative;
+    }
+
+    /* Estilização direta dos campos do Django */
+    .input-master-group input {
+        width: 100%;
+        padding: 12px 15px 12px 40px;
+        border: 2px solid #e9ecef !important;
+        border-radius: 10px !important;
+        background: #f8f9fa !important;
+        transition: 0.3s;
+    }
+
+    .input-master-group input:focus {
+        border-color: #343a40 !important;
+        background: #fff !important;
+        outline: none;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05) !important;
+    }
+
+    .input-master-group i {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #adb5bd;
+    }
+
+    /* Botão de Ação */
+    .btn-master-action {
+        background: #343a40;
+        color: white;
+        border: none;
+        font-weight: 600;
+        transition: 0.3s;
+    }
+
+    .btn-master-action:hover {
+        background: #ea1d2c;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(234, 29, 44, 0.2);
+    }
+
+    .btn-back-link {
+        text-decoration: none;
+        color: #6c757d;
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
+
+    .btn-back-link:hover {
+        color: #ea1d2c;
+    }
+
+    .extra-small { font-size: 0.7rem; }
+</style>
+{% endblock %}

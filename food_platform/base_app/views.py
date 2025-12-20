@@ -21,6 +21,8 @@ from django.contrib import messages
 from django.contrib.auth.forms import UserCreationForm
 from .forms import SuperUserCreationForm
 from django.contrib.auth import logout
+from django.views.decorators.http import require_POST
+from django.contrib import messages
 
 # Create your views here.
 
@@ -87,32 +89,44 @@ def register_user(request):
 
 @login_required
 def store_dashboard(request):
-    # Impede superuser de usar esse painel
+    # Verifica se o usuário é superusuário
     if request.user.is_superuser:
         return redirect("platform_dashboard")
 
-    try:
-        profile = StoreProfile.objects.get(user=request.user)
-    except StoreProfile.DoesNotExist:
-        return redirect("login")
-
+    profile = StoreProfile.objects.get(user=request.user)
     restaurant = profile.restaurant
 
-    return render(request, "store/dashboard.html", {
-        "restaurant": restaurant
-    })
+    context = {
+        "restaurant": restaurant,
+        "total_categories": restaurant.categories.count(),
+        "total_items": restaurant.items.count(),
+        "public_url": request.build_absolute_uri(
+            f"/restaurant/{restaurant.slug}/"
+        )
+    }
 
+    return render(request, "platform/dashboard.html", context)
+
+def dashboard_view(request):
+    # Aqui pegamos os dados para exibir nos cards de métricas
+    context = {
+        'total_categories': Category.objects.count(),
+        'total_items': Product.objects.count(),
+    }
+    return render(request, 'dashboard.html', context)
 
 def restaurant_home(request, slug):
     restaurant = get_object_or_404(Restaurant, slug=slug)
 
     categories = restaurant.categories.prefetch_related(
-        "items"
-    )
+        "products"
+
+    )   
 
     return render(request, "public/restaurant_home.html", {
         "restaurant": restaurant,
-        "categories": categories
+        "categories": categories,
+         
     })
 
 @login_required
@@ -255,67 +269,73 @@ def product_create(request):
 
 @login_required
 def product_edit(request, pk):
-    restaurant = request.user.storeprofile.restaurant
-    product = get_object_or_404(Item, pk=pk, restaurant=restaurant)
+    restaurant = get_store_restaurant(request.user)
+    # Buscamos o Product (e garantimos que pertence ao restaurante do usuário)
+    product = get_object_or_404(Product, pk=pk, restaurant=restaurant)
+    
+    categories = Category.objects.filter(restaurant=restaurant)
 
-    form = ItemForm(request.POST or None, instance=product)
-    if form.is_valid():
-        form.save()
+    if request.method == "POST":
+        product.name = request.POST.get("name")
+        product.description = request.POST.get("description")
+        product.price = request.POST.get("price")
+        product.category_id = request.POST.get("category")
+        product.save()
+        messages.success(request, "Produto atualizado com sucesso!")
         return redirect("product_list")
 
-    return render(request, "store/product_form.html", {
-        "form": form,
-        "title": "Editar Produto"
+    return render(request, "store/products/create.html", { # Reaproveitamos o template de criar
+        "product": product,
+        "categories": categories
     })
-
 
 @login_required
 def product_delete(request, pk):
-    restaurant = request.user.storeprofile.restaurant
-    product = get_object_or_404(Item, pk=pk, restaurant=restaurant)
+    restaurant = get_store_restaurant(request.user)
+    product = get_object_or_404(Product, pk=pk, restaurant=restaurant)
 
     if request.method == "POST":
         product.delete()
+        messages.success(request, "Produto excluído com sucesso!")
         return redirect("product_list")
 
-    return render(request, "store/product_confirm_delete.html", {
+    return render(request, "store/products/confirm_delete.html", {
         "product": product
+        
     })
+    
 
 
 
 
+
+@require_POST
 def add_to_cart(request, item_id):
-    item = get_object_or_404(Item, id=item_id)
+    item = get_object_or_404(Product, id=item_id)
+
     cart = request.session.get("cart", {})
 
     item_id_str = str(item.id)
 
     if item_id_str in cart:
-        # Verificação de segurança: se o item no carrinho não for um dicionário, resetamos ele
-        if isinstance(cart[item_id_str], dict):
-            cart[item_id_str]["quantity"] += 1
-        else:
-            cart[item_id_str] = {
-                "name": item.name,
-                "price": float(item.price),
-                "quantity": 1,
-                "img": item.image.url if item.image else ''
-            }
+        cart[item_id_str]["quantity"] += 1
+        messages.success(request, f"Mais um {item.name} adicionado ao carrinho.")
+
     else:
-        # Criando o dicionário do item pela primeira vez
         cart[item_id_str] = {
             "name": item.name,
-            "price": float(item.price), # Usar float para facilitar cálculos
+            "price": float(item.price),
             "quantity": 1,
-            "img": item.image.url if item.image else '' # CORRIGIDO: era 'product.image.url'
+            "img": item.image.url if item.image else ""
         }
+        messages.success(request, f"{item.name} adicionado ao carrinho.")
 
     request.session["cart"] = cart
-    request.session.modified = True 
+    request.session.modified = True
+
     return redirect("restaurant_home", slug=item.restaurant.slug)
 
-
+    
 def cart_detail(request):
     # 1. Pega o carrinho da sessão
     cart = request.session.get("cart", {})
@@ -333,6 +353,7 @@ def cart_detail(request):
 
             # Adicionamos ao contexto que vai para o HTML
             items_for_template.append({
+                'id': key,
                 'name': item.get('name', ''),
                 'price': price,
                 'quantity': quantity,
@@ -355,3 +376,23 @@ def cart_detail(request):
         "total": total,
         "whatsapp_url": whatsapp_link
     })
+
+def remove_from_cart(request, item_id):
+    cart = request.session.get("cart", {})
+    item_id_str = str(item_id)
+
+    if item_id_str in cart:
+        del cart[item_id_str]
+        request.session["cart"] = cart
+        request.session.modified = True
+        messages.success(request, "Produto removido do carrinho.")
+    
+    return redirect("cart_detail")
+
+def clear_cart(request):
+    if "cart" in request.session:
+        del request.session["cart"]
+        request.session.modified = True
+        messages.success(request, "O carrinho foi esvaziado.")
+    
+    return redirect("cart_detail")

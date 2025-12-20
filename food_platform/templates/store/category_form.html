@@ -1,17 +1,115 @@
 {% extends "base.html" %}
+
+{% block header_title %}{% if category %}Editar Categoria{% else %}Nova Categoria{% endif %}{% endblock %}
+{% block header_subtitle %}Defina como seus produtos serão organizados na vitrine.{% endblock %}
+
 {% block content %}
+<div class="row justify-content-center mb-5">
+    <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+        
+        <div class="card border-0 shadow-lg rounded-5 overflow-hidden card-3d-form">
+            <div class="card-header bg-white border-0 pt-5 text-center">
+                <div class="icon-shape-3d shadow-danger-soft mb-3">
+                    <i class="bi bi-folder-plus fs-2 text-white"></i>
+                </div>
+                <h3 class="fw-800 text-dark mb-1">{% if category %}Ajustar Grupo{% else %}Criar Grupo{% endif %}</h3>
+                <p class="text-muted small px-4">Categorias ajudam seus clientes a encontrar pratos mais rápido.</p>
+            </div>
 
-<h1>{% if category %}Editar{% else %}Nova{% endif %} Categoria</h1>
+            <div class="card-body p-4 p-md-5 pt-2">
+                <form method="post" class="needs-validation">
+                    {% csrf_token %}
+                    
+                    <div class="mb-4">
+                        <label for="name" class="form-label fw-bold small text-muted text-uppercase ms-2" style="letter-spacing: 1px;">
+                            Nome da Categoria
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-0 rounded-start-pill ps-4 pe-2">
+                                <i class="bi bi-tag-fill text-danger"></i>
+                            </span>
+                            <input type="text" 
+                                   name="name" 
+                                   id="name" 
+                                   class="form-control border-0 bg-light rounded-end-pill py-3 px-3 fw-bold" 
+                                   placeholder="Ex: Pizzas, Bebidas, Sobremesas..." 
+                                   value="{{ category.name|default:'' }}" 
+                                   required>
+                        </div>
+                        <div class="form-text ms-3 mt-2 small text-muted">
+                            <i class="bi bi-info-circle me-1"></i> Use nomes curtos e objetivos.
+                        </div>
+                    </div>
 
-<form method="post">
-  {% csrf_token %}
-  <input type="text" name="name"
-         placeholder="Nome da categoria"
-         value="{{ category.name|default:'' }}"
-         required>
-  <button type="submit">Salvar</button>
-</form>
+                    <div class="d-grid gap-3 mt-5">
+                        <button type="submit" class="btn btn-danger btn-lg rounded-pill fw-bold py-3 shadow-danger-btn border-0 transition-hover" style="background: var(--nav-gradient);">
+                            <i class="bi bi-check-lg me-2"></i>{% if category %}Salvar Alterações{% else %}Criar Categoria{% endif %}
+                        </button>
+                        
+                        <a href="{% url 'category_list' %}" class="btn btn-link text-decoration-none text-muted fw-bold small">
+                            <i class="bi bi-arrow-left me-1"></i> Cancelar e Voltar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 
-<a href="{% url 'category_list' %}">Voltar</a>
+<style>
+    .fw-800 { font-weight: 800; }
 
+    /* EFEITO 3D NO CARD */
+    .card-3d-form {
+        transition: transform 0.3s ease;
+        background: #ffffff;
+    }
+    
+    .card-3d-form:hover {
+        transform: translateY(-5px);
+    }
+
+    /* ÍCONE COM VOLUME */
+    .icon-shape-3d {
+        width: 70px;
+        height: 70px;
+        background: var(--nav-gradient);
+        border-radius: 22px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        transform: rotate(-5deg);
+        box-shadow: 0 10px 20px rgba(234, 29, 44, 0.2);
+    }
+
+    /* INPUTS PREMIUM */
+    .form-control:focus {
+        background-color: #fff !important;
+        box-shadow: 0 0 0 4px rgba(234, 29, 44, 0.1) !important;
+        outline: none;
+    }
+
+    .input-group-text {
+        color: var(--brand-main);
+    }
+
+    /* BOTÕES E SOMBRAS */
+    .shadow-danger-btn {
+        box-shadow: 0 8px 20px rgba(234, 29, 44, 0.25) !important;
+    }
+
+    .transition-hover {
+        transition: all 0.3s ease;
+    }
+
+    .transition-hover:hover {
+        transform: translateY(-2px);
+        filter: brightness(1.1);
+    }
+
+    .shadow-danger-soft {
+        box-shadow: 0 15px 30px rgba(234, 29, 44, 0.15);
+    }
+</style>
 {% endblock %}

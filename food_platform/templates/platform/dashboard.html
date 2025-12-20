@@ -1,43 +1,154 @@
 {% extends "base.html" %}
 
-{% block content %}
-<h1>Painel da Plataforma</h1>
+{% block title %}Dashboard | Gestão da Loja{% endblock %}
 
-<!-- Ações principais -->
-<div style="margin-bottom: 20px;">
-  <a href="{% url 'create_restaurant' %}">➕ Criar nova vitrine</a> |
-  <a href="{% url 'create_store_admin' %}">👤 Criar admin da loja</a>
+{% block header_title %}Centro de Comando{% endblock %}
+{% block header_subtitle %}Monitore seus números e mantenha seu cardápio atualizado.{% endblock %}
+
+{% block content %}
+<div class="container pb-5">
+    
+    <div class="row g-4 mb-5">
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm rounded-5 overflow-hidden card-metrics">
+                <div class="card-body p-4 p-md-5">
+                    <div class="d-flex align-items-center justify-content-between mb-4">
+                        <div class="metric-icon-box bg-primary-soft">
+                            <i class="bi bi-folder2 text-primary fs-2"></i>
+                        </div>
+                        <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-2 fw-bold small">Estrutura</span>
+                    </div>
+                    <h6 class="text-muted fw-bold small text-uppercase mb-2" style="letter-spacing: 1px;">Categorias Ativas</h6>
+                    <h2 class="display-3 fw-800 text-dark mb-0">{{ total_categories }}</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm rounded-5 overflow-hidden card-metrics">
+                <div class="card-body p-4 p-md-5">
+                    <div class="d-flex align-items-center justify-content-between mb-4">
+                        <div class="metric-icon-box bg-danger-soft">
+                            <i class="bi bi-egg-fried text-danger fs-2"></i>
+                        </div>
+                        <span class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-3 py-2 fw-bold small">Inventário</span>
+                    </div>
+                    <h6 class="text-muted fw-bold small text-uppercase mb-2" style="letter-spacing: 1px;">Produtos no Cardápio</h6>
+                    <h2 class="display-3 fw-800 text-dark mb-0">{{ total_items }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-5 p-4 p-md-5 bg-white border border-light">
+        <div class="d-flex align-items-center gap-3 mb-5 border-bottom pb-4">
+            <div class="bg-dark p-2 rounded-3 text-white">
+                <i class="bi bi-sliders fs-4"></i>
+            </div>
+            <div>
+                <h4 class="fw-800 mb-0">Gestão do Cardápio</h4>
+                <p class="text-muted small mb-0">Escolha uma área para realizar alterações rápidas.</p>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-6">
+                <a href="{% url 'category_list' %}" class="text-decoration-none action-group">
+                    <div class="p-4 rounded-4 border border-2 border-light d-flex align-items-center gap-4 hover-ux-card">
+                        <div class="action-circle bg-light text-dark">
+                            <i class="bi bi-collection"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h5 class="fw-bold mb-1 text-dark">Editar Categorias</h5>
+                            <p class="text-muted small mb-0">Organize os grupos de produtos.</p>
+                        </div>
+                        <i class="bi bi-chevron-right fs-4 text-muted transition-arrow"></i>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-md-6">
+                <a href="{% url 'product_list' %}" class="text-decoration-none action-group">
+                    <div class="p-4 rounded-4 border border-2 border-light d-flex align-items-center gap-4 hover-ux-card">
+                        <div class="action-circle bg-light text-dark">
+                            <i class="bi bi-pencil-square"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h5 class="fw-bold mb-1 text-dark">Editar Produtos</h5>
+                            <p class="text-muted small mb-0">Preços, fotos e descrições.</p>
+                        </div>
+                        <i class="bi bi-chevron-right fs-4 text-muted transition-arrow"></i>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
 </div>
 
-<hr>
+<style>
+    /* Estilos de Tipografia */
+    .fw-800 { font-weight: 800; }
+    
+    /* Cards de Métricas */
+    .card-metrics {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: 1px solid rgba(0,0,0,0.03) !important;
+    }
+    .card-metrics:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.08) !important;
+    }
 
-<!-- Gerenciamento -->
-<h2>Gerenciamento</h2>
-<ul>
-  <li>
-    <a href="{% url 'category_list' %}">📂 Gerenciar Categorias</a>
-  </li>
-  <li>
-    <a href="{% url 'product_list' %}">🍔 Gerenciar Produtos</a>
-  </li>
-</ul>
+    .metric-icon-box {
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 20px;
+    }
 
-<hr>
+    .bg-primary-soft { background-color: rgba(13, 110, 253, 0.08); }
+    .bg-danger-soft { background-color: rgba(234, 29, 44, 0.08); }
 
-<!-- Vitrines -->
-<h2>Vitrines cadastradas</h2>
+    /* Cards de Ação */
+    .hover-ux-card {
+        background: #ffffff;
+        transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
 
-<ul>
-  {% for restaurant in restaurants %}
-    <li>
-      <strong>{{ restaurant.name }}</strong>
-      — <a href="/r/{{ restaurant.slug }}/" target="_blank">
-        /r/{{ restaurant.slug }}/
-      </a>
-    </li>
-  {% empty %}
-    <li>Nenhuma vitrine cadastrada</li>
-  {% endfor %}
-</ul>
+    .action-group:hover .hover-ux-card {
+        background-color: #fcfcfc;
+        border-color: #ea1d2c !important; /* Cor da marca */
+    }
 
+    .action-circle {
+        width: 55px;
+        height: 55px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 15px;
+        font-size: 1.4rem;
+        transition: all 0.3s;
+    }
+
+    .action-group:hover .action-circle {
+        background-color: #ea1d2c !important;
+        color: white !important;
+    }
+
+    .transition-arrow {
+        transition: transform 0.3s ease;
+    }
+
+    .action-group:hover .transition-arrow {
+        transform: translateX(5px);
+        color: #ea1d2c !important;
+    }
+
+    @media (max-width: 768px) {
+        .display-3 { font-size: 2.8rem; }
+    }
+</style>
 {% endblock %}

@@ -1,36 +1,146 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Food Platform{% endblock %}
+{% block title %}Food Platform | Descubra os Melhores Sabores{% endblock %}
+
+{% block header %}
+<section class="hero-ux text-center py-5">
+    <div class="container">
+        <span class="hero-badge shadow-sm"><i class="bi bi-geo-alt-fill me-1"></i> Entregar em sua localização</span>
+        <h1 class="hero-title display-4 mb-3">Sua fome não pode <br><span class="text-danger">esperar.</span></h1>
+        <p class="text-muted fs-5 mx-auto mb-0" style="max-width: 600px;">
+            Encontre os melhores restaurantes da sua região com entrega rápida e segura.
+        </p>
+    </div>
+</section>
+{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    
+<div class="container pb-5">
 
-    <hr>
+    <div class="d-flex align-items-center justify-content-between mb-4 mt-2">
+        <h2 class="fw-800 mb-0" style="letter-spacing: -1.5px;">Restaurantes em Destaque</h2>
+        <div class="d-none d-md-flex gap-2">
+            <button class="btn btn-light rounded-pill px-3 border shadow-sm small fw-bold text-muted">Mais Próximos</button>
+            <button class="btn btn-light rounded-pill px-3 border shadow-sm small fw-bold text-muted">Melhor Avaliados</button>
+        </div>
+    </div>
 
-    <h2>Restaurantes em destaque</h2>
-    <div class="row">
+    <div class="row g-4">
         {% if restaurants %}
             {% for restaurant in restaurants %}
-                <div class="col-md-4 mb-4">
-                    <div class="card h-100 shadow-sm">
-                        {% if restaurant.image %}
-                            <img src="{{ restaurant.image.url }}" class="card-img-top" alt="{{ restaurant.name }}">
-                        {% else %}
-                            <img src="{% static 'images/default_restaurant.jpg' %}" class="card-img-top" alt="{{ restaurant.name }}">
-                        {% endif %}
-                        <div class="card-body d-flex flex-column">
-                            <h5 class="card-title">{{ restaurant.name }}</h5>
-                            <p class="card-text">{{ restaurant.description|truncatewords:15 }}</p>
-                            <a href="{% url 'restaurant_home' restaurant.slug %}" class="btn btn-add mt-auto">Ver Restaurante</a>
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="card h-100 border-0 shadow-sm rounded-5 card-restaurant-premium overflow-hidden">
+                        
+                        <div class="position-relative">
+                            <div class="restaurant-cover" style="height: 160px; overflow: hidden;">
+                                {% if restaurant.image %}
+                                    <img src="{{ restaurant.image.url }}" class="w-100 h-100 object-fit-cover transition-img" alt="{{ restaurant.name }}">
+                                {% else %}
+                                    <div class="w-100 h-100 bg-light d-flex align-items-center justify-content-center">
+                                        <i class="bi bi-shop display-4 text-muted opacity-25"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="restaurant-logo-overlay">
+                                <div class="bg-white p-1 rounded-circle shadow">
+                                    <div class="rounded-circle overflow-hidden bg-white d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                                         <i class="bi bi-star-fill text-danger fs-4"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card-body p-4 pt-5 mt-2 d-flex flex-column">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h4 class="fw-800 text-dark mb-0">{{ restaurant.name }}</h4>
+                                <div class="text-warning small fw-bold">
+                                    <i class="bi bi-star-fill"></i> 4.8
+                                </div>
+                            </div>
+                            
+                            <p class="text-muted small mb-4 flex-grow-1">
+                                {{ restaurant.description|truncatewords:15 }}
+                            </p>
+                            
+                            <div class="d-flex align-items-center justify-content-between border-top pt-3">
+                                <div class="small">
+                                    <span class="text-muted"><i class="bi bi-clock me-1"></i> 20-30 min</span>
+                                    <span class="mx-2 text-muted">•</span>
+                                    <span class="text-success fw-bold">Frete Grátis</span>
+                                </div>
+                                <a href="{% url 'restaurant_home' restaurant.slug %}" class="btn btn-danger rounded-pill px-4 fw-bold shadow-danger-sm btn-sm" style="background: var(--nav-gradient);">
+                                    Cardápio
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
             {% endfor %}
         {% else %}
-            <p>Nenhum restaurante cadastrado.</p>
+            <div class="col-12 text-center py-5">
+                <div class="bg-white rounded-5 p-5 shadow-sm d-inline-block">
+                    <i class="bi bi-search text-muted opacity-25 display-1"></i>
+                    <h4 class="mt-4 fw-bold">Nenhum restaurante por aqui ainda</h4>
+                    <p class="text-muted">Estamos expandindo nossa rede de parceiros!</p>
+                </div>
+            </div>
         {% endif %}
     </div>
 </div>
+
+<style>
+    .fw-800 { font-weight: 800; }
+    
+    /* ESTILO DO CARD DE RESTAURANTE */
+    .card-restaurant-premium {
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        border: 1px solid rgba(0,0,0,0.05) !important;
+    }
+
+    .card-restaurant-premium:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1) !important;
+    }
+
+    .card-restaurant-premium:hover .transition-img {
+        transform: scale(1.1);
+    }
+
+    .transition-img {
+        transition: transform 0.6s ease;
+    }
+
+    .object-fit-cover {
+        object-fit: cover;
+    }
+
+    /* POSICIONAMENTO DA LOGO */
+    .restaurant-logo-overlay {
+        position: absolute;
+        bottom: -30px;
+        left: 25px;
+        z-index: 2;
+    }
+
+    /* SOMBRAS E BOTÕES */
+    .shadow-danger-sm {
+        box-shadow: 0 5px 15px rgba(234, 29, 44, 0.2);
+    }
+
+    .btn-danger {
+        transition: all 0.3s;
+    }
+    .btn-danger:hover {
+        transform: scale(1.05);
+        filter: brightness(1.1);
+    }
+
+    /* EFEITO DE CORTE NAS CATEGORIAS */
+    .hero-ux {
+        background: linear-gradient(180deg, rgba(234, 29, 44, 0.08) 0%, #f8f9fa 100%);
+        border-bottom: 1px solid rgba(234, 29, 44, 0.05);
+    }
+</style>
 {% endblock %}
