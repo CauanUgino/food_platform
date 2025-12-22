@@ -21,11 +21,21 @@ class Restaurant(models.Model):
 
 
 class StoreProfile(models.Model):
+    ROLE_CHOICES = (
+        ("OWNER", "Dono da Loja"),
+        ("STAFF", "Funcionário"),
+    )
+
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE)
+    role = models.CharField(
+        max_length=10,
+        choices=ROLE_CHOICES,
+        default="STAFF"
+    )
 
     def __str__(self):
-        return f"{self.user.username} - {self.restaurant.name}"
+        return f"{self.user.username} - {self.role}"
 
 
 class Category(models.Model):

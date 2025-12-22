@@ -19,7 +19,7 @@ from urllib.parse import quote
 from .models import Product
 from django.contrib import messages
 from django.contrib.auth.forms import UserCreationForm
-from .forms import SuperUserCreationForm
+from .forms import SuperUserCreationForm, ClientUserCreationForm
 from django.contrib.auth import logout
 from django.views.decorators.http import require_POST
 from django.contrib import messages
@@ -37,32 +37,45 @@ def home(request):
 
 
 
+# View de Login Única (Para todos)
 def custom_login(request):
     if request.method == "POST":
-        username = request.POST.get("username")
-        password = request.POST.get("password")
-        user = authenticate(request, username=username, password=password)
+        u = request.POST.get("username")
+        p = request.POST.get("password")
+        user = authenticate(request, username=u, password=p)
         if user:
             login(request, user)
-            return redirect("home")
+            return redirect("dashboard" if user.is_superuser else "home")
         else:
-            messages.error(request, "Usuário ou senha incorretos")
+            messages.error(request, "Usuário ou senha inválidos")
     return render(request, "login.html")
+
+# View de Registro de Cliente
+def register_user(request):
+    form = ClientUserCreationForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        user = form.save()
+        login(request, user)
+        return redirect("home")
+    return render(request, "base_app/register.html", {"form": form, "tipo": "Cliente"})
+
+# View de Registro de Gestor
+def register_superuser(request):
+    form = SuperUserCreationForm(request.POST or None)
+    if request.method == "POST":
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            messages.success(request, "Conta de gestor criada com sucesso!")
+            return redirect("store_dashboard")
+            
+    # Verifique se o nome da pasta é 'platform' ou 'base_app'
+    return render(request, "base_app/register.html", {"form": form})
 
 def logout_view(request):
     logout(request)
     return redirect('login')
 
-def register_superuser(request):
-    if request.method == 'POST':
-        form = SuperUserCreationForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Superusuário criado com sucesso!')
-            return redirect('login')
-    else:
-        form = SuperUserCreationForm()
-    return render(request, 'register_superuser.html', {'form': form})
 
 @login_required
 def platform_dashboard(request):
@@ -89,11 +102,16 @@ def register_user(request):
 
 @login_required
 def store_dashboard(request):
-    # Verifica se o usuário é superusuário
+    # Superusuário (admin da plataforma)
     if request.user.is_superuser:
         return redirect("platform_dashboard")
 
-    profile = StoreProfile.objects.get(user=request.user)
+    try:
+        profile = StoreProfile.objects.get(user=request.user)
+    except StoreProfile.DoesNotExist:
+        # ✅ Gestor logado, mas sem vitrine → criar vitrine
+        return redirect("create_my_store")
+
     restaurant = profile.restaurant
 
     context = {
@@ -102,10 +120,43 @@ def store_dashboard(request):
         "total_items": restaurant.items.count(),
         "public_url": request.build_absolute_uri(
             f"/restaurant/{restaurant.slug}/"
-        )
+        ),
+        "role": profile.role,
     }
 
-    return render(request, "platform/dashboard.html", context)
+    return render(request, "store/dashboard.html", context)
+
+@login_required
+def create_my_store(request):
+    # Superusuário não cria vitrine aqui
+    if request.user.is_superuser:
+        return redirect("platform_dashboard")
+
+    # Se já tem loja, não cria outra
+    if hasattr(request.user, "storeprofile"):
+        return redirect("store_dashboard")
+
+    if request.method == "POST":
+        name = request.POST.get("name")
+        slug = request.POST.get("slug")
+
+        restaurant = Restaurant.objects.create(
+            name=name,
+            slug=slug,
+            owner=request.user
+        )
+
+        StoreProfile.objects.create(
+            user=request.user,
+            restaurant=restaurant,
+            role="owner"  # dono da loja
+        )
+
+        return redirect("store_dashboard")
+
+    return render(request, "store/create_store.html")
+
+
 
 def dashboard_view(request):
     # Aqui pegamos os dados para exibir nos cards de métricas
@@ -113,7 +164,7 @@ def dashboard_view(request):
         'total_categories': Category.objects.count(),
         'total_items': Product.objects.count(),
     }
-    return render(request, 'dashboard.html', context)
+    return render(request, 'platform/dashboard.html', context)
 
 def restaurant_home(request, slug):
     restaurant = get_object_or_404(Restaurant, slug=slug)

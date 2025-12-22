@@ -9,9 +9,9 @@ from django import forms
 
 
 # Adicione esta classe ao seu forms.py
-class SuperUserCreationForm(forms.ModelForm):
+# Form para Clientes
+class ClientUserCreationForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput, label="Senha")
-
     class Meta:
         model = User
         fields = ['username', 'email', 'password']
@@ -19,8 +19,24 @@ class SuperUserCreationForm(forms.ModelForm):
     def save(self, commit=True):
         user = super().save(commit=False)
         user.set_password(self.cleaned_data["password"])
-        user.is_staff = True      # Permite acesso ao painel admin
-        user.is_superuser = True  # Dá poderes totais
+        user.is_staff = False
+        user.is_superuser = False
+        if commit:
+            user.save()
+        return user
+
+# Form para Gestores
+class SuperUserCreationForm(forms.ModelForm):
+    password = forms.CharField(widget=forms.PasswordInput, label="Senha")
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'password']
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.set_password(self.cleaned_data["password"])
+        user.is_staff = True
+        user.is_superuser = True
         if commit:
             user.save()
         return user
