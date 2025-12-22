@@ -17,8 +17,13 @@ urlpatterns = [
     path('register/', views.register_user, name='register_user'),
     path('register/', views.register_user, name='register_superuser'),
     path('logout/', LogoutView.as_view(template_name= 'login.html'), name='logout'),
+
+
     path("platform/", platform_dashboard, name="platform_dashboard"),
+    path("minha-vitrine/criar/", views.create_my_store, name="create_my_store"),
     path("platform/restaurants/new/", create_restaurant, name="create_restaurant"),
+
+    
     path("r/<slug:slug>/", restaurant_home, name="restaurant_home"),
     path("platform/store-admin/new/", create_store_admin, name="create_store_admin"),
     path("store/dashboard/", store_dashboard, name="store_dashboard"),

@@ -2,15 +2,24 @@
 
 {% block title %}{{ restaurant.name }} | Cardápio Digital{% endblock %}
 
+
 {% block header %}
-<section class="restaurant-hero text-center py-5">
-    <div class="container">
-        <div class="hero-content p-4 p-md-5 rounded-5 shadow-lg">
-            <span class="badge-status mb-3 pulse-green">
-                <i class="bi bi-fire me-1"></i> Saindo quentinho agora
-            </span>
-            <h1 class="display-4 fw-800 text-white mb-2">{{ restaurant.name }}</h1>
-            <p class="text-white-50 fs-5 mb-0 mx-auto" style="max-width: 650px;">
+<section class="restaurant-hero">
+    <div class="hero-bg-animated"></div>
+    <div class="container position-relative z-index-2">
+        <div class="hero-content p-4 p-md-5 rounded-5 shadow-2xl animate__animated animate__fadeIn">
+            <div class="d-flex justify-content-center mb-3">
+                <span class="badge-status pulse-green">
+                    <i class="bi bi-fire me-1"></i> Cozinha a todo vapor
+                </span>
+            </div>
+            <h1 class="display-3 fw-900 text-white mb-2 tracking-tight">{{ restaurant.name }}</h1>
+            <div class="d-flex justify-content-center gap-3 mb-3 text-white-50">
+                <span><i class="bi bi-star-fill text-warning"></i> 4.9</span>
+                <span>•</span>
+                <span><i class="bi bi-clock"></i> 25-40 min</span>
+            </div>
+            <p class="text-white-50 fs-5 mb-0 mx-auto" style="max-width: 650px; line-height: 1.6;">
                 {{ restaurant.description }}
             </p>
         </div>
