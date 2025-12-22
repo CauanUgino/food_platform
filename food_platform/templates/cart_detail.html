@@ -77,7 +77,7 @@
                 </div>
                 <div class="d-flex justify-content-between mb-3 opacity-75">
                     <span>Taxa de entrega</span>
-                    <span class="text-success fw-bold small">Calculada no Zap</span>
+                    <span class="text-danger fw-bold small">A calcular</span>
                 </div>
                 
                 <hr class="border-secondary opacity-25 my-4">
@@ -91,18 +91,20 @@
                     </div>
                 </div>
 
-                <div class="d-grid gap-3">
-                    <a href="{{ whatsapp_url }}" target="_blank" class="btn btn-success btn-lg rounded-pill fw-800 py-3 shadow-success border-0 btn-finalizar-zap">
-                        <i class="bi bi-whatsapp me-2"></i> FINALIZAR NO ZAP
-                    </a>
-                </div>
+                <form method="post" action="{% url 'create_order' %}">
+                    {% csrf_token %}
+                    <button type="submit"
+                        class="btn btn-primary btn-lg rounded-pill fw-800 py-3 shadow-danger border-0 btn-comaí-finalizar w-100">
+                        <i class="bi bi-lightning-charge-fill me-2"></i> FINALIZAR PEDIDO
+                    </button>
+                </form>
             </div>
 
             <div class="mt-4 p-3 bg-white rounded-4 shadow-sm border d-flex align-items-center gap-3">
-                <i class="bi bi-clock-history text-danger fs-3"></i>
+                <i class="bi bi-shield-check text-danger fs-3"></i>
                 <div class="small">
-                    <strong class="d-block text-dark">Tempo Médio</strong>
-                    <span class="text-muted">30 a 50 minutos para entrega.</span>
+                    <strong class="d-block text-dark">Compra Segura</strong>
+                    <span class="text-muted">Seu pedido será enviado ao vendedor local.</span>
                 </div>
             </div>
         </div>
@@ -113,7 +115,7 @@
                 <i class="bi bi-cart-x display-1 text-muted opacity-25"></i>
                 <h3 class="fw-800 mt-4">Ops! Carrinho Vazio</h3>
                 <p class="text-muted mb-4">Seu estômago não vai gostar disso. Vamos escolher algo?</p>
-                <a href="{% url 'home' %}" class="btn btn-danger rounded-pill px-5 py-3 fw-bold shadow-danger border-0" style="background: var(--nav-gradient);">
+                <a href="{% url 'home' %}" class="btn btn-danger rounded-pill px-5 py-3 fw-bold shadow-danger border-0" style="background: linear-gradient(135deg, #ea1d2c 0%, #b3141f 100%);">
                     VER O CARDÁPIO
                 </a>
             </div>
@@ -129,25 +131,20 @@
     .card-3d { transition: transform 0.3s ease; }
     .card-3d:hover { transform: translateY(-5px); }
 
-    /* BOTÃO WHATSAPP PULSANTE */
-    .btn-finalizar-zap {
-        background: #25d366; /* Verde Oficial Zap */
+    /* BOTÃO COMAÍ ESTILIZADO (SAIU WHATSAPP, ENTROU FLASH) */
+    .btn-comaí-finalizar {
+        background: linear-gradient(135deg, #ea1d2c 0%, #ff4d5a 100%);
+        color: white;
         font-size: 1.1rem;
         transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        animation: pulse-green 2s infinite;
+        box-shadow: 0 8px 20px rgba(234, 29, 44, 0.4) !important;
     }
 
-    .btn-finalizar-zap:hover {
-        background: #128c7e;
-        transform: scale(1.05);
+    .btn-comaí-finalizar:hover {
+        transform: scale(1.03);
+        filter: brightness(1.1);
         color: white;
-        box-shadow: 0 10px 25px rgba(37, 211, 102, 0.4) !important;
-    }
-
-    @keyframes pulse-green {
-        0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.4); }
-        70% { box-shadow: 0 0 0 15px rgba(37, 211, 102, 0); }
-        100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
+        box-shadow: 0 12px 30px rgba(234, 29, 44, 0.5) !important;
     }
 
     /* BOTÃO REMOVER */
@@ -157,11 +154,7 @@
         text-decoration: none;
     }
     .btn-remove-ux:hover {
-        color: #ff6b6b;
-    }
-
-    .shadow-success {
-        box-shadow: 0 8px 20px rgba(37, 211, 102, 0.3) !important;
+        color: #ea1d2c;
     }
 
     .border-dashed { border: 2px dashed #eee !important; }

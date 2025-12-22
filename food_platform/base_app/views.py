@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from .models import Restaurant
 from django.shortcuts import get_object_or_404
-from .forms import RestaurantForm
+from .forms import RestaurantCreateForm
 from django.contrib.auth.models import User
 from .models import StoreProfile
 from .forms import StoreAdminCreationForm
@@ -23,7 +23,9 @@ from .forms import SuperUserCreationForm, ClientUserCreationForm
 from django.contrib.auth import logout
 from django.views.decorators.http import require_POST
 from django.contrib import messages
-
+from django.http import HttpResponseForbidden
+from django.db import transaction
+from .models import Order, OrderItem
 # Create your views here.
 
 
@@ -45,7 +47,7 @@ def custom_login(request):
         user = authenticate(request, username=u, password=p)
         if user:
             login(request, user)
-            return redirect("dashboard" if user.is_superuser else "home")
+            return redirect("entry_point")
         else:
             messages.error(request, "Usuário ou senha inválidos")
     return render(request, "login.html")
@@ -124,37 +126,61 @@ def store_dashboard(request):
         "role": profile.role,
     }
 
-    return render(request, "store/dashboard.html", context)
+    return render(request, "platform/dashboard.html", context)
 
 @login_required
-def create_my_store(request):
-    # Superusuário não cria vitrine aqui
+def entry_point(request):
+    """
+    Decide para onde o usuário vai ao entrar no sistema
+    """
+    # Superuser → dashboard da plataforma
     if request.user.is_superuser:
         return redirect("platform_dashboard")
 
-    # Se já tem loja, não cria outra
-    if hasattr(request.user, "storeprofile"):
+    # Gestor → dashboard da loja ou criar vitrine
+    if request.user.is_staff:
+        try:
+            profile = StoreProfile.objects.get(user=request.user)
+            return redirect("store_dashboard")
+        except StoreProfile.DoesNotExist:
+            return redirect("create_my_store")
+
+    # Cliente normal → home
+    return redirect("home")
+
+
+@login_required
+def create_my_store(request):
+    # 🚫 Superuser não cria vitrine
+    if request.user.is_superuser:
+        return redirect("platform_dashboard")
+
+    # 🚫 Apenas gestores podem criar vitrine
+    if not request.user.is_staff:
+        return redirect("home")  # redireciona clientes normais para home
+
+    # 🚫 Se já tem perfil de loja, não cria outra
+    if StoreProfile.objects.filter(user=request.user).exists():
         return redirect("store_dashboard")
 
     if request.method == "POST":
-        name = request.POST.get("name")
-        slug = request.POST.get("slug")
+        form = RestaurantCreateForm(request.POST)
+        if form.is_valid():
+            restaurant = form.save(commit=False)
+            restaurant.owner = request.user
+            restaurant.save()
 
-        restaurant = Restaurant.objects.create(
-            name=name,
-            slug=slug,
-            owner=request.user
-        )
+            StoreProfile.objects.create(
+                user=request.user,
+                restaurant=restaurant,
+                role="owner"
+            )
+            return redirect("store_dashboard")
+    else:
+        form = RestaurantCreateForm()
 
-        StoreProfile.objects.create(
-            user=request.user,
-            restaurant=restaurant,
-            role="owner"  # dono da loja
-        )
+    return render(request, "platform/create_restaurant.html", {"form": form})
 
-        return redirect("store_dashboard")
-
-    return render(request, "store/create_store.html")
 
 
 
@@ -185,7 +211,7 @@ def create_restaurant(request):
     if not request.user.is_superuser:
         return redirect("home")
 
-    form = RestaurantForm(request.POST or None)
+    form = RestaurantCreateForm(request.POST or None)
 
     if form.is_valid():
         restaurant = form.save(commit=False)
@@ -447,3 +473,70 @@ def clear_cart(request):
         messages.success(request, "O carrinho foi esvaziado.")
     
     return redirect("cart_detail")
+
+@login_required
+def create_order(request):
+    """
+    Cria um pedido a partir do carrinho da sessão
+    """
+    cart = request.session.get("cart")
+
+    if not cart:
+        messages.error(request, "Seu carrinho está vazio.")
+        return redirect("home")
+
+    # Descobre o restaurante pelo primeiro item do carrinho
+    first_item_id = next(iter(cart))
+    first_product = get_object_or_404(Product, id=first_item_id)
+    restaurant = first_product.restaurant
+
+    try:
+        with transaction.atomic():
+            # Cria o pedido usando os nomes corretos do model: user e total_price
+            order = Order.objects.create(
+                restaurant=restaurant,
+                user=request.user,        # Corrigido: era customer
+                status="pending",
+                total_price=Decimal("0.00") # Corrigido: era total
+            )
+
+            current_total = Decimal("0.00")
+
+            for item_id, item in cart.items():
+                product = get_object_or_404(Product, id=item_id)
+
+                quantity = int(item.get("quantity", 1))
+                price = Decimal(str(item.get("price")))
+
+                OrderItem.objects.create(
+                    order=order,
+                    product=product,
+                    quantity=quantity,
+                    price=price
+                )
+
+                current_total += price * quantity
+
+            # Atualiza o total_price final do pedido
+            order.total_price = current_total # Corrigido: era total
+            order.save()
+
+        # Limpa o carrinho
+        del request.session["cart"]
+        request.session.modified = True
+
+        messages.success(request, "Pedido realizado com sucesso!")
+        return redirect("order_success", order_id=order.id)
+
+    except Exception as e:
+        messages.error(request, f"Erro ao processar pedido: {str(e)}")
+        return redirect("view_cart")
+
+@login_required
+def order_success(request, order_id):
+    # Corrigido aqui também: era customer=request.user
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+
+    return render(request, "orders/order_success.html", {
+        "order": order
+    })

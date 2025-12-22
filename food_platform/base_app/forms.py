@@ -42,10 +42,20 @@ class SuperUserCreationForm(forms.ModelForm):
         return user
     
     
-class RestaurantForm(forms.ModelForm):
+class RestaurantCreateForm(forms.ModelForm):
     class Meta:
         model = Restaurant
         fields = ["name", "slug", "description"]
+
+        labels = {
+            "name": "Nome da vitrine",
+            "slug": "URL da vitrine",
+            "description": "Descrição",
+        }
+
+        help_texts = {
+            "slug": "Exemplo: pizzaria-do-joao",
+        }
 
 class StoreAdminCreationForm(forms.Form):
     username = forms.CharField(max_length=150)
