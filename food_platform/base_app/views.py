@@ -184,13 +184,27 @@ def create_my_store(request):
 
 
 
+@login_required
 def dashboard_view(request):
-    # Aqui pegamos os dados para exibir nos cards de métricas
+    try:
+        profile = StoreProfile.objects.get(user=request.user)
+    except StoreProfile.DoesNotExist:
+        return redirect("home")
+
+    if profile.role != "OWNER":
+        return redirect("home")
+
+    orders = Order.objects.filter(
+        restaurant=profile.restaurant
+    ).select_related("user")
+
     context = {
-        'total_categories': Category.objects.count(),
-        'total_items': Product.objects.count(),
+        "restaurant": profile.restaurant,
+        "orders": orders
     }
-    return render(request, 'platform/dashboard.html', context)
+
+    return render(request, "platform/dashboard.html", context)
+
 
 def restaurant_home(request, slug):
     restaurant = get_object_or_404(Restaurant, slug=slug)
@@ -538,5 +552,5 @@ def order_success(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
 
     return render(request, "orders/order_success.html", {
-        "order": order
+        "order": order, "total": order.total_price
     })
