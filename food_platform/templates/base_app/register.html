@@ -145,6 +145,15 @@
 
             <form method="post">
                 {% csrf_token %}
+
+                <div class="text-start mb-3" style="font-size: 0.75rem; color: #666;">
+                    <p class="mb-1"><strong>Regras de senha:</strong></p>
+                    <ul class="mb-0 ps-3">
+                        <li>Mínimo de 8 caracteres</li>
+                        <li>Não pode conter o nome de usuário</li>
+                        <li>Não pode ser inteiramente numérica</li>
+                    </ul>
+                </div>
                 
                 <div class="form-floating mb-3">
                     {{ form.username }}

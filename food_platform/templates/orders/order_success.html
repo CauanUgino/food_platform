@@ -15,7 +15,7 @@
         <div style="text-align: left; background: #fdfdfd; padding: 20px; border-radius: 12px; border: 1px solid #eee; margin-bottom: 30px;">
             <p style="margin: 5px 0; color: #555;"><strong>Número do pedido:</strong> <span style="color: #ea1d2c;">#{{ order.id }}</span></p>
             <p style="margin: 5px 0; color: #555;"><strong>Status:</strong> <span style="background: #fff3cd; color: #856404; padding: 2px 8px; border-radius: 4px; font-size: 0.9em;">{{ order.status }}</span></p>
-            <p style="margin: 5px 0; color: #333; font-size: 1.2em;"><strong>Total:</strong> R$ {{ order.total }}</p>
+            <p style="margin: 5px 0; color: #333; font-size: 1.2em;"><strong>Total:</strong> R$ R$ {{ total|floatformat:2 }}</p>
         </div>
 
         <a href="{% url 'home' %}" style="display: block; background-color: #ea1d2c; color: white; text-decoration: none; padding: 15px; border-radius: 12px; font-weight: 700; transition: 0.3s; box-shadow: 0 4px 15px rgba(234, 29, 44, 0.3);">

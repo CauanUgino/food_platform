@@ -28,8 +28,8 @@ urlpatterns = [
     path("login/", custom_login, name="login"),
 
     # 🔽 REGISTROS (mantidos como você pediu)
-    path('register/', views.register_user, name='register_user'),
-    path('register/', views.register_user, name='register_superuser'),
+    path('register/cliente/', views.register_user, name='register_user'),
+    path('register/gestor/', views.register_user, name='register_superuser'),
 
     path('logout/', LogoutView.as_view(template_name='login.html'), name='logout'),
 

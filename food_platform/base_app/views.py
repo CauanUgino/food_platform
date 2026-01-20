@@ -52,24 +52,29 @@ def custom_login(request):
             messages.error(request, "Usuário ou senha inválidos")
     return render(request, "login.html")
 
-# View de Registro de Cliente
+
 def register_user(request):
-    form = ClientUserCreationForm(request.POST or None)
-    if request.method == "POST" and form.is_valid():
-        user = form.save()
-        login(request, user)
-        return redirect("home")
-    return render(request, "base_app/register.html", {"form": form, "tipo": "Cliente"})
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            username = form.cleaned_data.get('username')
+            messages.success(request, f'Conta criada para {username}!')
+            return redirect('login') # Certifique-se que o nome da sua URL de login é 'login'
+    else:
+        form = UserCreationForm()
+    return render(request, 'base_app/register.html', {'form': form})
 
 # View de Registro de Gestor
 def register_superuser(request):
     form = SuperUserCreationForm(request.POST or None)
     if request.method == "POST":
         if form.is_valid():
-            user = form.save()
+            user = form.save(commit=False)
+            user.is_staff = True
             login(request, user)
             messages.success(request, "Conta de gestor criada com sucesso!")
-            return redirect("store_dashboard")
+            return redirect("create_my_store")
             
     # Verifique se o nome da pasta é 'platform' ou 'base_app'
     return render(request, "base_app/register.html", {"form": form})
@@ -90,17 +95,6 @@ def platform_dashboard(request):
     })
 
 
-def register_user(request):
-    if request.method == 'POST':
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            form.save()
-            username = form.cleaned_data.get('username')
-            messages.success(request, f'Conta criada para {username}!')
-            return redirect('login') # Certifique-se que o nome da sua URL de login é 'login'
-    else:
-        form = UserCreationForm()
-    return render(request, 'base_app/register.html', {'form': form})
 
 @login_required
 def store_dashboard(request):
@@ -184,13 +178,27 @@ def create_my_store(request):
 
 
 
+@login_required
 def dashboard_view(request):
-    # Aqui pegamos os dados para exibir nos cards de métricas
+    try:
+        profile = StoreProfile.objects.get(user=request.user)
+    except StoreProfile.DoesNotExist:
+        return redirect("home")
+
+    if profile.role != "OWNER":
+        return redirect("home")
+
+    orders = Order.objects.filter(
+        restaurant=profile.restaurant
+    ).select_related("user")
+
     context = {
-        'total_categories': Category.objects.count(),
-        'total_items': Product.objects.count(),
+        "restaurant": profile.restaurant,
+        "orders": orders
     }
-    return render(request, 'platform/dashboard.html', context)
+
+    return render(request, "platform/dashboard.html", context)
+
 
 def restaurant_home(request, slug):
     restaurant = get_object_or_404(Restaurant, slug=slug)
@@ -538,5 +546,5 @@ def order_success(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
 
     return render(request, "orders/order_success.html", {
-        "order": order
+        "order": order, "total": order.total_price
     })
