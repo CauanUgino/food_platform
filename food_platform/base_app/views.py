@@ -52,24 +52,29 @@ def custom_login(request):
             messages.error(request, "Usuário ou senha inválidos")
     return render(request, "login.html")
 
-# View de Registro de Cliente
+
 def register_user(request):
-    form = ClientUserCreationForm(request.POST or None)
-    if request.method == "POST" and form.is_valid():
-        user = form.save()
-        login(request, user)
-        return redirect("home")
-    return render(request, "base_app/register.html", {"form": form, "tipo": "Cliente"})
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            username = form.cleaned_data.get('username')
+            messages.success(request, f'Conta criada para {username}!')
+            return redirect('login') # Certifique-se que o nome da sua URL de login é 'login'
+    else:
+        form = UserCreationForm()
+    return render(request, 'base_app/register.html', {'form': form})
 
 # View de Registro de Gestor
 def register_superuser(request):
     form = SuperUserCreationForm(request.POST or None)
     if request.method == "POST":
         if form.is_valid():
-            user = form.save()
+            user = form.save(commit=False)
+            user.is_staff = True
             login(request, user)
             messages.success(request, "Conta de gestor criada com sucesso!")
-            return redirect("store_dashboard")
+            return redirect("create_my_store")
             
     # Verifique se o nome da pasta é 'platform' ou 'base_app'
     return render(request, "base_app/register.html", {"form": form})
@@ -90,17 +95,6 @@ def platform_dashboard(request):
     })
 
 
-def register_user(request):
-    if request.method == 'POST':
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            form.save()
-            username = form.cleaned_data.get('username')
-            messages.success(request, f'Conta criada para {username}!')
-            return redirect('login') # Certifique-se que o nome da sua URL de login é 'login'
-    else:
-        form = UserCreationForm()
-    return render(request, 'base_app/register.html', {'form': form})
 
 @login_required
 def store_dashboard(request):
