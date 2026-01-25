@@ -70,14 +70,25 @@ def register_superuser(request):
     form = SuperUserCreationForm(request.POST or None)
     if request.method == "POST":
         if form.is_valid():
+            # 1. Cria o objeto na memória
             user = form.save(commit=False)
+            
+            # 2. Define as permissões
             user.is_staff = True
+            user.is_superuser = True # Importante para ser Admin Master
+            
+            # 3. SALVA NO BANCO (Isso gera o ID que estava faltando)
+            user.save() 
+            
+            # 4. Agora que ele tem um ID, você pode logar
             login(request, user)
+            
             messages.success(request, "Conta de gestor criada com sucesso!")
+
+            #Problema na rota, tenho que direcionar ela pra criar a vitrine e não para my_store
             return redirect("create_my_store")
             
-    # Verifique se o nome da pasta é 'platform' ou 'base_app'
-    return render(request, "base_app/register.html", {"form": form})
+    return render(request, "base_app/register_superuser.html", {"form": form})
 
 def logout_view(request):
     logout(request)
@@ -124,59 +135,67 @@ def store_dashboard(request):
 
 @login_required
 def entry_point(request):
-    """
-    Decide para onde o usuário vai ao entrar no sistema
-    """
-    # Superuser → dashboard da plataforma
+    # 1. Se tem loja, vai para o dashboard da loja
+    if StoreProfile.objects.filter(user=request.user).exists():
+        return redirect("store_dashboard")
+    
+    # 2. Se é superuser e NÃO tem loja, vai para o painel da plataforma
     if request.user.is_superuser:
         return redirect("platform_dashboard")
 
-    # Gestor → dashboard da loja ou criar vitrine
+    # 3. Se é staff (gestor) e não tem loja, criar vitrine
     if request.user.is_staff:
-        try:
-            profile = StoreProfile.objects.get(user=request.user)
-            return redirect("store_dashboard")
-        except StoreProfile.DoesNotExist:
-            return redirect("create_my_store")
+        return redirect("create_my_store")
 
-    # Cliente normal → home
     return redirect("home")
 
 
 @login_required
 def create_my_store(request):
-    # 🚫 Superuser não cria vitrine
-    if request.user.is_superuser:
-        return redirect("platform_dashboard")
-
-    # 🚫 Apenas gestores podem criar vitrine
-    if not request.user.is_staff:
-        return redirect("home")  # redireciona clientes normais para home
-
-    # 🚫 Se já tem perfil de loja, não cria outra
+    """
+    View para permitir que gestores (is_staff) e superusuários (is_superuser) 
+    criem sua vitrine/restaurante inicial.
+    """
+    
+    # 1. VERIFICAÇÃO DE EXISTÊNCIA: Se o usuário já possui uma vitrine, 
+    # não deve criar outra, redirecionamos para o dashboard.
     if StoreProfile.objects.filter(user=request.user).exists():
         return redirect("store_dashboard")
 
+    # 2. PERMISSÃO: Apenas quem é Staff OU Superuser pode estar aqui.
+    # Removi a trava que expulsava o Superuser, pois no seu fluxo 
+    # o Gestor Master é criado como Superuser.
+    if not request.user.is_staff and not request.user.is_superuser:
+        messages.warning(request, "Você não tem permissão para criar uma vitrine.")
+        return redirect("home")
+
+    # 3. LÓGICA DE PROCESSAMENTO DO FORMULÁRIO
     if request.method == "POST":
         form = RestaurantCreateForm(request.POST)
         if form.is_valid():
-            restaurant = form.save(commit=False)
-            restaurant.owner = request.user
-            restaurant.save()
+            try:
+                with transaction.atomic():
+                    # Salva o restaurante vinculando ao usuário logado
+                    restaurant = form.save(commit=False)
+                    restaurant.owner = request.user
+                    restaurant.save()
 
-            StoreProfile.objects.create(
-                user=request.user,
-                restaurant=restaurant,
-                role="owner"
-            )
-            return redirect("store_dashboard")
+                    # Cria o perfil de vínculo (StoreProfile)
+                    # Usei "OWNER" em maiúsculo para bater com sua dashboard_view
+                    StoreProfile.objects.create(
+                        user=request.user,
+                        restaurant=restaurant,
+                        role="OWNER" 
+                    )
+                    
+                messages.success(request, "Sua vitrine foi criada com sucesso!")
+                return redirect("store_dashboard")
+            except Exception as e:
+                messages.error(request, f"Erro ao criar vitrine: {e}")
     else:
         form = RestaurantCreateForm()
 
     return render(request, "platform/create_restaurant.html", {"form": form})
-
-
-
 
 @login_required
 def dashboard_view(request):

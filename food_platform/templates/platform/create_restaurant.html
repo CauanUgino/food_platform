@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Criar Vitrine | COMAÍ</title>
+    <title>Configurar Vitrine | COMAÍ</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
@@ -13,207 +13,288 @@
         :root {
             --brand-main: #ea1d2c;
             --brand-dark: #b0151f;
-            --bg-light: #f8fafc;
+            --bg-light: #f4f7fe;
+            --glass: rgba(255, 255, 255, 0.9);
         }
 
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
             background-color: var(--bg-light);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(234, 29, 44, 0.08) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(26, 26, 26, 0.05) 0px, transparent 50%);
             color: #1a202c;
             min-height: 100vh;
-        }
-
-        /* Header de Navegação Simples */
-        .simple-nav {
-            padding: 30px 0;
-            animation: fadeInDown 0.8s;
-        }
-
-        .brand-logo {
-            font-weight: 800;
-            font-size: 1.5rem;
-            letter-spacing: -1px;
-            text-decoration: none;
-            color: #1a1a1a;
-        }
-
-        .brand-logo span { color: var(--brand-main); }
-
-        /* Container da Vitrine */
-        .creation-container {
             display: flex;
-            align-items: center;
-            justify-content: center;
-            padding-bottom: 80px;
+            flex-direction: column;
         }
 
+        /* --- NAVBAR CENTRALIZADA COM LOGO CAMALEÃO --- */
+        .navbar-custom {
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(234, 29, 44, 0.1);
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
+        }
+
+        .brand-logo-central {
+            font-weight: 800;
+            font-size: 2rem;
+            letter-spacing: -2px;
+            text-decoration: none;
+            animation: logoColorShift 4s infinite;
+            transition: 0.5s;
+        }
+
+        @keyframes logoColorShift {
+            0%, 100% { color: #1a1a1a; }
+            50% { color: var(--brand-main); }
+        }
+
+        .brand-logo-central span { color: var(--brand-main); }
+
+        /* --- DESTAQUES DE IMPORTÂNCIA --- */
+        .importance-tag {
+            background: white;
+            padding: 20px;
+            border-radius: 20px;
+            border-left: 4px solid var(--brand-main);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.02);
+            height: 100%;
+        }
+
+        /* --- CARD E FORMULÁRIO --- */
         .premium-card {
             background: white;
-            border-radius: 40px;
-            box-shadow: 0 40px 100px rgba(0,0,0,0.06);
+            border-radius: 35px;
+            box-shadow: 0 40px 80px -20px rgba(0,0,0,0.08);
+            border: 1px solid rgba(255,255,255,0.8);
             overflow: hidden;
-            border: 1px solid rgba(0,0,0,0.02);
-            animation: zoomIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            margin-top: 20px;
+            margin-bottom: 60px;
         }
 
-        /* Sidebar Informativa */
         .info-sidebar {
-            background: linear-gradient(135deg, var(--brand-dark) 0%, #1a1a1a 100%);
-            padding: 60px 40px;
+            background: #111;
+            padding: 50px 40px;
             color: white;
             display: flex;
             flex-direction: column;
             justify-content: center;
         }
 
-        .step-indicator {
-            background: rgba(255,255,255,0.1);
-            padding: 15px;
-            border-radius: 20px;
-            margin-bottom: 20px;
-            border-left: 4px solid var(--brand-main);
-        }
+        .form-section { padding: 60px; }
 
-        /* Form Estilizado */
-        .form-section {
-            padding: 60px;
-        }
-
-        .form-label {
-            font-size: 0.7rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #a0aec0;
-            margin-bottom: 10px;
-        }
-
-        /* Estilização dos campos do Django */
+        /* --- MODERNIZAÇÃO DOS CAMPOS E TEXTAREA --- */
         input, select, textarea {
-            width: 100%;
-            padding: 16px 20px;
             border: 2px solid #edf2f7 !important;
             border-radius: 20px !important;
+            padding: 18px 25px !important;
             background: #f8fafc !important;
-            transition: all 0.3s ease;
             font-weight: 500;
+            color: #2d3748;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.03) !important;
+            outline: none !important;
+            width: 100%;
         }
 
-        input:focus, select:focus, textarea:focus {
+        /* Estilo Específico para o Textarea */
+        textarea {
+            min-height: 160px !important;
+            line-height: 1.6 !important;
+            resize: none !important;
+            background-color: #ffffff !important;
+        }
+
+        /* PLACEHOLDER ESTILIZADO */
+        input::placeholder, textarea::placeholder {
+            color: #a0aec0 !important;
+            font-weight: 400;
+            font-size: 0.95rem;
+        }
+
+        /* EFEITOS DE FOCO */
+        input:focus, textarea:focus, select:focus {
             border-color: var(--brand-main) !important;
-            background: white !important;
-            box-shadow: 0 10px 20px rgba(234, 29, 44, 0.05) !important;
-            outline: none;
-            transform: translateY(-2px);
+            background: #ffffff !important;
+            box-shadow: 0 15px 30px rgba(234, 29, 44, 0.1) !important;
+            transform: translateY(-3px);
         }
 
-        /* Botão Rocket */
+        /* Barra de rolagem elegante para o Textarea */
+        textarea::-webkit-scrollbar {
+            width: 6px;
+        }
+        textarea::-webkit-scrollbar-track {
+            background: #f8fafc;
+            border-radius: 10px;
+            margin: 10px;
+        }
+        textarea::-webkit-scrollbar-thumb {
+            background: #cbd5e0;
+            border-radius: 10px;
+        }
+        textarea::-webkit-scrollbar-thumb:hover {
+            background: var(--brand-main);
+        }
+
         .btn-launch {
             background: var(--brand-main);
-            color: white;
-            border: none;
-            border-radius: 20px;
-            padding: 20px;
-            font-weight: 700;
-            font-size: 1.1rem;
-            transition: all 0.4s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            box-shadow: 0 15px 30px rgba(234, 29, 44, 0.2);
+            color: white; border: none; border-radius: 20px;
+            padding: 20px; font-weight: 800; transition: all 0.4s;
+            box-shadow: 0 15px 30px rgba(234, 29, 44, 0.25);
         }
 
         .btn-launch:hover {
             background: var(--brand-dark);
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(234, 29, 44, 0.3);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(234, 29, 44, 0.35);
             color: white;
         }
 
-        /* Footer */
-        .footer-minimal {
-            text-align: center;
-            padding: 40px;
-            color: #a0aec0;
-            font-size: 0.8rem;
+        /* --- FOOTER SEGURO --- */
+        footer {
+            background: #fff;
+            border-top: 1px solid #eee;
+            padding: 50px 0;
+            margin-top: auto;
         }
 
-        @media (max-width: 992px) {
-            .form-section { padding: 40px 30px; }
-            .info-sidebar { display: none; }
+        .security-badge {
+            background: #f0fff4;
+            color: #2f855a;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid #c6f6d5;
+            margin-bottom: 20px;
         }
     </style>
 </head>
 <body>
 
-    <nav class="container simple-nav d-flex justify-content-between align-items-center">
-        <a href="/" class="brand-logo italic">COMAÍ</a>
-        <a href="{% url 'platform_dashboard' %}" class="text-muted text-decoration-none small fw-bold">
-            <i class="bi bi-arrow-left me-1"></i> CANCELAR
-        </a>
+    <nav class="navbar-custom">
+        <div class="container d-flex justify-content-between align-items-center">
+            <a href="{% url 'platform_dashboard' %}" class="btn btn-light rounded-pill px-4 fw-bold shadow-sm">
+                <i class="bi bi-arrow-left"></i> Voltar
+            </a>
+
+            <a href="/" class="brand-logo-central">COMAÍ<span>.</span></a>
+
+            <div class="d-none d-md-block welcome-text text-end">
+                <small class="d-block opacity-75">Olá, Parceiro!</small>
+                <strong>Seja bem-vindo.</strong>
+            </div>
+        </div>
     </nav>
 
-    <main class="container creation-container">
-        <div class="premium-card col-12 col-xl-10">
+    <main class="container mt-5">
+        <div class="row g-4 mb-5 animate__animated animate__fadeInUp">
+            <div class="col-md-4">
+                <div class="importance-tag">
+                    <i class="bi bi-rocket-takeoff-fill text-danger fs-3 mb-2 d-block"></i>
+                    <h6 class="fw-800">Escalabilidade</h6>
+                    <p class="small text-muted mb-0">Transforme seguidores em clientes com um processo de compra em 3 cliques.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="importance-tag">
+                    <i class="bi bi-shield-check text-danger fs-3 mb-2 d-block"></i>
+                    <h6 class="fw-800">Profissionalismo</h6>
+                    <p class="small text-muted mb-0">Sua marca com link próprio passa muito mais confiança que apenas um texto.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="importance-tag">
+                    <i class="bi bi-whatsapp text-danger fs-3 mb-2 d-block"></i>
+                    <h6 class="fw-800">Organização</h6>
+                    <p class="small text-muted mb-0">Chega de conversas confusas. Receba o pedido fechado e pronto para produzir.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="premium-card col-12 col-xl-10 mx-auto animate__animated animate__zoomIn">
             <div class="row g-0">
                 <div class="col-lg-4 info-sidebar">
-                    <div class="animate__animated animate__fadeInLeft">
-                        <i class="bi bi-rocket-takeoff display-3 mb-4 text-warning"></i>
-                        <h2 class="fw-800 mb-4">Quase lá!</h2>
-                        <p class="opacity-75 mb-5">Defina o nome e as configurações da sua vitrine. É assim que seus clientes verão sua loja.</p>
+                    <div class="animate__animated animate__fadeInLeft animate__delay-1s">
+                        <span class="badge bg-danger mb-3">CONFIGURAÇÃO FINAL</span>
+                        <h2 class="fw-800 mb-4">Sua loja, do seu jeito.</h2>
+                        <p class="text-white-50 small mb-4">Preencha os campos ao lado para gerar sua URL exclusiva e começar a vender hoje mesmo.</p>
                         
-                        <div class="step-indicator">
-                            <small class="d-block opacity-50 text-uppercase fw-bold">Dica Profissional</small>
-                            <span class="small">Use nomes curtos e chamativos para sua vitrine ser lembrada com facilidade.</span>
+                        <div class="p-3 rounded-4 bg-white bg-opacity-10 border border-white border-opacity-10 mt-5">
+                            <p class="small mb-0"><i class="bi bi-info-circle me-2"></i><strong>Dica:</strong> Use um nome curto e fácil de lembrar para sua URL.</p>
                         </div>
                     </div>
                 </div>
 
-                <div class="col-lg-8 form-section">
+                <div class="col-lg-8 form-section bg-white">
                     <div class="mb-5">
-                        <h1 class="fw-800 h2 mb-2">Configurar Vitrine</h1>
-                        <p class="text-muted">Preencha os campos abaixo para começar.</p>
+                        <h1 class="fw-800 h3 mb-2">Identidade da Vitrine</h1>
+                        <p class="text-muted">Como seus clientes devem encontrar e ver o seu negócio?</p>
                     </div>
 
-                    <form method="post" class="animate__animated animate__fadeIn">
+                    <form method="post" enctype="multipart/form-data">
                         {% csrf_token %}
-                        
                         <div class="row">
                             {% for field in form %}
-                            <div class="col-12 mb-4">
-                                <label class="form-label" for="{{ field.id_for_label }}">
-                                    {{ field.label }}
+                            <div class="col-12 mb-4 animate__animated animate__fadeInUp">
+                                <label class="form-label fw-700 small text-uppercase text-muted mb-2">
+                                    {{ field.label }} {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
                                 </label>
                                 {{ field }}
-                                {% if field.help_text %}
-                                    <div class="form-text mt-2 small opacity-75">
-                                        <i class="bi bi-info-circle me-1"></i> {{ field.help_text }}
-                                    </div>
-                                {% endif %}
                                 {% if field.errors %}
-                                    <div class="text-danger extra-small mt-2 animate__animated animate__headShake">
-                                        <strong>{{ field.errors|striptags }}</strong>
+                                    <div class="text-danger small mt-2 fw-600 animate__animated animate__shakeX">
+                                        <i class="bi bi-exclamation-circle me-1"></i> {{ field.errors|striptags }}
                                     </div>
                                 {% endif %}
                             </div>
                             {% endfor %}
                         </div>
 
-                        <div class="mt-5">
-                            <button type="submit" class="btn btn-launch w-100">
-                                LANÇAR MINHA VITRINE
-                                <i class="bi bi-chevron-right fs-5"></i>
-                            </button>
-                        </div>
+                        <button type="submit" class="btn btn-launch w-100 mt-4">
+                            FINALIZAR E LANÇAR VITRINE
+                            <i class="bi bi-stars ms-2"></i>
+                        </button>
                     </form>
                 </div>
             </div>
         </div>
     </main>
 
-    <footer class="footer-minimal">
-        &copy; {{ now|date:"Y" }} COMAÍ Dashboard &bull; Ambiente Seguro de Configuração
+    <footer>
+        <div class="container text-center">
+            <div class="security-badge animate__animated animate__fadeIn">
+                <i class="bi bi-shield-fill-check"></i>
+                Sistema Protegido | Conexão Segura SSL
+            </div>
+            
+            <div class="row align-items-center mt-4 pt-4 border-top">
+                <div class="col-md-6 text-md-start text-center mb-3 mb-md-0">
+                    <h5 class="fw-800 mb-0">COMAÍ<span>.</span></h5>
+                    <p class="text-muted small mb-0">Tecnologia para impulsionar seu negócio.</p>
+                </div>
+                <div class="col-md-6 text-md-end text-center">
+                    <p class="mb-1 fw-700 small">Desenvolvido com excelência por <strong>Cauan Ugino</strong></p>
+                    <div class="d-flex justify-content-center justify-content-md-end gap-3 opacity-50">
+                        <i class="bi bi-lock-fill" title="Segurança"></i>
+                        <i class="bi bi-code-slash" title="Performance"></i>
+                        <i class="bi bi-shield-shaded" title="Privacidade"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-4">
+                <small class="text-muted opacity-50">&copy; 2026 COMAÍ - Todos os direitos reservados.</small>
+            </div>
+        </div>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
