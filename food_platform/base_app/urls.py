@@ -27,9 +27,9 @@ urlpatterns = [
 
     path("login/", custom_login, name="login"),
 
-    # 🔽 REGISTROS (mantidos como você pediu)
+    # 🔽 REGISTROS 
     path('register/cliente/', views.register_user, name='register_user'),
-    path('register/gestor/', views.register_user, name='register_superuser'),
+    path('register/gestor/', views.register_superuser, name='register_superuser'),
 
     path('logout/', LogoutView.as_view(template_name='login.html'), name='logout'),
 
@@ -42,9 +42,10 @@ urlpatterns = [
     path("platform/store-admin/new/", create_store_admin, name="create_store_admin"),
 
     # 🔽 STORE
+    #Provavelmente terei que coementar uma dessa duas create_my_store para evitar conflito de rota
     path("minha-vitrine/criar/", views.create_my_store, name="create_my_store"),
     path("store/dashboard/", store_dashboard, name="store_dashboard"),
-    path("criar-vitrine/", views.create_my_store, name="create_my_store"),
+    
 
 
     # (mantida – mesmo sendo redundante)
@@ -68,6 +69,8 @@ urlpatterns = [
     path("cart/remove/<int:item_id>/", views.remove_from_cart, name="remove_from_cart"),
     path("cart/clear/", views.clear_cart, name="clear_cart"),
 
+
+    # 🔽 ORDER
     path("pedido/criar/", views.create_order, name="create_order"),
     path("pedido/sucesso/<int:order_id>/", views.order_success, name="order_success"),
 

@@ -46,6 +46,20 @@ class RestaurantCreateForm(forms.ModelForm):
     class Meta:
         model = Restaurant
         fields = ["name", "slug", "description"]
+        
+# Aqui definimos o que aparece dentro dos campos (Placeholders)
+        widgets = {
+            "name": forms.TextInput(attrs={
+                'placeholder': 'Ex: Pizzaria do Vale'
+            }),
+            "slug": forms.TextInput(attrs={
+                'placeholder': 'pizzaria-do-vale'
+            }),
+            "description": forms.Textarea(attrs={
+                'placeholder': 'Ex: A melhor massa artesanal da região. Atendemos todos os dias com ingredientes frescos e selecionados.',
+                'rows': 4
+            }),
+        }
 
         labels = {
             "name": "Nome da vitrine",
@@ -54,8 +68,10 @@ class RestaurantCreateForm(forms.ModelForm):
         }
 
         help_texts = {
-            "slug": "Exemplo: pizzaria-do-joao",
+            "slug": "Sua vitrine será acessada por este nome na URL.",
         }
+
+# ... (Restante do seu código: CategoryForm, ProductForm, etc)
 
 class StoreAdminCreationForm(forms.Form):
     username = forms.CharField(max_length=150)
