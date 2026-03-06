@@ -244,8 +244,35 @@
 
                     <form method="post" enctype="multipart/form-data">
                         {% csrf_token %}
-                        <div class="row">
-                            {% for field in form %}
+                    <div class="row mb-4">
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-700 small text-uppercase text-muted mb-2">
+                                Logo do Restaurante
+                            </label>
+
+                            <input type="file" name="logo" class="form-control">
+
+                            <small class="text-muted">Imagem quadrada recomendada</small>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-700 small text-uppercase text-muted mb-2">
+                                Banner da Vitrine
+                            </label>
+
+                            <input type="file" name="banner" class="form-control">
+
+                            <small class="text-muted">Imagem horizontal recomendada</small>
+                        </div>
+
+                    </div>
+                    <hr class="mb-4">
+
+                    <div class="row">
+                        {% for field in form %}
+                            {% if field.name != "logo" and field.name != "banner" %}
+
                             <div class="col-12 mb-4 animate__animated animate__fadeInUp">
                                 <label class="form-label fw-700 small text-uppercase text-muted mb-2">
                                     {{ field.label }} {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
@@ -257,6 +284,7 @@
                                     </div>
                                 {% endif %}
                             </div>
+                            {% endif %}
                             {% endfor %}
                         </div>
 

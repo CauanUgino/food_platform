@@ -15,8 +15,15 @@
         <div style="text-align: left; background: #fdfdfd; padding: 20px; border-radius: 12px; border: 1px solid #eee; margin-bottom: 30px;">
             <p style="margin: 5px 0; color: #555;"><strong>Número do pedido:</strong> <span style="color: #ea1d2c;">#{{ order.id }}</span></p>
             <p style="margin: 5px 0; color: #555;"><strong>Status:</strong> <span style="background: #fff3cd; color: #856404; padding: 2px 8px; border-radius: 4px; font-size: 0.9em;">{{ order.status }}</span></p>
-            <p style="margin: 5px 0; color: #333; font-size: 1.2em;"><strong>Total:</strong> R$ R$ {{ total|floatformat:2 }}</p>
+            <p style="margin: 5px 0; color: #333; font-size: 1.2em;"><strong>Total:</strong> R$ {{ total|floatformat:2 }}</p>
         </div>
+
+        <a href="{{ whatsapp_url }}" 
+           id="btn-whatsapp"
+           target="_blank" 
+           style="display: block; background-color: #25D366; color: white; text-decoration: none; padding: 15px; border-radius: 12px; font-weight: 700; margin-bottom: 15px; transition: 0.3s; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);">
+            Enviar Pedido via WhatsApp
+        </a>
 
         <a href="{% url 'home' %}" style="display: block; background-color: #ea1d2c; color: white; text-decoration: none; padding: 15px; border-radius: 12px; font-weight: 700; transition: 0.3s; box-shadow: 0 4px 15px rgba(234, 29, 44, 0.3);">
             Voltar para o Início
@@ -25,4 +32,23 @@
         <p style="margin-top: 20px; font-size: 0.85em; color: #999;">O empreendedor já foi notificado!</p>
     </div>
 </div>
+
+<script>
+    // 1. Limpa contadores visuais assim que carregar (prevenção)
+    document.addEventListener('DOMContentLoaded', function() {
+        const badges = document.querySelectorAll('.badge, #cart-count, .cart-count');
+        badges.forEach(b => b.innerText = '0');
+    });
+
+    // 2. Quando clica no WhatsApp, a página principal vai para a Home
+    const whatsappBtn = document.getElementById('btn-whatsapp');
+    if (whatsappBtn) {
+        whatsappBtn.addEventListener('click', function() {
+            setTimeout(function() {
+                // Redireciona a aba do site para a home enquanto o Zap abre em outra
+                window.location.href = "{% url 'home' %}";
+            }, 800);
+        });
+    }
+</script>
 {% endblock %}

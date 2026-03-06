@@ -26,6 +26,15 @@ from django.contrib import messages
 from django.http import HttpResponseForbidden
 from django.db import transaction
 from .models import Order, OrderItem
+from datetime import datetime
+from django.views.decorators.cache import never_cache
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
+from django.core.mail import send_mail
+from django.conf import settings
+from django.utils.http import urlsafe_base64_decode
+from django.utils.encoding import force_str
 # Create your views here.
 
 
@@ -42,14 +51,23 @@ def home(request):
 # View de Login Única (Para todos)
 def custom_login(request):
     if request.method == "POST":
-        u = request.POST.get("username")
-        p = request.POST.get("password")
-        user = authenticate(request, username=u, password=p)
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+
+        # Verifica se usuário existe
+        if not User.objects.filter(username=username).exists():
+            messages.error(request, "Este usuário ainda não possui cadastro.")
+            return render(request, "login.html")
+
+        # Tenta autenticar
+        user = authenticate(request, username=username, password=password)
+
         if user:
             login(request, user)
             return redirect("entry_point")
         else:
-            messages.error(request, "Usuário ou senha inválidos")
+            messages.error(request, "Senha incorreta.")
+    
     return render(request, "login.html")
 
 
@@ -68,26 +86,19 @@ def register_user(request):
 # View de Registro de Gestor
 def register_superuser(request):
     form = SuperUserCreationForm(request.POST or None)
+
     if request.method == "POST":
         if form.is_valid():
-            # 1. Cria o objeto na memória
-            user = form.save(commit=False)
-            
-            # 2. Define as permissões
-            user.is_staff = True
-            user.is_superuser = True # Importante para ser Admin Master
-            
-            # 3. SALVA NO BANCO (Isso gera o ID que estava faltando)
-            user.save() 
-            
-            # 4. Agora que ele tem um ID, você pode logar
-            login(request, user)
-            
-            messages.success(request, "Conta de gestor criada com sucesso!")
+            # NÃO salva direto no banco, apenas guarda os dados na sessão 
+            request.session["pending_superuser"] = {
+                "username": form.cleaned_data["username"],
+                "password": form.cleaned_data["password"], 
+                "email": form.cleaned_data.get("email", "")
+            }
 
-            #Problema na rota, tenho que direcionar ela pra criar a vitrine e não para my_store
+            messages.info(request, "Agora crie sua vitrine para concluir o cadastro.")
             return redirect("create_my_store")
-            
+
     return render(request, "base_app/register_superuser.html", {"form": form})
 
 def logout_view(request):
@@ -150,52 +161,110 @@ def entry_point(request):
     return redirect("home")
 
 
-@login_required
+#Removi a autenticação de login porque o usuario está criando a loja, ou seja, não tem como estar logado. O login só acontece depois que o usuário é criado, ou seja, lá no final do processo de criação da loja.
+#Outra coisa, a criação do usuário agora acontece dentro de uma transação atômica junto com a criação da loja e do perfil, garantindo que tudo ou nada seja criado. Isso evita ter usuários sem loja ou lojas sem usuário.
+####Essa função ainda possui um erro na hora de concluir o cadastro ela não está sendo direcionada para o dashboard da loja, isso acontece porque o login só é feito depois de criar o usuário, e o redirecionamento para o dashboard da loja acontece antes do login, ou seja, ele não reconhece que o usuário acabou de ser criado e logado. Para resolver isso, basta fazer o login do usuário logo após criar a conta, dentro da mesma transação atômica. Assim, quando chegar no redirecionamento para o dashboard da loja, ele já vai reconhecer que o usuário está autenticado e tem uma loja vinculada.
 def create_my_store(request):
-    """
-    View para permitir que gestores (is_staff) e superusuários (is_superuser) 
-    criem sua vitrine/restaurante inicial.
-    """
+    pending_user = request.session.get("pending_superuser")
+
+    # Se não tem dados pendentes e não é staff/superuser logado
+    if not pending_user and not request.user.is_authenticated:
+        return redirect("login")
     
-    # 1. VERIFICAÇÃO DE EXISTÊNCIA: Se o usuário já possui uma vitrine, 
-    # não deve criar outra, redirecionamos para o dashboard.
-    if StoreProfile.objects.filter(user=request.user).exists():
-        return redirect("store_dashboard")
 
-    # 2. PERMISSÃO: Apenas quem é Staff OU Superuser pode estar aqui.
-    # Removi a trava que expulsava o Superuser, pois no seu fluxo 
-    # o Gestor Master é criado como Superuser.
-    if not request.user.is_staff and not request.user.is_superuser:
-        messages.warning(request, "Você não tem permissão para criar uma vitrine.")
-        return redirect("home")
-
-    # 3. LÓGICA DE PROCESSAMENTO DO FORMULÁRIO
     if request.method == "POST":
-        form = RestaurantCreateForm(request.POST)
+        form = RestaurantCreateForm(request.POST, request.FILES)
+
         if form.is_valid():
             try:
+                # Tudo dentro de uma transação atômica para garantir integridade
+                # Se algo falhar, nada será salvo no banco
+                # O processo é: 1. Criar usuário (se necessário) → 2. Criar restaurante → 3. Criar perfil vinculado
+                #Se o usuário já estiver logado (caso do superuser que criou a conta antes), ele usará esse usuário para criar a loja, sem criar um novo usuário.
+                #Se apertar em voltar será abortadodo
                 with transaction.atomic():
-                    # Salva o restaurante vinculando ao usuário logado
+
+                    # 1. Criar usuário apenas agora
+                    if pending_user:
+                        user = User.objects.create_user(
+                            username=pending_user["username"],
+                            password=pending_user["password"],
+                            email=pending_user["email"]
+                        )
+                        user.is_staff = True
+                        user.is_superuser = False
+                        user.is_active = True
+                        user.save()
+
+
+                        #####Parte de validação de conta atraves de email (opcional, mas recomendado para segurança)####
+                        #####Deixar funcional depois, por enquanto vou comentar para não atrapalhar os testes#####
+                        ####Parte desta validação esta no settings.py, onde tem as configurações de email, para funcionar é necessário configurar um email real e usar uma senha de app (para segurança)####
+                        
+                        #uid = urlsafe_base64_encode(force_bytes(user.pk))
+                        #token = default_token_generator.make_token(user)
+
+                        #confirm_link = request.build_absolute_uri(
+                            #f"/confirmar-email/{uid}/{token}/"
+                        #)                    
+                        #send_mail(
+                            #subject="Bem-vindo à Comaí! Confirme seu cadastro",
+                            #message= f"Olá! Sua conta foi criada com sucesso. Por favor, confirme seu cadastro clicando no link abaixo:\n {confirm_link}\n\nSe você não solicitou este cadastro, por favor ignore este email.",
+                            #from_email=settings.DEFAULT_FROM_EMAIL,
+                            #recipient_list=[user.email],
+                        #)
+
+                        login(request, user)
+
+                        
+
+                        # limpa sessão temporária
+                        del request.session["pending_superuser"]
+
+                    else:
+                        user = request.user
+
+                    #  2. Criar restaurante
                     restaurant = form.save(commit=False)
-                    restaurant.owner = request.user
+                    restaurant.owner = user
                     restaurant.save()
 
-                    # Cria o perfil de vínculo (StoreProfile)
-                    # Usei "OWNER" em maiúsculo para bater com sua dashboard_view
+                    # 3. Criar vínculo
                     StoreProfile.objects.create(
-                        user=request.user,
+                        user=user,
                         restaurant=restaurant,
-                        role="OWNER" 
+                        role="OWNER"
                     )
-                    
-                messages.success(request, "Sua vitrine foi criada com sucesso!")
+
+                messages.success(request, "Cadastro concluído com sucesso!")
                 return redirect("store_dashboard")
+
             except Exception as e:
-                messages.error(request, f"Erro ao criar vitrine: {e}")
+                messages.error(request, f"Erro ao finalizar cadastro: {e}")
+
     else:
         form = RestaurantCreateForm()
 
     return render(request, "platform/create_restaurant.html", {"form": form})
+
+
+def confirm_email(request, uidb64, token):
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+
+    if user and default_token_generator.check_token(user, token):
+        user.is_active = True
+        user.save()
+        messages.success(request, "Conta ativada com sucesso! Agora você pode fazer login.")
+        return redirect("login")
+    else:
+        messages.error(request, "Link inválido ou expirado.")
+        return redirect("home")
+
+
 
 @login_required
 def dashboard_view(request):
@@ -430,7 +499,8 @@ def add_to_cart(request, item_id):
             "name": item.name,
             "price": float(item.price),
             "quantity": 1,
-            "img": item.image.url if item.image else ""
+            "img": item.image.url if item.image else "",
+            "restaurant_id": item.restaurant.id
         }
         messages.success(request, f"{item.name} adicionado ao carrinho.")
 
@@ -440,46 +510,121 @@ def add_to_cart(request, item_id):
     return redirect("restaurant_home", slug=item.restaurant.slug)
 
     
+
+
+from django.shortcuts import render
+from urllib.parse import quote
+from datetime import datetime
+from .models import Restaurant, StoreProfile
+
+
+from datetime import datetime
+from urllib.parse import quote
+from django.shortcuts import render
+from .models import Restaurant, StoreProfile
+
+
 def cart_detail(request):
-    # 1. Pega o carrinho da sessão
+
     cart = request.session.get("cart", {})
-    
+
+    # pega pagamento se vier do form
+    pagamento = request.POST.get("pagamento") or request.GET.get("pagamento") or "Não informado"
+
     total = 0
     items_for_template = []
+    restaurant_whatsapp = ""
 
-    # 2. Processa os itens com segurança
+    # 1️⃣ Processa os itens do carrinho
     for key, item in cart.items():
-        # Verificamos se o item é realmente um dicionário para evitar o erro de 'int'
+
         if isinstance(item, dict):
-            price = float(item.get('price', 0))
-            quantity = int(item.get('quantity', 0))
+            price = float(item.get("price", 0))
+            quantity = int(item.get("quantity", 0))
             subtotal = price * quantity
 
-            # Adicionamos ao contexto que vai para o HTML
             items_for_template.append({
-                'id': key,
-                'name': item.get('name', ''),
-                'price': price,
-                'quantity': quantity,
-                'subtotal': subtotal
+                "id": key,
+                "name": item.get("name", ""),
+                "price": price,
+                "quantity": quantity,
+                "subtotal": subtotal,
+                "restaurant_id": item.get("restaurant_id"),
             })
-            
+
             total += subtotal
-            
-    # 3. Monta a mensagem para WhatsApp
-    whatsapp_text = "Olá! Gostaria de fazer o pedido:\n"
+
+    # 2️⃣ Busca WhatsApp do restaurante
+    if items_for_template:
+        res_id = items_for_template[0].get("restaurant_id")
+
+        try:
+            res = Restaurant.objects.get(id=res_id)
+
+            num_limpo = "".join(filter(str.isdigit, str(res.whatsapp)))
+            restaurant_whatsapp = (
+                f"55{num_limpo}" if not num_limpo.startswith("55") else num_limpo
+            )
+
+        except Restaurant.DoesNotExist:
+            restaurant_whatsapp = ""
+
+    # 3️⃣ Dados do cliente
+    cliente_nome = request.user.get_full_name() or request.user.username
+
+    try:
+        perfil = StoreProfile.objects.get(user=request.user)
+        cliente_endereco = getattr(
+            perfil,
+            "address",
+            "📍 Informar endereço no WhatsApp"
+        )
+    except StoreProfile.DoesNotExist:
+        cliente_endereco = "📍 Informar endereço no WhatsApp"
+
+    # 4️⃣ Montagem da mensagem
+    whatsapp_text = "🍔 *NOVO PEDIDO - COMAÍ*\n"
+    whatsapp_text += "━━━━━━━━━━━━━━━━━━━━\n\n"
+
+    whatsapp_text += "👤 *DADOS DO CLIENTE*\n"
+    whatsapp_text += f"👤 *Cliente:* {cliente_nome}\n"
+    whatsapp_text += f"🕒 *Data:* {datetime.now().strftime('%d/%m/%Y %H:%M')}\n\n"
+
+    whatsapp_text += "🧾 *ITENS DO PEDIDO*\n"
+    whatsapp_text += "━━━━━━━━━━━━━━━━━━━━\n"
+
     for item in items_for_template:
-        whatsapp_text += f"- {item['name']} x {item['quantity']} = R$ {item['subtotal']:.2f}\n"
-    whatsapp_text += f"\n*Total: R$ {total:.2f}*"
+        whatsapp_text += f"✅ {item['quantity']}x {item['name']}\n"
+        whatsapp_text += f"   💰 R$ {item['subtotal']:.2f}\n"
 
-    # 4. Link do WhatsApp com encoding correto
-    whatsapp_link = f"https://wa.me/SEU_NUMERO_AQUI?text={quote(whatsapp_text)}"
+    whatsapp_text += "\n━━━━━━━━━━━━━━━━━━━━\n"
+    whatsapp_text += f"💵 *VALOR TOTAL DO PEDIDO*\n"
+    whatsapp_text += f"R$ {total:.2f}\n\n"
 
-    return render(request, "cart_detail.html", {
+    whatsapp_text += "💳 *FORMA DE PAGAMENTO*\n"
+    whatsapp_text += f"💳 *Pagamento:* {pagamento}\n\n"
+
+    whatsapp_text += "📍 *ENDEREÇO DE ENTREGA*\n"
+    whatsapp_text += f"{cliente_endereco}\n\n"
+
+    whatsapp_text += "Poderiam confirmar o pedido e informar o tempo de entrega?"
+
+    # 5️⃣ Link WhatsApp
+    whatsapp_link = ""
+
+    if restaurant_whatsapp:
+        whatsapp_link = f"https://wa.me/{restaurant_whatsapp}?text={quote(whatsapp_text)}"
+
+    context = {
         "cart": items_for_template,
         "total": total,
-        "whatsapp_url": whatsapp_link
-    })
+        "whatsapp_url": whatsapp_link,
+        "restaurant_whatsapp": restaurant_whatsapp,
+        "pagamento": pagamento,
+    }
+
+    return render(request, "cart_detail.html", context)
+
 
 def remove_from_cart(request, item_id):
     cart = request.session.get("cart", {})
@@ -501,10 +646,16 @@ def clear_cart(request):
     
     return redirect("cart_detail")
 
+
+
+
+####Trabalhar nessa parte pra quando finalizar o pedido por whatsApp o carrinho esvaziar
+#### order Quem é o cabeça dessaa função
 @login_required
+@never_cache
 def create_order(request):
     """
-    Cria um pedido a partir do carrinho da sessão
+    Cria um pedido a partir do carrinho da sessão e limpa o carrinho imediatamente.
     """
     cart = request.session.get("cart")
 
@@ -512,26 +663,27 @@ def create_order(request):
         messages.error(request, "Seu carrinho está vazio.")
         return redirect("home")
 
-    # Descobre o restaurante pelo primeiro item do carrinho
-    first_item_id = next(iter(cart))
-    first_product = get_object_or_404(Product, id=first_item_id)
-    restaurant = first_product.restaurant
-
     try:
+        # Descobre o restaurante pelo primeiro item do carrinho
+        first_item_id = next(iter(cart))
+        first_product = get_object_or_404(Product, id=first_item_id)
+        restaurant = first_product.restaurant
+
+
         with transaction.atomic():
-            # Cria o pedido usando os nomes corretos do model: user e total_price
+            # Cria o pedido principal
             order = Order.objects.create(
                 restaurant=restaurant,
-                user=request.user,        # Corrigido: era customer
+                user=request.user,
                 status="pending",
-                total_price=Decimal("0.00") # Corrigido: era total
+                total_price=Decimal("0.00")
             )
 
             current_total = Decimal("0.00")
 
+            # Cria os itens do pedido
             for item_id, item in cart.items():
                 product = get_object_or_404(Product, id=item_id)
-
                 quantity = int(item.get("quantity", 1))
                 price = Decimal(str(item.get("price")))
 
@@ -541,29 +693,71 @@ def create_order(request):
                     quantity=quantity,
                     price=price
                 )
+                current_total += (price * quantity)
 
-                current_total += price * quantity
-
-            # Atualiza o total_price final do pedido
-            order.total_price = current_total # Corrigido: era total
+            # Atualiza o total final
+            order.total_price = current_total
             order.save()
 
-        # Limpa o carrinho
-        del request.session["cart"]
-        request.session.modified = True
+            # --- LIMPEZA AGRESSIVA DA SESSÃO ---
+            if 'cart' in request.session:
+                del request.session["cart"]
+            
+            request.session.modified = True
+            request.session.save() # Força gravar no banco de sessões antes do redirect
 
         messages.success(request, "Pedido realizado com sucesso!")
-        return redirect("order_success", order_id=order.id)
+        return redirect("order_success/order_sucess.html", order_id=order.id)
 
     except Exception as e:
         messages.error(request, f"Erro ao processar pedido: {str(e)}")
-        return redirect("view_cart")
+        return redirect("orders/order_sucess.html")
+
 
 @login_required
+@never_cache
 def order_success(request, order_id):
-    # Corrigido aqui também: era customer=request.user
+    # Busca o pedido que acabou de ser criado
     order = get_object_or_404(Order, id=order_id, user=request.user)
+    
+    # 1. Busca o WhatsApp do restaurante vinculado ao pedido
+    restaurant = order.restaurant
+    num_limpo = ''.join(filter(str.isdigit, str(restaurant.whatsapp)))
+    restaurant_whatsapp = f"55{num_limpo}" if not num_limpo.startswith('55') else num_limpo
+
+    # 2. Dados do Cliente
+    cliente_nome = request.user.get_full_name() or request.user.username
+    
+    # Tenta buscar o endereço no StoreProfile
+    try:
+        perfil = StoreProfile.objects.get(user=request.user)
+        cliente_endereco = getattr(perfil, 'address', "📍 _Endereço não informado_")
+    except StoreProfile.DoesNotExist:
+        cliente_endereco = "📍 _Endereço não informado_"
+
+    # 3. Montagem do Ticket Profissional baseado no BANCO DE DADOS (mais seguro)
+    whatsapp_text = f"📌 *SOLICITAÇÃO DE PEDIDO #{order.id}*\n"
+    whatsapp_text += f"_{datetime.now().strftime('%d/%m/%Y às %H:%M')}_\n"
+    whatsapp_text += f"------------------------------------------\n\n"
+    
+    whatsapp_text += f"*DADOS DO CLIENTE*\n"
+    whatsapp_text += f"👤 {cliente_nome.upper()}\n"
+    whatsapp_text += f"🏠 {cliente_endereco}\n\n"
+    
+    whatsapp_text += f"*RESUMO DOS ITENS*\n"
+    
+    for item in order.items.all(): # Usando o related_name do seu model OrderItem
+        whatsapp_text += f"▪️ {item.quantity}x {item.product.name}\n"
+        whatsapp_text += f"  (R$ {item.get_subtotal():.2f})\n"
+    
+    whatsapp_text += f"\n*VALOR TOTAL: R$ {order.total_price:.2f}*\n"
+    whatsapp_text += f"------------------------------------------\n\n"
+    whatsapp_text += "Olá! Acabei de realizar meu pedido no site. Segue o comprovante para confirmação."
+
+    whatsapp_url = f"https://wa.me/{restaurant_whatsapp}?text={quote(whatsapp_text)}"
 
     return render(request, "orders/order_success.html", {
-        "order": order, "total": order.total_price
+        "order": order, 
+        "total": order.total_price,
+        "whatsapp_url": whatsapp_url # Enviamos o link pronto para o template
     })
