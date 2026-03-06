@@ -4,163 +4,736 @@
 
 {% block content %}
 <div class="container pb-5">
-    <div class="row justify-content-center g-4">
-        
-        {% if cart %}
-        <div class="col-lg-7">
-            <div class="card border-0 shadow-sm rounded-5 overflow-hidden card-3d bg-white">
-                <div class="card-body p-4 p-md-5">
-                    <div class="d-flex align-items-center justify-content-between mb-4">
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="bg-danger bg-opacity-10 p-2 rounded-3 text-danger">
-                                <i class="bi bi-bag-check-fill fs-4"></i>
-                            </div>
-                            <h4 class="fw-800 mb-0">Itens no Carrinho</h4>
-                        </div>
-                        <a href="{% url 'clear_cart' %}" class="btn btn-sm btn-light rounded-pill px-3 text-muted border small" onclick="return confirm('Deseja realmente limpar todo o carrinho?')">
-                            <i class="bi bi-trash me-1"></i> Esvaziar
-                        </a>
-                    </div>
+<div class="row justify-content-center g-4">
 
-                    <div class="table-responsive">
-                        <table class="table table-borderless align-middle">
-                            <thead class="text-muted small text-uppercase fw-bold">
-                                <tr class="border-bottom">
-                                    <th>Produto</th>
-                                    <th class="text-center">Qtd</th>
-                                    <th class="text-end">Subtotal</th>
-                                    <th class="text-center"></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for item in cart %}
-                                <tr class="border-bottom border-light">
-                                    <td class="py-4">
-                                        <span class="fw-bold text-dark d-block">{{ item.name }}</span>
-                                        <span class="text-muted small">R$ {{ item.price|floatformat:2 }} / un</span>
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="badge bg-light text-dark rounded-pill px-3 py-2 border fw-bold">
-                                            {{ item.quantity }}x
-                                        </span>
-                                    </td>
-                                    <td class="text-end fw-800 text-dark">
-                                        R$ {{ item.subtotal|floatformat:2 }}
-                                    </td>
-                                    <td class="text-center">
-                                        <a href="{% url 'remove_from_cart' item.id %}" class="btn-remove-ux" title="Remover">
-                                            <i class="bi bi-x-circle-fill fs-5"></i>
-                                        </a>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
+{% if cart %}
 
-                    <div class="mt-4">
-                        <a href="{% url 'home' %}" class="text-decoration-none text-danger fw-bold small">
-                            <i class="bi bi-arrow-left me-1"></i> Continuar escolhendo
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
+<!-- ITENS DO CARRINHO -->
+<div class="col-lg-7">
 
-        <div class="col-lg-4">
-            <div class="card border-0 shadow-lg rounded-5 bg-dark text-white p-4 p-md-5 card-3d sticky-top" style="top: 20px;">
-                <h5 class="fw-bold mb-4 opacity-75 text-uppercase small" style="letter-spacing: 1px;">Resumo do Pedido</h5>
-                
-                <div class="d-flex justify-content-between mb-2 opacity-75">
-                    <span>Subtotal</span>
-                    <span>R$ {{ total|floatformat:2 }}</span>
-                </div>
-                <div class="d-flex justify-content-between mb-3 opacity-75">
-                    <span>Taxa de entrega</span>
-                    <span class="text-danger fw-bold small">A calcular</span>
-                </div>
-                
-                <hr class="border-secondary opacity-25 my-4">
-                
-                <div class="d-flex justify-content-between align-items-end mb-5">
-                    <span class="fs-5 opacity-75">Total</span>
-                    <div class="text-end">
-                        <span class="display-5 fw-800 text-danger d-block" style="letter-spacing: -2px; line-height: 1;">
-                            R$ {{ total|floatformat:2 }}
-                        </span>
-                    </div>
-                </div>
+<div class="card border-0 shadow-sm rounded-5 overflow-hidden bg-white cart-card">
 
-                <form method="post" action="{% url 'create_order' %}">
-                    {% csrf_token %}
-                    <button type="submit"
-                        class="btn btn-primary btn-lg rounded-pill fw-800 py-3 shadow-danger border-0 btn-comaí-finalizar w-100">
-                        <i class="bi bi-lightning-charge-fill me-2"></i> FINALIZAR PEDIDO
-                    </button>
-                </form>
-            </div>
+<div class="card-body p-4 p-md-5">
 
-            <div class="mt-4 p-3 bg-white rounded-4 shadow-sm border d-flex align-items-center gap-3">
-                <i class="bi bi-shield-check text-danger fs-3"></i>
-                <div class="small">
-                    <strong class="d-block text-dark">Compra Segura</strong>
-                    <span class="text-muted">Seu pedido será enviado ao vendedor local.</span>
-                </div>
-            </div>
-        </div>
+<div class="d-flex align-items-center justify-content-between mb-4">
 
-        {% else %}
-        <div class="col-lg-6 text-center py-5 mt-5">
-            <div class="bg-white p-5 rounded-5 shadow-sm border border-dashed">
-                <i class="bi bi-cart-x display-1 text-muted opacity-25"></i>
-                <h3 class="fw-800 mt-4">Ops! Carrinho Vazio</h3>
-                <p class="text-muted mb-4">Seu estômago não vai gostar disso. Vamos escolher algo?</p>
-                <a href="{% url 'home' %}" class="btn btn-danger rounded-pill px-5 py-3 fw-bold shadow-danger border-0" style="background: linear-gradient(135deg, #ea1d2c 0%, #b3141f 100%);">
-                    VER O CARDÁPIO
-                </a>
-            </div>
-        </div>
-        {% endif %}
-
-    </div>
+<div class="d-flex align-items-center gap-3">
+<div class="icon-cart">
+<i class="bi bi-bag-check-fill"></i>
 </div>
 
+<h4 class="fw-800 mb-0">Itens no Carrinho</h4>
+</div>
+
+<a href="{% url 'clear_cart' %}" 
+class="btn btn-sm btn-light rounded-pill px-3 text-muted border small btn-hover-danger"
+onclick="return confirm('Deseja realmente limpar todo o carrinho?')">
+
+<i class="bi bi-trash me-1"></i> Esvaziar
+
+</a>
+</div>
+
+
+<div class="table-responsive">
+
+<table class="table table-borderless align-middle">
+
+<thead class="text-muted small text-uppercase fw-bold">
+<tr class="border-bottom">
+<th>Produto</th>
+<th class="text-center">Qtd</th>
+<th class="text-end">Subtotal</th>
+<th></th>
+</tr>
+</thead>
+
+<tbody>
+
+{% for item in cart %}
+
+<tr class="cart-item-row">
+
+<td class="py-4">
+
+<span class="fw-bold text-dark d-block">
+{{ item.name }}
+</span>
+
+<span class="text-muted small">
+R$ {{ item.price|floatformat:2 }} / un
+</span>
+
+</td>
+
+<td class="text-center">
+
+<span class="badge qty-badge">
+{{ item.quantity }}x
+</span>
+
+</td>
+
+<td class="text-end fw-800 text-dark">
+R$ {{ item.subtotal|floatformat:2 }}
+</td>
+
+<td class="text-center">
+
+<a href="{% url 'remove_from_cart' item.id %}" 
+class="btn-remove-ux" title="Remover">
+
+<i class="bi bi-x-circle-fill fs-5"></i>
+
+</a>
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+<div class="mt-4">
+
+<a href="javascript:history.back()" 
+class="text-decoration-none text-danger fw-bold small back-link">
+
+<i class="bi bi-arrow-left me-1"></i>
+Continuar escolhendo
+
+</a>
+
+</div>
+
+</div>
+</div>
+</div>
+
+
+
+<!-- RESUMO DO PEDIDO -->
+
+<div class="col-lg-4">
+
+<form method="POST">
+{% csrf_token %}
+
+<div class="card border-0 shadow-lg rounded-5 resumo-card text-white p-4 p-md-5">
+
+<h6 class="resumo-title">
+<i class="bi bi-receipt-cutoff me-2"></i>
+Resumo do Pedido
+</h6>
+
+
+<div class="resumo-linha">
+<span>Subtotal</span>
+<span>
+R$ {{ total|floatformat:2 }}
+</span>
+</div>
+
+
+<div class="resumo-linha">
+<span>Taxa de entrega</span>
+<span class="taxa-entrega">
+A calcular
+</span>
+</div>
+
+
+<hr class="linha-divisor">
+
+
+<div class="total-area">
+<span>Total</span>
+
+<div class="valor-total">
+R$ {{ total|floatformat:2 }}
+</div>
+</div>
+
+
+<!-- FORMA DE PAGAMENTO -->
+
+<div class="payment-box mb-4">
+
+<h6 class="fw-bold mb-3">
+<i class="bi bi-credit-card me-2"></i>
+Forma de pagamento
+</h6>
+
+<div class="form-check payment-option">
+<input class="form-check-input" type="radio" name="pagamento" value="PIX" required>
+<label class="form-check-label">
+PIX
+</label>
+</div>
+
+<div class="form-check payment-option">
+<input class="form-check-input" type="radio" name="pagamento" value="Dinheiro" onclick="mostrarTroco()">
+<label class="form-check-label">
+Dinheiro
+</label>
+</div>
+
+<div id="campoTroco" style="display:none; margin-top:10px;">
+
+<label class="small mb-1">Troco para quanto?</label>
+
+<input 
+type="number" 
+step="0.01"
+class="form-control mb-2"
+id="trocoValor"
+placeholder="Ex: 50.00">
+
+<div class="form-check">
+
+<input 
+class="form-check-input"
+type="checkbox"
+id="semTroco"
+onclick="desativarTroco()">
+
+<label class="form-check-label small">
+Não preciso de troco
+</label>
+
+</div>
+
+</div>
+
+<div class="form-check payment-option">
+<input class="form-check-input" type="radio" name="pagamento" value="Cartão">
+<label class="form-check-label">
+Cartão na entrega
+</label>
+</div>
+
+</div>
+
+
+</a>
+<a href="#" 
+onclick="finalizarPedido()"
+class="btn btn-lg btn-comaí-finalizar">
+
+<i class="bi bi-whatsapp me-2"></i>
+FINALIZAR PEDIDO
+
+</a>
+
+</button>
+
+</div>
+
+</form>
+
+
+
+<div class="mt-4 trust-box">
+
+<i class="bi bi-shield-check"></i>
+
+<div>
+
+<strong>Compra Segura</strong>
+
+<p>Seu pedido será enviado diretamente ao restaurante.</p>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+{% else %}
+
+<div class="col-lg-6 text-center py-5 mt-5">
+
+<div class="bg-white p-5 rounded-5 shadow-sm border border-dashed">
+
+<i class="bi bi-cart-x display-1 text-muted opacity-25"></i>
+
+<h3 class="fw-800 mt-4">Ops! Carrinho Vazio</h3>
+
+<p class="text-muted mb-4">
+Seu estômago não vai gostar disso.
+</p>
+
+<a href="/" 
+class="btn btn-danger rounded-pill px-5 py-3 fw-bold shadow-danger border-0">
+
+VER O CARDÁPIO
+
+</a>
+
+</div>
+
+</div>
+
+{% endif %}
+
+</div>
+</div>
+
+
+
 <style>
-    .fw-800 { font-weight: 800; }
-    
-    .card-3d { transition: transform 0.3s ease; }
-    .card-3d:hover { transform: translateY(-5px); }
 
-    /* BOTÃO COMAÍ ESTILIZADO (SAIU WHATSAPP, ENTROU FLASH) */
-    .btn-comaí-finalizar {
-        background: linear-gradient(135deg, #ea1d2c 0%, #ff4d5a 100%);
-        color: white;
-        font-size: 1.1rem;
-        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        box-shadow: 0 8px 20px rgba(234, 29, 44, 0.4) !important;
-    }
+.fw-800{
+font-weight:800;
+}
 
-    .btn-comaí-finalizar:hover {
-        transform: scale(1.03);
-        filter: brightness(1.1);
-        color: white;
-        box-shadow: 0 12px 30px rgba(234, 29, 44, 0.5) !important;
-    }
+/* CARD DO CARRINHO */
 
-    /* BOTÃO REMOVER */
-    .btn-remove-ux {
-        color: #ced4da;
-        transition: color 0.2s;
-        text-decoration: none;
-    }
-    .btn-remove-ux:hover {
-        color: #ea1d2c;
-    }
+.cart-card{
+transition:all .3s;
+}
 
-    .border-dashed { border: 2px dashed #eee !important; }
+.cart-card:hover{
+transform:translateY(-4px);
+box-shadow:0 20px 40px rgba(0,0,0,0.08);
+}
 
-    @media (min-width: 992px) {
-        .sticky-top { position: sticky; top: 20px; z-index: 10; }
-    }
+
+/* ICON */
+
+.icon-cart{
+background:rgba(234,29,44,.1);
+color:#ea1d2c;
+font-size:22px;
+padding:10px 12px;
+border-radius:12px;
+}
+
+
+/* ITEM ANIMAÇÃO */
+
+.cart-item-row{
+transition:.25s;
+}
+
+.cart-item-row:hover{
+background:#fafafa;
+transform:scale(1.01);
+}
+
+
+/* QUANTIDADE */
+
+.qty-badge{
+background:#f8f9fa;
+color:#111;
+font-weight:700;
+padding:7px 14px;
+border-radius:40px;
+border:1px solid #eee;
+}
+
+
+/* BOTAO REMOVER */
+
+.btn-remove-ux{
+color:#c1c1c1;
+transition:.2s;
+}
+
+.btn-remove-ux:hover{
+color:#ea1d2c;
+transform:scale(1.2);
+}
+
+
+/* BOTAO ESVAZIAR */
+
+.btn-hover-danger:hover{
+background:#ea1d2c;
+color:white !important;
+}
+
+
+/* CARD RESUMO */
+
+.resumo-card{
+
+background:linear-gradient(
+135deg,
+#111 0%,
+#1a1d23 100%
+);
+
+box-shadow:0 25px 50px rgba(0,0,0,.25);
+
+transition:.3s;
+
+}
+
+.resumo-card:hover{
+transform:translateY(-6px);
+}
+
+
+/* TITULO */
+
+.resumo-title{
+
+font-weight:700;
+opacity:.8;
+margin-bottom:25px;
+letter-spacing:1px;
+
+}
+
+
+/* LINHAS */
+
+.resumo-linha{
+
+display:flex;
+justify-content:space-between;
+margin-bottom:10px;
+opacity:.8;
+
+}
+
+
+/* TAXA */
+
+.taxa-entrega{
+color:#ea1d2c;
+font-weight:700;
+}
+
+
+/* DIVISOR */
+
+.linha-divisor{
+border-color:#444;
+margin:25px 0;
+}
+
+
+/* TOTAL */
+
+.total-area{
+
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:25px;
+
+}
+
+.valor-total{
+
+font-size:36px;
+font-weight:800;
+color:#ea1d2c;
+letter-spacing:-1px;
+
+animation:pulsePrice 2s infinite;
+
+}
+
+@keyframes pulsePrice{
+
+0%{transform:scale(1)}
+50%{transform:scale(1.04)}
+100%{transform:scale(1)}
+
+}
+
+
+/* PAGAMENTO */
+
+.payment-box{
+
+background:#1c1f26;
+padding:18px;
+border-radius:14px;
+
+}
+
+.payment-option{
+
+background:#252830;
+padding:10px 12px;
+border-radius:10px;
+margin-bottom:8px;
+cursor:pointer;
+
+}
+
+
+/* BOTAO FINALIZAR */
+
+.btn-comaí-finalizar{
+
+background:linear-gradient(
+135deg,
+#25d366,
+#128c7e
+);
+
+border:none;
+color:white;
+font-weight:700;
+padding:16px;
+
+border-radius:50px;
+
+display:flex;
+align-items:center;
+justify-content:center;
+
+transition:.3s;
+
+box-shadow:0 10px 30px rgba(37,211,102,.35);
+
+animation:pulseBtn 2.5s infinite;
+
+}
+
+.btn-comaí-finalizar:hover{
+
+transform:scale(1.05);
+
+box-shadow:0 15px 40px rgba(37,211,102,.5);
+
+}
+
+
+@keyframes pulseBtn{
+
+0%{
+box-shadow:0 0 0 0 rgba(37,211,102,.5);
+}
+
+70%{
+box-shadow:0 0 0 20px rgba(37,211,102,0);
+}
+
+100%{
+box-shadow:0 0 0 0 rgba(37,211,102,0);
+}
+
+}
+
+
+/* BOX SEGURANÇA */
+
+.trust-box{
+
+display:flex;
+gap:12px;
+align-items:flex-start;
+
+background:white;
+
+padding:15px;
+
+border-radius:16px;
+
+box-shadow:0 5px 15px rgba(0,0,0,.05);
+
+border:1px solid #eee;
+
+}
+
+.trust-box i{
+color:#ea1d2c;
+font-size:24px;
+}
+
+.trust-box p{
+margin:0;
+font-size:13px;
+color:#777;
+}
+
+
+/* VOLTAR */
+
+.back-link:hover{
+opacity:.7;
+}
+
+
+/* EMPTY */
+
+.border-dashed{
+border:2px dashed #eee;
+}
+
 </style>
+
+    <script>
+
+/* MOSTRAR CAMPO TROCO */
+
+function mostrarTroco(){
+
+let pagamentoSelecionado = document.querySelector('input[name="pagamento"]:checked');
+let campoTroco = document.getElementById("campoTroco");
+
+if(!pagamentoSelecionado){
+campoTroco.style.display = "none";
+return;
+}
+
+let pagamento = pagamentoSelecionado.value;
+
+if(pagamento === "Dinheiro"){
+campoTroco.style.display = "block";
+}else{
+campoTroco.style.display = "none";
+}
+
+}
+
+/* ATIVAR / DESATIVAR INPUT TROCO */
+
+function desativarTroco(){
+
+let checkbox = document.getElementById("semTroco");
+let input = document.getElementById("trocoValor");
+
+if(checkbox.checked){
+input.disabled = true;
+input.value = "";
+}else{
+input.disabled = false;
+}
+
+}
+
+
+/* FINALIZAR PEDIDO */
+
+function finalizarPedido(){
+
+let pagamentoSelecionado = document.querySelector('input[name="pagamento"]:checked');
+
+if(!pagamentoSelecionado){
+alert("Selecione a forma de pagamento.");
+return;
+}
+
+let pagamento = pagamentoSelecionado.value;
+
+
+/* DATA E HORA */
+
+let agora = new Date();
+
+let dia = String(agora.getDate()).padStart(2, '0');
+let mes = String(agora.getMonth() + 1).padStart(2, '0');
+let ano = agora.getFullYear();
+
+let hora = String(agora.getHours()).padStart(2, '0');
+let minuto = String(agora.getMinutes()).padStart(2, '0');
+
+let dataHora = dia + "/" + mes + "/" + ano + " - " + hora + ":" + minuto;
+
+
+/* TROCO */
+
+let trocoMensagem = "";
+
+if(pagamento === "Dinheiro"){
+
+let semTroco = document.getElementById("semTroco").checked;
+let valorTroco = document.getElementById("trocoValor").value;
+
+if(semTroco){
+
+trocoMensagem = " Troco: Não precisa de troco%0A";
+
+}else if(valorTroco !== ""){
+
+trocoMensagem = " Troco para: R$ " + valorTroco + "%0A";
+
+}else{
+
+trocoMensagem = " Troco: Não informado%0A";
+
+}
+
+}
+
+
+/* MENSAGEM */
+
+let mensagem = "";
+
+mensagem += " *NOVO PEDIDO RECEBIDO*%0A";
+mensagem += " Sistema: *COMAÍ*%0A";
+mensagem += "━━━━━━━━━━━━━━━━━━━━━━━%0A%0A";
+
+mensagem += " *DADOS DO CLIENTE*%0A";
+mensagem += "Nome: {{ request.user.get_full_name|default:request.user.username }}%0A";
+mensagem += " Data do pedido: " + dataHora + "%0A%0A";
+
+mensagem += " *ITENS DO PEDIDO*%0A";
+mensagem += "━━━━━━━━━━━━━━━━━━━━━━━%0A";
+
+{% for item in cart %}
+
+mensagem += " {{ item.quantity }}x {{ item.name }}%0A";
+mensagem += "    Subtotal: R$ {{ item.subtotal|floatformat:2 }}%0A%0A";
+
+{% endfor %}
+
+mensagem += "━━━━━━━━━━━━━━━━━━━━━━━%0A";
+
+mensagem += " *TOTAL DO PEDIDO*%0A";
+mensagem += "R$ {{ total|floatformat:2 }}%0A%0A";
+
+mensagem += " *FORMA DE PAGAMENTO*%0A";
+mensagem += pagamento + "%0A";
+
+if(pagamento === "Dinheiro"){
+mensagem += trocoMensagem;
+}
+
+mensagem += "%0A";
+
+mensagem += " *ENTREGA*%0A";
+mensagem += "Por favor informe o endereço de entrega.%0A%0A";
+
+mensagem += "━━━━━━━━━━━━━━━━━━━━━━━%0A";
+
+mensagem += " Pedido enviado automaticamente pelo sistema *COMAÍ*%0A";
+mensagem += " Por favor confirme o pedido e informe o tempo estimado de entrega.%0A";
+
+
+/* WHATSAPP */
+
+let numero = "{{ restaurant_whatsapp|default:'' }}";
+
+if(numero === ""){
+alert("Número do restaurante não encontrado.");
+return;
+}
+
+let url = "https://wa.me/" + numero + "?text=" + mensagem;
+
+window.open(url, "_blank");
+
+}
+
+
+</script>
+
 {% endblock %}
+

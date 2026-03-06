@@ -9,10 +9,64 @@ from .models import (
     OrderItem
 )
 
+
 @admin.register(Restaurant)
 class RestaurantAdmin(admin.ModelAdmin):
-    list_display = ("name", "owner", "created_at")
-    prepopulated_fields = {"slug": ("name",)}
+
+    list_display = (
+        "name",
+        "owner",
+        "whatsapp",
+        "created_at"
+    )
+
+    prepopulated_fields = {
+        "slug": ("name",)
+    }
+
+    search_fields = (
+        "name",
+        "whatsapp"
+    )
+
+    list_filter = (
+        "created_at",
+    )
+
+    readonly_fields = (
+        "created_at",
+    )
+
+    fieldsets = (
+
+        ("Informações do Restaurante", {
+            "fields": (
+                "name",
+                "slug",
+                "description",
+                "owner",
+            )
+        }),
+
+        ("Contato", {
+            "fields": (
+                "whatsapp",
+            )
+        }),
+
+        ("Imagens do Restaurante", {
+            "fields": (
+                "logo",
+                "cover",
+            )
+        }),
+
+        ("Sistema", {
+            "fields": (
+                "created_at",
+            )
+        }),
+    )
 
 @admin.register(StoreProfile)
 class StoreProfileAdmin(admin.ModelAdmin):

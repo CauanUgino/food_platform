@@ -201,6 +201,15 @@
                     <i class="bi bi-exclamation-triangle-fill me-2"></i> Credenciais incorretas.
                 </div>
             {% endif %}
+            
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+            
 
             <form method="post" action="{% url 'login' %}">
                 {% csrf_token %}

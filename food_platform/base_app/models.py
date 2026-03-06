@@ -10,22 +10,38 @@ from django.conf import settings
 class Restaurant(models.Model):
     name = models.CharField(max_length=150)
     slug = models.SlugField(unique=True)
+    whatsapp = models.CharField(max_length=20, help_text= "Apenas números com DDD (ex:11999998888)")
     description = models.TextField(blank=True)
     owner = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name="restaurants"
     )
+
+    # NOVOS CAMPOS DE IMAGEM
+    logo = models.ImageField(
+        upload_to="restaurants/logos/",
+        blank=True,
+        null=True
+    )
+
+    banner = models.ImageField(
+        upload_to="restaurants/covers/",
+        blank=True,
+        null=True
+    )
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.name
 
-
+####Parte de divisão de perfis de loja e usuários####
 class StoreProfile(models.Model):
     ROLE_CHOICES = (
         ("OWNER", "Dono da Loja"),
         ("STAFF", "Funcionário"),
+        ("CLIENT", "Cliente"),
     )
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)

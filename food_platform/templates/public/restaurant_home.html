@@ -4,7 +4,8 @@
 
 
 {% block header %}
-<section class="restaurant-hero">
+<section class="restaurant-hero"
+style="background-image: url('{% if restaurant.cover %}{{ restaurant.cover.url }}{% else %}/static/img/default-cover.jpg{% endif %}');">
     <div class="hero-bg-animated"></div>
     <div class="container position-relative z-index-2">
         <div class="hero-content p-4 p-md-5 rounded-5 shadow-2xl animate__animated animate__fadeIn">
@@ -13,6 +14,15 @@
                     <i class="bi bi-fire me-1"></i> Cozinha a todo vapor
                 </span>
             </div>
+
+            <!-- LOGO DO RESTAURANTE -->
+            <div class="restaurant-logo-wrapper mb-3">
+                <img
+                    src="{% if restaurant.logo %}{{ restaurant.logo.url }}{% else %}/static/img/default-logo.png{% endif %}"
+                    class="restaurant-logo"
+                    alt="{{ restaurant.name }}">
+            </div
+
             <h1 class="display-3 fw-900 text-white mb-2 tracking-tight">{{ restaurant.name }}</h1>
             <div class="d-flex justify-content-center gap-3 mb-3 text-white-50">
                 <span><i class="bi bi-star-fill text-warning"></i> 4.9</span>
@@ -142,13 +152,18 @@
         opacity: 0.3;
         transition: 0.3s;
     }
-    .cat-pill-modern:hover .cat-icon { opacity: 1; transform: scale(1.2); }
+
+    .cat-pill-modern:hover .cat-icon {
+        opacity: 1;
+        transform: scale(1.2);
+    }
 
     /* 2. MELHORIA DOS TÍTULOS DE CATEGORIA */
     .category-title-wrapper {
         display: flex;
         flex-direction: column;
     }
+
     .category-count {
         font-size: 0.75rem;
         text-transform: uppercase;
@@ -157,11 +172,12 @@
         letter-spacing: 1px;
     }
 
-    /* 3. ANIMAÇÕES DE FOME (MANTIDAS) */
+    /* 3. ANIMAÇÕES DE FOME */
     @keyframes hunger-pulse {
         0%, 100% { transform: scale(1); }
         50% { transform: scale(1.04); }
     }
+
     @keyframes bite {
         0% { transform: scale(1); }
         50% { transform: scale(0.7); }
@@ -169,20 +185,86 @@
     }
 
     .btn-hunger-anim {
-        width: 100%; background: #28a745; color: white; border: none; padding: 10px 10px 10px 25px;
-        border-radius: 50px; display: flex; align-items: center; justify-content: space-between;
-        font-weight: 800; font-size: 0.8rem; transition: 0.3s; box-shadow: 0 6px 15px rgba(40,167,69,0.3);
+        width: 100%;
+        background: #28a745;
+        color: white;
+        border: none;
+        padding: 10px 10px 10px 25px;
+        border-radius: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-weight: 800;
+        font-size: 0.8rem;
+        transition: 0.3s;
+        box-shadow: 0 6px 15px rgba(40,167,69,0.3);
     }
-    .btn-hunger-anim:hover { background: #ea1d2c; animation: hunger-pulse 0.6s infinite; }
-    .icon-bite { width: 38px; height: 38px; background: white; color: #28a745; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+
+    .btn-hunger-anim:hover {
+        background: #ea1d2c;
+        animation: hunger-pulse 0.6s infinite;
+    }
+
+    .icon-bite {
+        width: 38px;
+        height: 38px;
+        background: white;
+        color: #28a745;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 
     /* 4. LAYOUT GERAL */
-    .restaurant-hero { background: var(--nav-gradient); padding-bottom: 100px !important; }
-    .hero-content { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.15); }
-    .mt-n5 { margin-top: -60px !important; }
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .product-card-modern { border-radius: 28px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); transition: 0.4s; }
-    .product-card-modern:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,0,0,0.08); }
+
+    .restaurant-hero {
+        background: var(--nav-gradient);
+        padding-bottom: 100px !important;
+    }
+
+    .hero-content {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .mt-n5 {
+        margin-top: -60px !important;
+    }
+
+    .no-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+
+    .product-card-modern {
+        border-radius: 28px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+        transition: 0.4s;
+    }
+
+    .product-card-modern:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+    }
+
+    /* 5. LOGO DO RESTAURANTE */
+
+    .restaurant-logo-wrapper {
+        display: flex;
+        justify-content: center;
+    }
+
+    .restaurant-logo {
+        width: 110px;
+        height: 110px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid white;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+        background: white;
+    }
+
 </style>
 
 <script>

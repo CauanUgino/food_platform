@@ -132,6 +132,14 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
-login_url = '/login/'
-logout_redirect = '/login/' 
-#LOGOUT_REDIRECT_URL = '/login/'
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/entrar/'   # ou 'entry_point'
+LOGOUT_REDIRECT_URL = '/login/' 
+
+#Configuração de envio email
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'seuemail@gmail.com'
+EMAIL_HOST_PASSWORD = 'senha-de-app'  # Use uma senha de app para segurança

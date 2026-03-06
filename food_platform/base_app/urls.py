@@ -33,6 +33,9 @@ urlpatterns = [
 
     path('logout/', LogoutView.as_view(template_name='login.html'), name='logout'),
 
+    #Confirmação de Email
+    path("confirmar-email/<uidb64>/<token>/", views.confirm_email, name="confirm_email"),
+
     # 🔹 ENTRY POINT (NOVA – NÃO ALTERA NENHUMA EXISTENTE)
     path("entrar/", views.entry_point, name="entry_point"),
 

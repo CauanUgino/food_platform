@@ -42,36 +42,54 @@ class SuperUserCreationForm(forms.ModelForm):
         return user
     
     
+
 class RestaurantCreateForm(forms.ModelForm):
+
     class Meta:
         model = Restaurant
-        fields = ["name", "slug", "description"]
-        
-# Aqui definimos o que aparece dentro dos campos (Placeholders)
+        fields = [
+            "name",
+            "slug",
+            "whatsapp",
+            "description",
+            "logo",
+            "banner",
+        ]
+
+        # Placeholders e aparência dos campos
         widgets = {
             "name": forms.TextInput(attrs={
-                'placeholder': 'Ex: Pizzaria do Vale'
+                "placeholder": "Ex: Pizzaria do Vale"
             }),
+
             "slug": forms.TextInput(attrs={
-                'placeholder': 'pizzaria-do-vale'
+                "placeholder": "pizzaria-do-vale"
             }),
+
+            "whatsapp": forms.TextInput(attrs={
+                "placeholder": "(00) 00000-0000"
+            }),
+
             "description": forms.Textarea(attrs={
-                'placeholder': 'Ex: A melhor massa artesanal da região. Atendemos todos os dias com ingredientes frescos e selecionados.',
-                'rows': 4
+                "placeholder": "Ex: A melhor massa artesanal da região. Atendemos todos os dias com ingredientes frescos e selecionados.",
+                "rows": 4
             }),
         }
 
+        # Nome que aparece na tela
         labels = {
             "name": "Nome da vitrine",
             "slug": "URL da vitrine",
+            "whatsapp": "WhatsApp para pedidos",
             "description": "Descrição",
+            "logo": "Logo do restaurante",
+            "banner": "Imagem de capa do restaurante",
         }
 
+        # Texto de ajuda abaixo do campo
         help_texts = {
             "slug": "Sua vitrine será acessada por este nome na URL.",
         }
-
-# ... (Restante do seu código: CategoryForm, ProductForm, etc)
 
 class StoreAdminCreationForm(forms.Form):
     username = forms.CharField(max_length=150)
