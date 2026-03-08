@@ -6,7 +6,8 @@ from .models import Category, Product
 from django import forms
 from .models import Item
 from django import forms
-
+from django.utils.safestring import mark_safe
+from django.urls import reverse_lazy
 
 # Adicione esta classe ao seu forms.py
 # Form para Clientes
@@ -44,6 +45,8 @@ class SuperUserCreationForm(forms.ModelForm):
     
 
 class RestaurantCreateForm(forms.ModelForm):
+    
+       
 
     class Meta:
         model = Restaurant
@@ -54,6 +57,7 @@ class RestaurantCreateForm(forms.ModelForm):
             "description",
             "logo",
             "banner",
+            
         ]
 
         # Placeholders e aparência dos campos
@@ -74,6 +78,10 @@ class RestaurantCreateForm(forms.ModelForm):
                 "placeholder": "Ex: A melhor massa artesanal da região. Atendemos todos os dias com ingredientes frescos e selecionados.",
                 "rows": 4
             }),
+
+            "logo":forms.ClearableFileInput(attrs={'class':'form-control'}),
+            
+            "banner":forms.ClearableFileInput(attrs={'class':'form-control'})
         }
 
         # Nome que aparece na tela
@@ -90,6 +98,7 @@ class RestaurantCreateForm(forms.ModelForm):
         help_texts = {
             "slug": "Sua vitrine será acessada por este nome na URL.",
         }
+        
 
 class StoreAdminCreationForm(forms.Form):
     username = forms.CharField(max_length=150)

@@ -26,10 +26,13 @@ class Restaurant(models.Model):
     )
 
     banner = models.ImageField(
-        upload_to="restaurants/covers/",
+        upload_to="restaurants/banners/",
         blank=True,
         null=True
     )
+
+    terms_accepted = models.BooleanField(default=False)
+    terms_accepted_at = models.DateTimeField(blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
 

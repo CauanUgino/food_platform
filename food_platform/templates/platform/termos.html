@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Contrato Digital | COMAÍ</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+
+:root{
+--primary:#2563eb;
+--primary-dark:#1d4ed8;
+--secondary:#06b6d4;
+--bg1:#eef2ff;
+--bg2:#e0f2fe;
+--card:rgba(255,255,255,0.85);
+--text:#0f172a;
+--muted:#64748b;
+}
+
+*{
+box-sizing:border-box;
+margin:0;
+padding:0;
+font-family:'Plus Jakarta Sans',sans-serif;
+}
+
+body{
+
+background:linear-gradient(135deg,var(--bg1),var(--bg2));
+min-height:100vh;
+display:flex;
+align-items:center;
+justify-content:center;
+padding:20px;
+
+}
+
+/* CONTAINER */
+
+.container{
+
+width:950px;
+max-width:100%;
+background:var(--card);
+backdrop-filter:blur(20px);
+border-radius:24px;
+box-shadow:0 30px 70px rgba(0,0,0,0.1);
+overflow:hidden;
+animation:fadeUp .6s ease;
+
+}
+
+@keyframes fadeUp{
+from{opacity:0; transform:translateY(30px)}
+to{opacity:1; transform:translateY(0)}
+}
+
+/* HEADER */
+
+.header{
+
+padding:30px;
+border-bottom:1px solid rgba(0,0,0,0.05);
+display:flex;
+justify-content:space-between;
+align-items:center;
+
+}
+
+.brand{
+
+font-weight:800;
+font-size:22px;
+color:#FF0000;
+
+}
+
+.brand span{
+
+color:#0f172a;
+
+}
+
+.title{
+
+font-size:20px;
+font-weight:700;
+
+}
+
+.version{
+
+font-size:12px;
+color:var(--muted);
+text-align:right;
+
+}
+
+/* BODY */
+
+.body{
+
+display:grid;
+grid-template-columns:1fr 320px;
+
+}
+
+/* TERMS */
+
+.terms{
+
+padding:35px;
+max-height:450px;
+overflow-y:auto;
+line-height:1.8;
+
+}
+
+.section{
+
+margin-bottom:25px;
+
+}
+
+.section h3{
+
+margin-bottom:8px;
+font-size:18px;
+
+}
+
+.section p{
+
+color:#334155;
+
+}
+
+/* SIDEBAR */
+
+.sidebar{
+
+background:#f8fafc;
+padding:30px;
+border-left:1px solid rgba(236, 20, 20, 0.05);
+display:flex;
+flex-direction:column;
+justify-content:space-between;
+
+}
+
+/* PROGRESS */
+
+.progress-box{
+
+margin-bottom:25px;
+
+}
+
+.progress-bar{
+
+height:8px;
+background:#e2e8f0;
+border-radius:20px;
+overflow:hidden;
+margin-top:10px;
+
+}
+
+.progress{
+
+height:100%;
+width:0%;
+background:linear-gradient(90deg,var(--primary),var(--secondary));
+transition:width .3s ease;
+
+}
+
+/* INPUT */
+
+.signature input{
+
+width:100%;
+padding:12px;
+border-radius:10px;
+border:1px solid #cbd5e1;
+margin-top:10px;
+font-size:15px;
+
+}
+
+.signature input:focus{
+
+outline:none;
+border-color:var(--primary);
+box-shadow:0 0 0 3px rgba(37,99,235,.2);
+
+}
+
+/* CHECKBOX */
+
+/* CHECKBOX MODERNO */
+
+.checkbox{
+display:flex;
+align-items:center;
+gap:12px;
+margin-top:15px;
+font-size:14px;
+cursor:pointer;
+user-select:none;
+transition:.3s;
+}
+
+.checkbox label{
+cursor:pointer;
+color:#334155;
+transition:.3s;
+}
+
+/* esconder checkbox padrão */
+
+.checkbox input{
+appearance:none;
+-webkit-appearance:none;
+width:22px;
+height:22px;
+border-radius:6px;
+border:2px solid #cbd5e1;
+display:grid;
+place-content:center;
+cursor:pointer;
+transition:.25s;
+background:white;
+}
+
+/* hover */
+
+.checkbox:hover input{
+border-color:#2563eb;
+transform:scale(1.05);
+}
+
+.checkbox:hover label{
+color:#2563eb;
+}
+
+/* CHECK ANIMADO */
+
+.checkbox input::before{
+content:"";
+width:10px;
+height:10px;
+clip-path:polygon(14% 44%,0 65%,50% 100%,100% 16%,80% 0%,43% 62%);
+transform:scale(0);
+transform-origin:center;
+transition:0.25s ease;
+background:white;
+}
+
+/* quando marcado */
+
+.checkbox input:checked{
+background:#2563eb;
+border-color:#2563eb;
+box-shadow:0 5px 15px rgba(37,99,235,.35);
+}
+
+.checkbox input:checked::before{
+transform:scale(1);
+}
+
+/* pequena animação */
+
+.checkbox input:checked{
+animation:checkPop .25s ease;
+}
+
+@keyframes checkPop{
+0%{transform:scale(0.9)}
+60%{transform:scale(1.15)}
+100%{transform:scale(1)}
+}
+
+/* BUTTON */
+
+button{
+
+margin-top:20px;
+height:60px;              /* botão mais alto */
+width:100%;               /* ocupa toda largura disponível */
+max-width:280px;         /* controla tamanho máximo */
+margin-left:7px;        /* move para direita */
+
+
+border:none;
+border-radius:14px;
+
+background:linear-gradient(90deg,var(--primary),var(--secondary));
+color:white;
+
+font-weight:700;
+font-size:16px;          /* texto maior */
+
+cursor:pointer;
+
+display:flex;
+align-items:center;
+justify-content:center;
+
+transition:.3s;
+
+}
+
+button:hover:not(:disabled){
+
+transform:translateY(-2px);
+box-shadow:0 8px 20px rgba(37,99,235,.3);
+
+}
+
+button:disabled{
+
+background:#cbd5e1;
+cursor:not-allowed;
+
+}
+
+/* SUCCESS */
+
+.success{
+
+display:none;
+padding:80px;
+text-align:center;
+animation:fadeUp .6s ease;
+
+}
+
+.success h2{
+
+color:#16a34a;
+margin-bottom:10px;
+
+}
+
+.success strong{
+
+color:var(--primary);
+
+}
+
+/* MOBILE */
+
+.mobile-sign{
+
+display:none;
+
+}
+
+@media (max-width:900px){
+
+.body{
+
+grid-template-columns:1fr;
+
+}
+
+.sidebar{
+
+border-left:none;
+border-top:1px solid rgba(0,0,0,0.05);
+
+}
+
+}
+
+@media (max-width:768px){
+
+.mobile-sign{
+
+position:fixed;
+bottom:0;
+left:0;
+width:100%;
+background:white;
+padding:15px;
+box-shadow:0 -10px 25px rgba(0,0,0,0.08);
+display:block;
+
+}
+
+.mobile-sign button{
+
+width:100%;
+
+}
+
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container" id="contract">
+
+<div class="header">
+
+<div>
+
+<div class="brand">COMAÍ <span>Plataforma</span></div>
+<div class="title">Contrato de Uso</div>
+
+</div>
+
+<div class="version">
+
+Versão 2.4.1<br>
+Atualizado: 24/05/2024
+
+</div>
+
+</div>
+
+<div class="body">
+
+<div class="terms" id="terms">
+
+<div class="section">
+<h3>1. Objeto</h3>
+<p>Este contrato estabelece as regras de uso da plataforma <strong>COMAÍ</strong>, sistema digital que permite a gestão de vendas online para estabelecimentos parceiros.</p>
+</div>
+
+<div class="section">
+<h3>2. Responsabilidades</h3>
+<p>O parceiro compromete-se a manter suas informações atualizadas e garantir o atendimento adequado aos pedidos realizados na plataforma.</p>
+</div>
+
+<div class="section">
+<h3>3. Segurança de Dados</h3>
+<p>A <strong>COMAÍ</strong> segue as diretrizes da LGPD garantindo a proteção e privacidade das informações.</p>
+</div>
+
+<div class="section">
+<h3>4. Licença</h3>
+<p>O software é licenciado exclusivamente para uso do parceiro cadastrado na plataforma.</p>
+</div>
+
+<div class="section">
+<h3>5. Cancelamento</h3>
+<p>A plataforma pode suspender contas que violem os termos estabelecidos.</p>
+</div>
+
+<div class="section">
+<h3>6. Atualizações</h3>
+<p>Os termos podem ser atualizados periodicamente para melhoria da plataforma.</p>
+</div>
+
+</div>
+
+<div class="sidebar">
+
+<div>
+
+<div class="progress-box">
+
+<strong>Leitura do contrato</strong>
+
+<div class="progress-bar">
+<div class="progress" id="progress"></div>
+</div>
+
+<small id="progressText">Leia o contrato</small>
+
+</div>
+
+<div class="signature">
+
+<label>Assinatura Digital</label>
+
+<input type="text" id="name" placeholder="Digite seu nome completo">
+
+<div class="checkbox">
+
+<input type="checkbox" id="check" disabled>
+
+<label>Confirmo que li e aceito os termos</label>
+
+</div>
+
+<button id="btn" disabled>Assinar Contrato</button>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="mobile-sign">
+
+<button id="mobileBtn" disabled>Assinar Contrato</button>
+
+</div>
+
+<div class="container success" id="success">
+
+<h2>✔ Contrato Assinado</h2>
+
+<p>Bem-vindo à <strong>COMAÍ</strong> 🚀</p>
+
+<p id="signatureData"></p>
+
+</div>
+
+<script>
+
+const terms = document.getElementById("terms")
+const progress = document.getElementById("progress")
+const progressText = document.getElementById("progressText")
+const checkbox = document.getElementById("check")
+const btn = document.getElementById("btn")
+const mobileBtn = document.getElementById("mobileBtn")
+const nameInput = document.getElementById("name")
+
+let contratoLido = false
+let tempoMinimo = false
+
+setTimeout(()=>{
+
+tempoMinimo = true
+
+},5000)
+
+terms.addEventListener("scroll",()=>{
+
+const scrollTop = terms.scrollTop
+const height = terms.scrollHeight - terms.clientHeight
+const percent = (scrollTop / height) * 100
+
+progress.style.width = percent + "%"
+
+if(percent > 95){
+
+checkbox.disabled = false
+contratoLido = true
+progressText.innerText = "Contrato lido"
+
+}
+
+})
+
+checkbox.addEventListener("change",validate)
+nameInput.addEventListener("input",validate)
+
+function validate(){
+
+const nome = nameInput.value
+
+if(nome.length > 3 && checkbox.checked && contratoLido && tempoMinimo){
+
+btn.disabled = false
+mobileBtn.disabled = false
+
+}else{
+
+btn.disabled = true
+mobileBtn.disabled = true
+
+}
+
+}
+
+function assinar(){
+
+const name = nameInput.value
+const date = new Date().toLocaleString()
+
+document.getElementById("contract").style.display="none"
+document.getElementById("success").style.display="block"
+
+document.getElementById("signatureData").innerText =
+"Assinado por: "+name+" em "+date
+
+setTimeout(()=>{
+
+window.location.href = "{% url 'create_my_store' %}";
+
+},2000)
+
+}
+
+btn.onclick = assinar
+mobileBtn.onclick = assinar
+
+</script>
+
+</body>
+</html>

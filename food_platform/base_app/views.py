@@ -35,6 +35,7 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.utils.http import urlsafe_base64_decode
 from django.utils.encoding import force_str
+from django.utils import timezone
 # Create your views here.
 
 
@@ -171,7 +172,7 @@ def create_my_store(request):
     if not pending_user and not request.user.is_authenticated:
         return redirect("login")
     
-
+    
     if request.method == "POST":
         form = RestaurantCreateForm(request.POST, request.FILES)
 
@@ -227,6 +228,8 @@ def create_my_store(request):
                     #  2. Criar restaurante
                     restaurant = form.save(commit=False)
                     restaurant.owner = user
+                    restaurant.terms_accepted = True
+                    restaurant.terms_accepted = timezone.now()
                     restaurant.save()
 
                     # 3. Criar vínculo
@@ -247,6 +250,9 @@ def create_my_store(request):
 
     return render(request, "platform/create_restaurant.html", {"form": form})
 
+
+def termos_plataforma(request):
+    return render(request, "platform/termos.html")
 
 def confirm_email(request, uidb64, token):
     try:
