@@ -18,7 +18,8 @@ from .views import (
     cart_detail,
     add_to_cart,
     category_edit,
-    category_delete
+    category_delete,
+    termos_plataforma
 )
 
 urlpatterns = [
@@ -43,6 +44,8 @@ urlpatterns = [
     path("platform/", platform_dashboard, name="platform_dashboard"),
     path("platform/restaurants/new/", create_restaurant, name="create_restaurant"),
     path("platform/store-admin/new/", create_store_admin, name="create_store_admin"),
+
+    path("termos/", views.termos_plataforma, name="termos"),
 
     # 🔽 STORE
     #Provavelmente terei que coementar uma dessa duas create_my_store para evitar conflito de rota

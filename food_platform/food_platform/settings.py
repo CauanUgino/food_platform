@@ -131,6 +131,16 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+# Aumenta o limite de memória para 10MB (padrão é 2.5MB)
+# Arquivos menores que isso serão processados na RAM, o que é mais rápido.
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10MB em bytes
+
+# Limite total do corpo da requisição (POST + Arquivos)
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10MB
+
+# (Opcional) Define onde os arquivos temporários serão salvos
+# FILE_UPLOAD_TEMP_DIR = '/tmp'
+
 
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/entrar/'   # ou 'entry_point'
