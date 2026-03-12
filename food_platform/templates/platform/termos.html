@@ -432,32 +432,72 @@ Atualizado: 24/05/2024
 
 <div class="section">
 <h3>1. Objeto</h3>
-<p>Este contrato estabelece as regras de uso da plataforma <strong>COMAÍ</strong>, sistema digital que permite a gestão de vendas online para estabelecimentos parceiros.</p>
+<p>O presente contrato tem por objeto a licença de uso da plataforma <strong>COMAÍ</strong>, uma ferramenta de vitrine digital que permite ao PARCEIRO a 
+exposição de produtos e o recebimento de pedidos de forma organizada via 
+WhatsApp.</p>
+</div>
+
+<div class="section">
+<h3>1.1. Contratante</h3>
+<p>O estabelecimento comercial cujos os dados foram fornecidos no ato do cadastro, doravante denominado <strong>PARCEIRO</strong>.</p>
 </div>
 
 <div class="section">
 <h3>2. Responsabilidades</h3>
-<p>O parceiro compromete-se a manter suas informações atualizadas e garantir o atendimento adequado aos pedidos realizados na plataforma.</p>
+<p>2.1. O PARCEIRO é o único 
+responsável pela gestão de seu cardápio, preços, disponibilidade de estoque e 
+prazos de entrega. 2.2. A <strong>COMAÍ</strong> não interfere na transação financeira entre o 
+PARCEIRO e o cliente final, sendo apenas uma ponte tecnológica de 
+comunicação. 2.3. O PARCEIRO declara possuir os direitos de imagem de todo 
+conteúdo (logos e fotos) carregado na plataforma.</p>
 </div>
 
 <div class="section">
-<h3>3. Segurança de Dados</h3>
-<p>A <strong>COMAÍ</strong> segue as diretrizes da LGPD garantindo a proteção e privacidade das informações.</p>
+<h3>3. Proteção de Dados e LGPD(LEI Nº 13.709/2018)</h3>
+<p>3.1. <strong>Papéis:</strong> O 
+PARCEIRO é o <strong>Controlador</strong> dos dados pessoais de seus clientes (nome, 
+telefone, endereço). A COMAÍ atua como <strong>Operadora</strong>, fornecendo a 
+infraestrutura para o processamento desses dados. 3.2. <strong>Finalidade:</strong> Os dados 
+coletados serão utilizados exclusivamente para a formalização do pedido e 
+logística de entrega. 3.3. <strong>Segurança:</strong> A COMAÍ compromete-se a adotar 
+medidas técnicas de segurança para proteger os dados contra acessos não 
+autorizados. 3.4. <strong>Compartilhamento:</strong> Os dados dos clientes finais não serão 
+comercializados ou compartilhados com terceiros pela COMAÍ, salvo por ordem 
+judicial. </p>
+</div>
+
+
+<div class="section">
+<h3>4. Propriedade Intelectual</h3>
+<p>Todo o código-fonte, design, marca e 
+identidade visual da plataforma pertencem exclusivamente à <strong>COMAÍ</strong>. O 
+PARCEIRO possui apenas o direito de uso temporário conforme o plano 
+contratado.</p>
 </div>
 
 <div class="section">
-<h3>4. Licença</h3>
-<p>O software é licenciado exclusivamente para uso do parceiro cadastrado na plataforma.</p>
-</div>
-
-<div class="section">
-<h3>5. Cancelamento</h3>
-<p>A plataforma pode suspender contas que violem os termos estabelecidos.</p>
+<h3>5. Virgência e Rescisão</h3>
+<p>6.1. Este contrato entra em vigor na data da 
+aceitação digital (cadastro). 6.2. O PARCEIRO pode cancelar o serviço a 
+qualquer momento, sem multa. 6.3. A COMAÍ 
+reserva-se o direito de suspender vitrines que apresentem conteúdo ilícito ou 
+comportamento fraudulento. </p>
 </div>
 
 <div class="section">
 <h3>6. Atualizações</h3>
 <p>Os termos podem ser atualizados periodicamente para melhoria da plataforma.</p>
+</div>
+
+<div class="section">
+<h3>7. Disposição Geral</h3>
+<p>7.1. Este contrato é regido pelas leis da República 
+Federativa do Brasil.</p>
+</div>
+
+<div class="section">
+<h3>8. Aceitação</h3>
+<p>Ao assinar digitalmente este contrato, o <strong>PARCEIRO</strong> concorda com todos os termos e condições aqui estabelecidos, comprometendo-se a cumprir integralmente as obrigações assumidas.</p>
 </div>
 
 </div>
@@ -591,6 +631,8 @@ document.getElementById("signatureData").innerText =
 
 setTimeout(()=>{
 
+
+///////// Talvez eu tenha que redirecionar para a dashboard ou algo do tipo, mas por enquanto só vou deixar um alerta//////
 window.location.href = "{% url 'create_my_store' %}";
 
 },2000)
