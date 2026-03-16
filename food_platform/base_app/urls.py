@@ -20,6 +20,11 @@ from .views import (
     category_edit,
     category_delete,
     termos_plataforma
+    
+    
+    
+    
+    
 )
 
 urlpatterns = [
@@ -51,7 +56,11 @@ urlpatterns = [
     #Provavelmente terei que coementar uma dessa duas create_my_store para evitar conflito de rota
     path("minha-vitrine/criar/", views.create_my_store, name="create_my_store"),
     path("store/dashboard/", store_dashboard, name="store_dashboard"),
+
     
+    path("pagamento/", views.partner_payment, name="partner_payment"),
+    path("pagamento/enviar/", views.upload_payment_proof, name="upload_payment_proof"),
+        
 
 
     # (mantida – mesmo sendo redundante)

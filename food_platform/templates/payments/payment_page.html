@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Ativar Loja | COMAÍ</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Inter',sans-serif;
+}
+
+body{
+min-height:100vh;
+display:flex;
+align-items:center;
+justify-content:center;
+background:linear-gradient(135deg,#f6f7fb,#eef1f7);
+padding:20px;
+}
+
+.container{
+width:100%;
+max-width:520px;
+}
+
+.card{
+background:white;
+padding:40px;
+border-radius:22px;
+box-shadow:0 20px 70px rgba(0,0,0,0.08);
+text-align:center;
+animation:fadeUp .7s ease;
+}
+
+@keyframes fadeUp{
+from{
+opacity:0;
+transform:translateY(30px);
+}
+to{
+opacity:1;
+transform:translateY(0);
+}
+}
+
+.logo{
+font-size:36px;
+font-weight:800;
+letter-spacing:4px;
+margin-bottom:10px;
+
+background:linear-gradient(90deg,#ea1d2c,#ff6b6b,#ea1d2c);
+background-size:200% auto;
+color:transparent;
+background-clip:text;
+-webkit-background-clip:text;
+
+animation:gradientMove 4s linear infinite, glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes gradientMove{
+0%{background-position:0% center}
+100%{background-position:200% center}
+}
+
+@keyframes glow{
+from{ text-shadow:0 0 10px rgba(234,29,44,0.4); }
+to{ text-shadow:0 0 20px rgba(234,29,44,0.8); }
+}
+
+.subtitle{
+color:#666;
+margin-bottom:30px;
+font-size:15px;
+}
+
+.plan-box{
+background:linear-gradient(135deg,#fff5f5,#fff);
+border:2px solid #ffdede;
+padding:24px;
+border-radius:16px;
+margin-bottom:25px;
+transition:.3s;
+}
+
+.plan-box:hover{
+transform:scale(1.04);
+box-shadow:0 15px 35px rgba(0,0,0,0.08);
+}
+
+.plan-box h3{
+color:#ea1d2c;
+font-size:22px;
+margin-bottom:8px;
+}
+
+.plan-box span{
+font-size:32px;
+font-weight:800;
+}
+
+.pix-key{
+background:#f4f4f4;
+padding:14px;
+border-radius:10px;
+font-weight:600;
+margin:15px 0;
+}
+
+.copy-btn{
+background:#ea1d2c;
+color:white;
+border:none;
+padding:14px;
+border-radius:12px;
+cursor:pointer;
+font-weight:600;
+width:100%;
+transition:.25s;
+}
+
+.copy-btn:hover{
+transform:translateY(-3px);
+box-shadow:0 10px 25px rgba(234,29,44,0.4);
+}
+
+.upload{
+margin-top:25px;
+text-align:left;
+}
+
+.upload label{
+font-weight:600;
+display:block;
+margin-bottom:8px;
+font-size:14px;
+}
+
+input[type="file"]{
+width:100%;
+padding:12px;
+border:1px solid #ddd;
+border-radius:10px;
+margin-bottom:18px;
+font-size:14px;
+}
+
+/* BOTÃO WHATSAPP MELHORADO */
+
+.submit-btn{
+
+width:100%;
+display:flex;
+align-items:center;
+justify-content:center;
+gap:10px;
+
+background:linear-gradient(135deg,#25D366,#1ebe5d);
+
+color:white;
+border:none;
+padding:18px;
+border-radius:14px;
+
+font-size:17px;
+font-weight:700;
+
+cursor:pointer;
+
+position:relative;
+overflow:hidden;
+
+transition:.35s;
+
+box-shadow:0 12px 25px rgba(37,211,102,0.35);
+
+animation:pulseSoft 3s infinite;
+}
+
+/* brilho passando */
+
+.submit-btn::before{
+content:"";
+position:absolute;
+top:0;
+left:-100%;
+width:100%;
+height:100%;
+background:linear-gradient(
+120deg,
+transparent,
+rgba(255,255,255,0.4),
+transparent
+);
+transition:.6s;
+}
+
+.submit-btn:hover::before{
+left:100%;
+}
+
+/* hover */
+
+.submit-btn:hover{
+transform:translateY(-4px) scale(1.02);
+box-shadow:0 16px 40px rgba(37,211,102,0.45);
+}
+
+/* clique */
+
+.submit-btn:active{
+transform:scale(0.97);
+}
+
+/* animação do ícone */
+
+.whatsapp-icon{
+font-size:20px;
+animation:iconBounce 2s infinite;
+}
+
+@keyframes iconBounce{
+0%,100%{
+transform:translateY(0);
+}
+50%{
+transform:translateY(-3px);
+}
+}
+
+/* pulse suave */
+
+@keyframes pulseSoft{
+0%{
+box-shadow:0 0 0 0 rgba(37,211,102,0.4);
+}
+70%{
+box-shadow:0 0 0 18px rgba(37,211,102,0);
+}
+100%{
+box-shadow:0 0 0 0 rgba(37,211,102,0);
+}
+}
+
+.note{
+font-size:13px;
+color:#777;
+margin-top:20px;
+}
+
+.copied{
+margin-top:10px;
+font-size:13px;
+color:#2ecc71;
+opacity:0;
+transition:.3s;
+}
+
+.copied.show{
+opacity:1;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="card">
+
+<div class="logo">
+COMAÍ
+</div>
+
+<p class="subtitle">
+Ative sua vitrine e comece a receber pedidos hoje mesmo
+</p>
+
+<div class="plan-box">
+<h3>Plano Parceiro</h3>
+<span>R$ 49</span> / mês
+</div>
+
+<p>Use a chave abaixo para realizar o pagamento:</p>
+
+<div class="pix-key" id="pixKey">
+comaioficial@gmail.com
+</div>
+
+<button class="copy-btn" onclick="copyPix()">
+ Copiar chave PIX
+</button>
+
+<div class="copied" id="copiedMsg">
+✔ Chave copiada com sucesso
+</div>
+
+<div class="upload">
+
+<label>Selecione o comprovante</label>
+
+<input type="file" id="proofFile" required>
+
+<button class="submit-btn" onclick="sendWhatsApp()">
+
+
+
+Enviar comprovante via WhatsApp
+
+</button>
+
+</div>
+
+<p class="note">
+Após o envio, nossa equipe irá validar o pagamento e liberar sua loja.
+</p>
+
+</div>
+
+</div>
+
+<script>
+
+function copyPix(){
+
+let key=document.getElementById("pixKey").innerText
+navigator.clipboard.writeText(key)
+
+let msg=document.getElementById("copiedMsg")
+msg.classList.add("show")
+
+setTimeout(()=>{
+msg.classList.remove("show")
+},2000)
+
+}
+
+function sendWhatsApp(){
+
+let file=document.getElementById("proofFile").files.length
+
+if(file === 0){
+alert("Selecione o comprovante antes de enviar.")
+return
+}
+
+let phone="5579999411765"
+
+let message=encodeURIComponent(
+"Olá! Acabei de realizar o pagamento do plano parceiro da COMAÍ. Estou enviando o comprovante."
+)
+
+let url="https://wa.me/"+phone+"?text="+message
+
+window.open(url,"_blank")
+
+}
+
+</script>
+
+</body>
+</html>

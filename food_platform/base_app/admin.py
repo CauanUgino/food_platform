@@ -1,4 +1,5 @@
 from django.contrib import admin
+from .models import PartnerPayment
 from .models import (
     Restaurant,
     StoreProfile,
@@ -71,6 +72,27 @@ class RestaurantAdmin(admin.ModelAdmin):
 @admin.register(StoreProfile)
 class StoreProfileAdmin(admin.ModelAdmin):
     list_display = ("user", "restaurant", "role")
+
+
+
+
+@admin.register(PartnerPayment)
+class PartnerPaymentAdmin(admin.ModelAdmin):
+
+    list_display = ("user", "restaurant", "amount", "status", "created_at")
+
+    actions = ["approve_payment"]
+
+    def approve_payment(self, request, queryset):
+
+        for payment in queryset:
+
+            payment.status = "approved"
+            payment.save()
+
+            restaurant = payment.restaurant
+            restaurant.is_active = True
+            restaurant.save()
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):

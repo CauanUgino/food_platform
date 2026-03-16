@@ -36,6 +36,8 @@ from django.conf import settings
 from django.utils.http import urlsafe_base64_decode
 from django.utils.encoding import force_str
 from django.utils import timezone
+from .models import PartnerPayment
+from django.contrib.sessions.exceptions import SessionInterrupted
 # Create your views here.
 
 
@@ -133,6 +135,9 @@ def store_dashboard(request):
 
     restaurant = profile.restaurant
 
+    if not restaurant.is_active:
+        return redirect("partner_payment")  
+
     context = {
         "restaurant": restaurant,
         "total_categories": restaurant.categories.count(),
@@ -144,6 +149,58 @@ def store_dashboard(request):
     }
 
     return render(request, "platform/dashboard.html", context)
+
+
+
+
+
+@login_required
+def partner_payment(request):
+
+    profile = StoreProfile.objects.get(user=request.user)
+    restaurant = profile.restaurant
+
+    if restaurant.is_active:
+        return redirect("store_dashboard")
+
+    return render(request, "payments/payment_page.html", {
+        "restaurant": restaurant,
+        "price": 49
+    })
+
+
+@login_required
+def upload_payment_proof(request):
+
+    profile = StoreProfile.objects.get(user=request.user)
+    restaurant = profile.restaurant
+
+    if request.method == "POST":
+
+        proof = request.FILES.get("proof")
+
+        PartnerPayment.objects.create(
+            user=request.user,
+            restaurant=restaurant,
+            amount=49,
+            proof=proof,
+            status="pending"
+        )
+
+        # DESATIVA usuário até aprovação
+        request.user.is_active = False
+        request.user.save()
+
+        # Faz logout
+        logout(request)
+
+        messages.success(
+            request,
+            "Comprovante enviado! Aguarde aprovação. Você poderá acessar a loja após ativação."
+        )
+        return redirect("login")
+
+    return redirect("partner_payment")
 
 @login_required
 def entry_point(request):
@@ -165,27 +222,25 @@ def entry_point(request):
 #Removi a autenticação de login porque o usuario está criando a loja, ou seja, não tem como estar logado. O login só acontece depois que o usuário é criado, ou seja, lá no final do processo de criação da loja.
 #Outra coisa, a criação do usuário agora acontece dentro de uma transação atômica junto com a criação da loja e do perfil, garantindo que tudo ou nada seja criado. Isso evita ter usuários sem loja ou lojas sem usuário.
 ####Essa função ainda possui um erro na hora de concluir o cadastro ela não está sendo direcionada para o dashboard da loja, isso acontece porque o login só é feito depois de criar o usuário, e o redirecionamento para o dashboard da loja acontece antes do login, ou seja, ele não reconhece que o usuário acabou de ser criado e logado. Para resolver isso, basta fazer o login do usuário logo após criar a conta, dentro da mesma transação atômica. Assim, quando chegar no redirecionamento para o dashboard da loja, ele já vai reconhecer que o usuário está autenticado e tem uma loja vinculada.
+
+
+
 def create_my_store(request):
     pending_user = request.session.get("pending_superuser")
 
-    # Se não tem dados pendentes e não é staff/superuser logado
+
     if not pending_user and not request.user.is_authenticated:
         return redirect("login")
     
-    
+
     if request.method == "POST":
         form = RestaurantCreateForm(request.POST, request.FILES)
 
         if form.is_valid():
             try:
-                # Tudo dentro de uma transação atômica para garantir integridade
-                # Se algo falhar, nada será salvo no banco
-                # O processo é: 1. Criar usuário (se necessário) → 2. Criar restaurante → 3. Criar perfil vinculado
-                #Se o usuário já estiver logado (caso do superuser que criou a conta antes), ele usará esse usuário para criar a loja, sem criar um novo usuário.
-                #Se apertar em voltar será abortadodo
-                with transaction.atomic():
 
-                    # 1. Criar usuário apenas agora
+                with transaction.atomic():
+                    # 1. Criar usuário (se necessário)
                     if pending_user:
                         user = User.objects.create_user(
                             username=pending_user["username"],
@@ -197,39 +252,22 @@ def create_my_store(request):
                         user.is_active = True
                         user.save()
 
-
-                        #####Parte de validação de conta atraves de email (opcional, mas recomendado para segurança)####
-                        #####Deixar funcional depois, por enquanto vou comentar para não atrapalhar os testes#####
-                        ####Parte desta validação esta no settings.py, onde tem as configurações de email, para funcionar é necessário configurar um email real e usar uma senha de app (para segurança)####
-                        
-                        #uid = urlsafe_base64_encode(force_bytes(user.pk))
-                        #token = default_token_generator.make_token(user)
-
-                        #confirm_link = request.build_absolute_uri(
-                            #f"/confirmar-email/{uid}/{token}/"
-                        #)                    
-                        #send_mail(
-                            #subject="Bem-vindo à Comaí! Confirme seu cadastro",
-                            #message= f"Olá! Sua conta foi criada com sucesso. Por favor, confirme seu cadastro clicando no link abaixo:\n {confirm_link}\n\nSe você não solicitou este cadastro, por favor ignore este email.",
-                            #from_email=settings.DEFAULT_FROM_EMAIL,
-                            #recipient_list=[user.email],
-                        #)
-
+                        # ✅ LOGIN IMEDIATO e salva sessão ANTES de continuar
                         login(request, user)
-
+                        request.session.save()  # ← Força salvar a sessão
                         
-
-                        # limpa sessão temporária
-                        del request.session["pending_superuser"]
+                        # Limpa sessão temporária
+                        if "pending_superuser" in request.session:
+                            del request.session["pending_superuser"]
 
                     else:
                         user = request.user
 
-                    #  2. Criar restaurante
+                    # 2. Criar restaurante
                     restaurant = form.save(commit=False)
                     restaurant.owner = user
                     restaurant.terms_accepted = True
-                    restaurant.terms_accepted = timezone.now()
+                    restaurant.terms_accepted_date = timezone.now()  # ← Corrigido o nome do campo
                     restaurant.save()
 
                     # 3. Criar vínculo
@@ -239,11 +277,20 @@ def create_my_store(request):
                         role="OWNER"
                     )
 
+                # ✅ SESSÃO FINALIZADA com sucesso
                 messages.success(request, "Cadastro concluído com sucesso!")
+                
+                # Força salvar sessão antes do redirect
+                request.session.save()
                 return redirect("store_dashboard")
 
             except Exception as e:
-                messages.error(request, f"Erro ao finalizar cadastro: {e}")
+                # ✅ TRATAMENTO da exceção SessionInterrupted
+                if isinstance(e, SessionInterrupted):
+                    messages.error(request, "Sessão expirou. Faça login novamente.")
+                    return redirect("login")
+                messages.error(request, f"Erro ao finalizar cadastro: {str(e)}")
+                return redirect("register_superuser")
 
     else:
         form = RestaurantCreateForm()
