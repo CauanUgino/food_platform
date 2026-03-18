@@ -107,25 +107,164 @@ def register_superuser(request):
 def logout_view(request):
     logout(request)
     return redirect('login')
+    
 
 
-@login_required
-def platform_dashboard(request):
+
+def admin_platform_dashboard(request):
     if not request.user.is_superuser:
         return redirect("home")
 
     restaurants = Restaurant.objects.all()
-    return render(request, "platform/dashboard.html", {
-        "restaurants": restaurants
+    # Adicionei o status='pending' para não carregar todos os pagamentos da história de uma vez
+    payments = PartnerPayment.objects.filter(status="pending").select_related("restaurant", "user")
+
+    context = {
+        "restaurants": restaurants,
+        "payments": payments,
+        "total_restaurants": restaurants.count(),
+        "active_restaurants": restaurants.filter(is_active=True).count(),
+        "pending_payments": payments.count()
+    }
+
+    return render(request, "platform_admin/dashboard_admin.html", context)
+
+
+@login_required
+def payments_list(request):
+    if not request.user.is_superuser:
+        return redirect("home")
+
+    payments = PartnerPayment.objects.filter(status="pending")
+
+    return render(request,"platform_admin/payments_list.html",{
+        "payments": payments
     })
 
+
+@login_required
+def approve_payment(request, payment_id):
+
+    if not request.user.is_superuser:
+        return redirect("home")
+
+    payment = get_object_or_404(PartnerPayment,id=payment_id)
+
+    payment.status = "approved"
+    payment.save()
+
+    restaurant = payment.restaurant
+    restaurant.is_active = True
+    restaurant.save()
+
+    user = payment.user
+    user.is_active = True
+    user.save()
+
+    messages.success(request,"Pagamento aprovado e loja ativada!")
+
+    return redirect("payments_list")
+
+
+@login_required
+def reject_payment(request, payment_id):
+
+    if not request.user.is_superuser:
+        return redirect("home")
+
+    payment = get_object_or_404(PartnerPayment,id=payment_id)
+
+    payment.status = "rejected"
+    payment.save()
+
+    messages.error(request,"Pagamento recusado")
+
+    return redirect("payments_list")
+
+
+
+@login_required
+def deactivate_restaurant(request, restaurant_id):
+
+    if not request.user.is_superuser:
+        return redirect("home")
+
+    restaurant = get_object_or_404(Restaurant,id=restaurant_id)
+
+    restaurant.is_active = False
+    restaurant.save()
+
+    messages.warning(request,"Loja desativada")
+
+    return redirect("platform_dashboard_admin")
+
+
+@login_required
+def activate_restaurant(request, restaurant_id):
+
+    if not request.user.is_superuser:
+        return redirect("home")
+
+    restaurant = get_object_or_404(Restaurant,id=restaurant_id)
+
+    restaurant.is_active = True
+    restaurant.save()
+
+    messages.success(request,"Loja ativada")
+
+    return redirect("platform_dashboard_admin")
+
+def update_restaurant_status(request, restaurant_id):
+
+    restaurant = get_object_or_404(Restaurant, id=restaurant_id)
+
+    status = request.POST.get("status")
+
+    if status == "active":
+        restaurant.is_active = True
+    else:
+        restaurant.is_active = False
+
+    restaurant.save()
+
+    return redirect("platform_dashboard_admin")
+
+def update_payment_status(request, restaurant_id):
+
+    restaurant = get_object_or_404(Restaurant, id=restaurant_id)
+
+    status = request.POST.get("payment_status")
+
+    restaurant.payment_status = status
+    restaurant.save()
+
+    if status == "blocked":
+        restaurant.is_active = False
+        restaurant.save()
+
+    return redirect("platform_dashboard_admin")
+
+def update_payment_status(request, restaurant_id):
+
+    restaurant = get_object_or_404(Restaurant, id=restaurant_id)
+
+    status = request.POST.get("payment_status")
+
+    restaurant.payment_status = status
+    restaurant.save()
+
+    if status == "blocked":
+        restaurant.is_active = False
+        restaurant.save()
+
+    return redirect("platform_dashboard")
 
 
 @login_required
 def store_dashboard(request):
     # Superusuário (admin da plataforma)
     if request.user.is_superuser:
-        return redirect("platform_dashboard")
+        return redirect("platform_dashboard_admin")
 
     try:
         profile = StoreProfile.objects.get(user=request.user)
@@ -204,18 +343,20 @@ def upload_payment_proof(request):
 
 @login_required
 def entry_point(request):
-    # 1. Se tem loja, vai para o dashboard da loja
+
+    # 1️⃣ Admin SEMPRE primeiro
+    if request.user.is_superuser:
+        return redirect("platform_dashboard_admin")
+
+    # 2️⃣ Dono de loja
     if StoreProfile.objects.filter(user=request.user).exists():
         return redirect("store_dashboard")
-    
-    # 2. Se é superuser e NÃO tem loja, vai para o painel da plataforma
-    if request.user.is_superuser:
-        return redirect("platform_dashboard")
 
-    # 3. Se é staff (gestor) e não tem loja, criar vitrine
+    # 3️⃣ Staff sem loja
     if request.user.is_staff:
         return redirect("create_my_store")
 
+    # 4️⃣ Cliente comum
     return redirect("home")
 
 
@@ -366,7 +507,7 @@ def create_restaurant(request):
         restaurant = form.save(commit=False)
         restaurant.owner = request.user
         restaurant.save()
-        return redirect("platform_dashboard")
+        return redirect("platform_dashboard_admin")
 
     return render(request, "platform/create_restaurant.html", {
         "form": form
@@ -390,7 +531,7 @@ def create_store_admin(request):
             restaurant=form.cleaned_data["restaurant"]
         )
 
-        return redirect("platform_dashboard")
+        return redirect("platform_dashboard_admin")
 
     return render(request, "platform/create_store_admin.html", {
         "form": form
@@ -764,6 +905,7 @@ def create_order(request):
 
     except Exception as e:
         messages.error(request, f"Erro ao processar pedido: {str(e)}")
+        #Provavelmente eu terei que remover esse order succes.html por conta que o Redirect usa nome da URL, não template.
         return redirect("orders/order_sucess.html")
 
 
@@ -809,6 +951,8 @@ def order_success(request, order_id):
 
     whatsapp_url = f"https://wa.me/{restaurant_whatsapp}?text={quote(whatsapp_text)}"
 
+
+     
     return render(request, "orders/order_success.html", {
         "order": order, 
         "total": order.total_price,

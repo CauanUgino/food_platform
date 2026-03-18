@@ -1,0 +1,243 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+
+.dashboard-container{
+max-width:1200px;
+margin:auto;
+padding:40px 20px;
+font-family:'Inter',sans-serif;
+}
+
+.dashboard-title{
+font-size:28px;
+font-weight:800;
+margin-bottom:35px;
+color:#14532d;
+}
+
+/* CARDS */
+
+.cards{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:20px;
+margin-bottom:40px;
+}
+
+.card{
+background:white;
+padding:22px;
+border-radius:12px;
+box-shadow:0 10px 25px rgba(0,0,0,0.05);
+border-left:5px solid #16a34a;
+}
+
+/* TABLE */
+
+.table{
+width:100%;
+border-collapse:collapse;
+background:white;
+border-radius:12px;
+overflow:hidden;
+box-shadow:0 10px 25px rgba(0,0,0,0.05);
+}
+
+.table thead{
+background:#16a34a;
+color:white;
+}
+
+.table th, .table td{
+padding:14px;
+}
+
+/* STATUS */
+
+.status-active{ color:#16a34a; font-weight:600; }
+.status-inactive{ color:#ef4444; font-weight:600; }
+
+/* PAYMENT */
+
+.pay-ok{background:#dcfce7;color:#166534;padding:5px 10px;border-radius:6px;font-size:12px;font-weight:600;}
+.pay-pending{background:#fef9c3;color:#854d0e;padding:5px 10px;border-radius:6px;font-size:12px;font-weight:600;}
+.pay-late{background:#fee2e2;color:#991b1b;padding:5px 10px;border-radius:6px;font-size:12px;font-weight:600;}
+.pay-blocked{background:#111827;color:white;padding:5px 10px;border-radius:6px;font-size:12px;font-weight:600;}
+
+/* SELECT */
+
+.status-select{
+padding:6px 10px;
+border-radius:6px;
+border:1px solid #ddd;
+}
+
+/* SWITCH */
+
+.switch{
+position:relative;
+display:inline-block;
+width:46px;
+height:24px;
+}
+
+.switch input{
+opacity:0;
+width:0;
+height:0;
+}
+
+.slider{
+position:absolute;
+cursor:pointer;
+top:0;
+left:0;
+right:0;
+bottom:0;
+background:#ccc;
+transition:.3s;
+border-radius:34px;
+}
+
+.slider:before{
+content:"";
+position:absolute;
+height:18px;
+width:18px;
+left:3px;
+bottom:3px;
+background:white;
+transition:.3s;
+border-radius:50%;
+}
+
+input:checked + .slider{
+background:#16a34a;
+}
+
+input:checked + .slider:before{
+transform:translateX(22px);
+}
+
+</style>
+
+
+<div class="dashboard-container">
+
+<div class="dashboard-title">
+📊 Painel da Plataforma — COMAÍ
+</div>
+
+<div class="cards">
+<div class="card">
+<h3>Total de Restaurantes</h3>
+<p>{{ total_restaurants }}</p>
+</div>
+
+<div class="card">
+<h3>Restaurantes Ativos</h3>
+<p>{{ active_restaurants }}</p>
+</div>
+
+<div class="card">
+<h3>Pagamentos Pendentes</h3>
+<p>{{ pending_payments }}</p>
+</div>
+</div>
+
+
+<h2>🍽 Restaurantes cadastrados</h2>
+
+<table class="table">
+
+<thead>
+<tr>
+<th>Restaurante</th>
+<th>Dono</th>
+<th>Status</th>
+<th>Pagamento</th>
+<th>Pagamento</th>
+<th>Ativar</th>
+</tr>
+</thead>
+
+<tbody>
+
+{% for restaurant in restaurants %}
+
+<tr>
+
+<td><strong>{{ restaurant.name }}</strong></td>
+<td>{{ restaurant.owner.username }}</td>
+
+<td>
+{% if restaurant.is_active %}
+<span class="status-active">🟢 Ativo</span>
+{% else %}
+<span class="status-inactive">🔴 Inativo</span>
+{% endif %}
+</td>
+
+<td>
+{% if restaurant.payment_status == "paid" %}
+<span class="pay-ok">Em dia</span>
+{% elif restaurant.payment_status == "pending" %}
+<span class="pay-pending">Pendente</span>
+{% elif restaurant.payment_status == "late" %}
+<span class="pay-late">Atrasado</span>
+{% elif restaurant.payment_status == "blocked" %}
+<span class="pay-blocked">Bloqueado</span>
+{% endif %}
+</td>
+
+<td>
+<form method="POST" action="{% url 'update_payment_status' restaurant.id %}">
+{% csrf_token %}
+<select name="payment_status" class="status-select" onchange="this.form.submit()">
+<option value="paid" {% if restaurant.payment_status == "paid" %}selected{% endif %}>Em dia</option>
+<option value="pending" {% if restaurant.payment_status == "pending" %}selected{% endif %}>Pendente</option>
+<option value="late" {% if restaurant.payment_status == "late" %}selected{% endif %}>Atrasado</option>
+<option value="blocked" {% if restaurant.payment_status == "blocked" %}selected{% endif %}>Bloqueado</option>
+</select>
+</form>
+</td>
+
+<td>
+
+{% if restaurant.is_active %}
+
+<form method="POST" action="{% url 'deactivate_restaurant' restaurant.id %}">
+{% csrf_token %}
+<label class="switch">
+<input type="checkbox" checked onchange="this.form.submit()">
+<span class="slider"></span>
+</label>
+</form>
+
+{% else %}
+
+<form method="POST" action="{% url 'activate_restaurant' restaurant.id %}">
+{% csrf_token %}
+<label class="switch">
+<input type="checkbox" onchange="this.form.submit()">
+<span class="slider"></span>
+</label>
+</form>
+
+{% endif %}
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+</table>
+
+</div>
+
+{% endblock %}

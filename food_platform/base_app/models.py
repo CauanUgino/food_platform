@@ -38,6 +38,19 @@ class Restaurant(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
 
+    PAYMENT_STATUS = [
+    ("paid", "Em dia"),
+    ("pending", "Pendente"),
+    ("late", "Atrasado"),
+    ("blocked", "Bloqueado"),
+    ]
+
+    payment_status = models.CharField(
+        max_length=20,
+        choices=PAYMENT_STATUS,
+        default="pending"
+        )
+
     def __str__(self):
         return self.name
 

@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Ativação da Loja</h1>
+
+<p>
+Para ativar sua loja <strong>{{ restaurant.name }}</strong>,
+realize o pagamento abaixo e envie o comprovante.
+</p>
+
+<h2>Valor: R$ {{ price }}</h2>
+
+<hr>
+
+<h3>Dados para pagamento</h3>
+
+<p>PIX: pagamento@comai.com</p>
+<p>Banco: Nubank</p>
+<p>Nome: COMAÍ TECNOLOGIA</p>
+
+<hr>
+
+<h3>Enviar comprovante</h3>
+
+<form method="POST" enctype="multipart/form-data" action="{% url 'upload_payment_proof' %}">
+{% csrf_token %}
+
+<input type="file" name="proof" required>
+
+<br><br>
+
+<button type="submit">
+Enviar comprovante
+</button>
+
+</form>
+
+{% endblock %}
