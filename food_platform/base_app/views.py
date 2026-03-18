@@ -36,6 +36,8 @@ from django.conf import settings
 from django.utils.http import urlsafe_base64_decode
 from django.utils.encoding import force_str
 from django.utils import timezone
+from .models import PartnerPayment
+from django.contrib.sessions.exceptions import SessionInterrupted
 # Create your views here.
 
 
@@ -105,25 +107,164 @@ def register_superuser(request):
 def logout_view(request):
     logout(request)
     return redirect('login')
+    
 
 
-@login_required
-def platform_dashboard(request):
+
+def admin_platform_dashboard(request):
     if not request.user.is_superuser:
         return redirect("home")
 
     restaurants = Restaurant.objects.all()
-    return render(request, "platform/dashboard.html", {
-        "restaurants": restaurants
+    # Adicionei o status='pending' para não carregar todos os pagamentos da história de uma vez
+    payments = PartnerPayment.objects.filter(status="pending").select_related("restaurant", "user")
+
+    context = {
+        "restaurants": restaurants,
+        "payments": payments,
+        "total_restaurants": restaurants.count(),
+        "active_restaurants": restaurants.filter(is_active=True).count(),
+        "pending_payments": payments.count()
+    }
+
+    return render(request, "platform_admin/dashboard_admin.html", context)
+
+
+@login_required
+def payments_list(request):
+    if not request.user.is_superuser:
+        return redirect("home")
+
+    payments = PartnerPayment.objects.filter(status="pending")
+
+    return render(request,"platform_admin/payments_list.html",{
+        "payments": payments
     })
 
+
+@login_required
+def approve_payment(request, payment_id):
+
+    if not request.user.is_superuser:
+        return redirect("home")
+
+    payment = get_object_or_404(PartnerPayment,id=payment_id)
+
+    payment.status = "approved"
+    payment.save()
+
+    restaurant = payment.restaurant
+    restaurant.is_active = True
+    restaurant.save()
+
+    user = payment.user
+    user.is_active = True
+    user.save()
+
+    messages.success(request,"Pagamento aprovado e loja ativada!")
+
+    return redirect("payments_list")
+
+
+@login_required
+def reject_payment(request, payment_id):
+
+    if not request.user.is_superuser:
+        return redirect("home")
+
+    payment = get_object_or_404(PartnerPayment,id=payment_id)
+
+    payment.status = "rejected"
+    payment.save()
+
+    messages.error(request,"Pagamento recusado")
+
+    return redirect("payments_list")
+
+
+
+@login_required
+def deactivate_restaurant(request, restaurant_id):
+
+    if not request.user.is_superuser:
+        return redirect("home")
+
+    restaurant = get_object_or_404(Restaurant,id=restaurant_id)
+
+    restaurant.is_active = False
+    restaurant.save()
+
+    messages.warning(request,"Loja desativada")
+
+    return redirect("platform_dashboard_admin")
+
+
+@login_required
+def activate_restaurant(request, restaurant_id):
+
+    if not request.user.is_superuser:
+        return redirect("home")
+
+    restaurant = get_object_or_404(Restaurant,id=restaurant_id)
+
+    restaurant.is_active = True
+    restaurant.save()
+
+    messages.success(request,"Loja ativada")
+
+    return redirect("platform_dashboard_admin")
+
+def update_restaurant_status(request, restaurant_id):
+
+    restaurant = get_object_or_404(Restaurant, id=restaurant_id)
+
+    status = request.POST.get("status")
+
+    if status == "active":
+        restaurant.is_active = True
+    else:
+        restaurant.is_active = False
+
+    restaurant.save()
+
+    return redirect("platform_dashboard_admin")
+
+def update_payment_status(request, restaurant_id):
+
+    restaurant = get_object_or_404(Restaurant, id=restaurant_id)
+
+    status = request.POST.get("payment_status")
+
+    restaurant.payment_status = status
+    restaurant.save()
+
+    if status == "blocked":
+        restaurant.is_active = False
+        restaurant.save()
+
+    return redirect("platform_dashboard_admin")
+
+def update_payment_status(request, restaurant_id):
+
+    restaurant = get_object_or_404(Restaurant, id=restaurant_id)
+
+    status = request.POST.get("payment_status")
+
+    restaurant.payment_status = status
+    restaurant.save()
+
+    if status == "blocked":
+        restaurant.is_active = False
+        restaurant.save()
+
+    return redirect("platform_dashboard")
 
 
 @login_required
 def store_dashboard(request):
     # Superusuário (admin da plataforma)
     if request.user.is_superuser:
-        return redirect("platform_dashboard")
+        return redirect("platform_dashboard_admin")
 
     try:
         profile = StoreProfile.objects.get(user=request.user)
@@ -132,6 +273,9 @@ def store_dashboard(request):
         return redirect("create_my_store")
 
     restaurant = profile.restaurant
+
+    if not restaurant.is_active:
+        return redirect("partner_payment")  
 
     context = {
         "restaurant": restaurant,
@@ -145,47 +289,99 @@ def store_dashboard(request):
 
     return render(request, "platform/dashboard.html", context)
 
+
+
+
+
+@login_required
+def partner_payment(request):
+
+    profile = StoreProfile.objects.get(user=request.user)
+    restaurant = profile.restaurant
+
+    if restaurant.is_active:
+        return redirect("store_dashboard")
+
+    return render(request, "payments/payment_page.html", {
+        "restaurant": restaurant,
+        "price": 49
+    })
+
+
+@login_required
+def upload_payment_proof(request):
+
+    profile = StoreProfile.objects.get(user=request.user)
+    restaurant = profile.restaurant
+
+    if request.method == "POST":
+
+        proof = request.FILES.get("proof")
+
+        PartnerPayment.objects.create(
+            user=request.user,
+            restaurant=restaurant,
+            amount=49,
+            proof=proof,
+            status="pending"
+        )
+
+        # DESATIVA usuário até aprovação
+        request.user.is_active = False
+        request.user.save()
+
+        # Faz logout
+        logout(request)
+
+        messages.success(
+            request,
+            "Comprovante enviado! Aguarde aprovação. Você poderá acessar a loja após ativação."
+        )
+        return redirect("login")
+
+    return redirect("partner_payment")
+
 @login_required
 def entry_point(request):
-    # 1. Se tem loja, vai para o dashboard da loja
+
+    # 1️⃣ Admin SEMPRE primeiro
+    if request.user.is_superuser:
+        return redirect("platform_dashboard_admin")
+
+    # 2️⃣ Dono de loja
     if StoreProfile.objects.filter(user=request.user).exists():
         return redirect("store_dashboard")
-    
-    # 2. Se é superuser e NÃO tem loja, vai para o painel da plataforma
-    if request.user.is_superuser:
-        return redirect("platform_dashboard")
 
-    # 3. Se é staff (gestor) e não tem loja, criar vitrine
+    # 3️⃣ Staff sem loja
     if request.user.is_staff:
         return redirect("create_my_store")
 
+    # 4️⃣ Cliente comum
     return redirect("home")
 
 
 #Removi a autenticação de login porque o usuario está criando a loja, ou seja, não tem como estar logado. O login só acontece depois que o usuário é criado, ou seja, lá no final do processo de criação da loja.
 #Outra coisa, a criação do usuário agora acontece dentro de uma transação atômica junto com a criação da loja e do perfil, garantindo que tudo ou nada seja criado. Isso evita ter usuários sem loja ou lojas sem usuário.
 ####Essa função ainda possui um erro na hora de concluir o cadastro ela não está sendo direcionada para o dashboard da loja, isso acontece porque o login só é feito depois de criar o usuário, e o redirecionamento para o dashboard da loja acontece antes do login, ou seja, ele não reconhece que o usuário acabou de ser criado e logado. Para resolver isso, basta fazer o login do usuário logo após criar a conta, dentro da mesma transação atômica. Assim, quando chegar no redirecionamento para o dashboard da loja, ele já vai reconhecer que o usuário está autenticado e tem uma loja vinculada.
+
+
+
 def create_my_store(request):
     pending_user = request.session.get("pending_superuser")
 
-    # Se não tem dados pendentes e não é staff/superuser logado
+
     if not pending_user and not request.user.is_authenticated:
         return redirect("login")
     
-    
+
     if request.method == "POST":
         form = RestaurantCreateForm(request.POST, request.FILES)
 
         if form.is_valid():
             try:
-                # Tudo dentro de uma transação atômica para garantir integridade
-                # Se algo falhar, nada será salvo no banco
-                # O processo é: 1. Criar usuário (se necessário) → 2. Criar restaurante → 3. Criar perfil vinculado
-                #Se o usuário já estiver logado (caso do superuser que criou a conta antes), ele usará esse usuário para criar a loja, sem criar um novo usuário.
-                #Se apertar em voltar será abortadodo
-                with transaction.atomic():
 
-                    # 1. Criar usuário apenas agora
+                with transaction.atomic():
+                    # 1. Criar usuário (se necessário)
                     if pending_user:
                         user = User.objects.create_user(
                             username=pending_user["username"],
@@ -197,39 +393,22 @@ def create_my_store(request):
                         user.is_active = True
                         user.save()
 
-
-                        #####Parte de validação de conta atraves de email (opcional, mas recomendado para segurança)####
-                        #####Deixar funcional depois, por enquanto vou comentar para não atrapalhar os testes#####
-                        ####Parte desta validação esta no settings.py, onde tem as configurações de email, para funcionar é necessário configurar um email real e usar uma senha de app (para segurança)####
-                        
-                        #uid = urlsafe_base64_encode(force_bytes(user.pk))
-                        #token = default_token_generator.make_token(user)
-
-                        #confirm_link = request.build_absolute_uri(
-                            #f"/confirmar-email/{uid}/{token}/"
-                        #)                    
-                        #send_mail(
-                            #subject="Bem-vindo à Comaí! Confirme seu cadastro",
-                            #message= f"Olá! Sua conta foi criada com sucesso. Por favor, confirme seu cadastro clicando no link abaixo:\n {confirm_link}\n\nSe você não solicitou este cadastro, por favor ignore este email.",
-                            #from_email=settings.DEFAULT_FROM_EMAIL,
-                            #recipient_list=[user.email],
-                        #)
-
+                        # ✅ LOGIN IMEDIATO e salva sessão ANTES de continuar
                         login(request, user)
-
+                        request.session.save()  # ← Força salvar a sessão
                         
-
-                        # limpa sessão temporária
-                        del request.session["pending_superuser"]
+                        # Limpa sessão temporária
+                        if "pending_superuser" in request.session:
+                            del request.session["pending_superuser"]
 
                     else:
                         user = request.user
 
-                    #  2. Criar restaurante
+                    # 2. Criar restaurante
                     restaurant = form.save(commit=False)
                     restaurant.owner = user
                     restaurant.terms_accepted = True
-                    restaurant.terms_accepted = timezone.now()
+                    restaurant.terms_accepted_date = timezone.now()  # ← Corrigido o nome do campo
                     restaurant.save()
 
                     # 3. Criar vínculo
@@ -239,11 +418,20 @@ def create_my_store(request):
                         role="OWNER"
                     )
 
+                # ✅ SESSÃO FINALIZADA com sucesso
                 messages.success(request, "Cadastro concluído com sucesso!")
+                
+                # Força salvar sessão antes do redirect
+                request.session.save()
                 return redirect("store_dashboard")
 
             except Exception as e:
-                messages.error(request, f"Erro ao finalizar cadastro: {e}")
+                # ✅ TRATAMENTO da exceção SessionInterrupted
+                if isinstance(e, SessionInterrupted):
+                    messages.error(request, "Sessão expirou. Faça login novamente.")
+                    return redirect("login")
+                messages.error(request, f"Erro ao finalizar cadastro: {str(e)}")
+                return redirect("register_superuser")
 
     else:
         form = RestaurantCreateForm()
@@ -319,7 +507,7 @@ def create_restaurant(request):
         restaurant = form.save(commit=False)
         restaurant.owner = request.user
         restaurant.save()
-        return redirect("platform_dashboard")
+        return redirect("platform_dashboard_admin")
 
     return render(request, "platform/create_restaurant.html", {
         "form": form
@@ -343,7 +531,7 @@ def create_store_admin(request):
             restaurant=form.cleaned_data["restaurant"]
         )
 
-        return redirect("platform_dashboard")
+        return redirect("platform_dashboard_admin")
 
     return render(request, "platform/create_store_admin.html", {
         "form": form
@@ -717,6 +905,7 @@ def create_order(request):
 
     except Exception as e:
         messages.error(request, f"Erro ao processar pedido: {str(e)}")
+        #Provavelmente eu terei que remover esse order succes.html por conta que o Redirect usa nome da URL, não template.
         return redirect("orders/order_sucess.html")
 
 
@@ -762,6 +951,8 @@ def order_success(request, order_id):
 
     whatsapp_url = f"https://wa.me/{restaurant_whatsapp}?text={quote(whatsapp_text)}"
 
+
+     
     return render(request, "orders/order_success.html", {
         "order": order, 
         "total": order.total_price,

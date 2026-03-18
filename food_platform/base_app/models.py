@@ -4,6 +4,8 @@ from django.conf import settings
 
 
 
+
+
 # Create your models here.
 
 
@@ -30,14 +32,71 @@ class Restaurant(models.Model):
         blank=True,
         null=True
     )
-
+    is_active = models.BooleanField(default=False)
     terms_accepted = models.BooleanField(default=False)
     terms_accepted_at = models.DateTimeField(blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
+    PAYMENT_STATUS = [
+    ("paid", "Em dia"),
+    ("pending", "Pendente"),
+    ("late", "Atrasado"),
+    ("blocked", "Bloqueado"),
+    ]
+
+    payment_status = models.CharField(
+        max_length=20,
+        choices=PAYMENT_STATUS,
+        default="pending"
+        )
+
     def __str__(self):
         return self.name
+
+
+class PartnerPayment(models.Model):
+
+    STATUS = (
+        ("pending", "Pendente"),
+        ("approved", "Aprovado"),
+        ("rejected", "Recusado"),
+    )
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    restaurant = models.ForeignKey("Restaurant", on_delete=models.CASCADE)
+
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+
+    proof = models.ImageField(upload_to="payments/")
+
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS,
+        default="pending"
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+
+        # Se pagamento aprovado ativa usuário e restaurante
+        if self.status == "approved":
+
+            self.user.is_active = True
+            self.user.save()
+
+            self.restaurant.is_active = True
+            self.restaurant.save()
+
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.user.username} - R${self.amount}"
+    
+
+    def __str__(self):
+        return f"{self.user.username} - {self.amount}"
 
 ####Parte de divisão de perfis de loja e usuários####
 class StoreProfile(models.Model):
