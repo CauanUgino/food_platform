@@ -119,19 +119,20 @@ def superadmin_required(view_func):
 
 @superadmin_required
 def admin_platform_dashboard(request):
-    if not request.user.is_superuser:
-        return redirect("home")
-
-    restaurants = Restaurant.objects.all()
-    # Adicionei o status='pending' para não carregar todos os pagamentos da história de uma vez
-    payments = PartnerPayment.objects.filter(status="pending").select_related("restaurant", "user")
+    restaurants = Restaurant.objects.select_related('owner').all()
+    pending_activation_count = restaurants.filter(is_active=False).count()
+    pending_payments = PartnerPayment.objects.filter(
+        status="pending"
+    ).select_related("restaurant__owner", "user").order_by('-created_at')
 
     context = {
         "restaurants": restaurants,
-        "payments": payments,
+        "pending_payments": pending_payments,
         "total_restaurants": restaurants.count(),
         "active_restaurants": restaurants.filter(is_active=True).count(),
-        "pending_payments": payments.count()
+        "inactive_restaurants": restaurants.filter(is_active=False).count(),
+        "pending_payments_count": pending_payments.count(),
+        "pending_activation_count": pending_activation_count,
     }
 
     return render(request, "platform_admin/dashboard_admin.html", context)
@@ -265,8 +266,62 @@ def update_payment_status(request, restaurant_id):
 @login_required
 def store_dashboard(request):
 
+    try:
+        profile = StoreProfile.objects.select_related('restaurant').get(user=request.user)
+    except StoreProfile.DoesNotExist:
+        messages.error(request, "Você não possui uma loja.")
+        return redirect("home")
+
+    if profile.role != "OWNER":
+        messages.error(request, "Acesso restrito a donos de loja.")
+        return redirect("home")
+
+    restaurant = profile.restaurant
+    if not restaurant.is_active:
+        messages.warning(request, "Sua loja aguarda aprovação do pagamento.")
+        return redirect("partner_payment")
+
+    return render(request, "platform/dashboard.html", {"restaurant": restaurant})
 
 
+
+
+
+
+@login_required
+def partner_payment(request):
+    try:
+        profile = StoreProfile.objects.select_related('restaurant').get(user=request.user)
+    except StoreProfile.DoesNotExist:
+        return redirect("home")
+
+    if profile.role != "OWNER":
+        return redirect("home")
+
+    restaurant = profile.restaurant
+    
+    # Se já ativo, vai pro dashboard
+    if restaurant.is_active:
+        return redirect("store_dashboard")
+    
+    # Verifica se já tem pagamento pendente
+    has_pending_payment = PartnerPayment.objects.filter(
+        user=request.user, 
+        status="pending"
+    ).exists()
+    
+    context = {
+        "restaurant": restaurant,
+        "price": 49.00,
+        "has_pending_payment": has_pending_payment
+    }
+    
+    return render(request, "payments/payment_page.html", context)
+
+
+
+@login_required
+def upload_payment_proof(request):
     try:
         profile = StoreProfile.objects.get(user=request.user)
     except StoreProfile.DoesNotExist:
@@ -276,63 +331,33 @@ def store_dashboard(request):
         return redirect("home")
 
     restaurant = profile.restaurant
-    if not restaurant.is_active:
-        return redirect("partner_payment")
-
-    return render(request, "platform/dashboard.html", {
-        "restaurant": restaurant
-    })
-
-
-
-
-
-
-@login_required
-def partner_payment(request):
-
-    restaurant = get_store_restaurant(request.user)
-
-    if restaurant.is_active:
-        return redirect("store_dashboard")
-
-    return render(request, "payments/payment_page.html", {
-        "restaurant": restaurant,
-        "price": 49
-    })
-
-
-@login_required
-def upload_payment_proof(request):
-
-    restaurant = get_store_restaurant(request.user)
-
+    
     if request.method == "POST":
-
         proof = request.FILES.get("proof")
+        if not proof:
+            messages.error(request, "Selecione um comprovante.")
+            return redirect("partner_payment")
+
+        # Impede múltiplos uploads pendentes
+        if PartnerPayment.objects.filter(user=request.user, status="pending").exists():
+            messages.warning(request, "Você já tem um pagamento pendente.")
+            return redirect("partner_payment")
 
         PartnerPayment.objects.create(
             user=request.user,
             restaurant=restaurant,
-            amount=49,
+            amount=Decimal("49.00"),
             proof=proof,
             status="pending"
         )
 
-        # DESATIVA usuário até aprovação
-        request.user.is_active = False
-        request.user.save()
-
-        # Faz logout
+        # Logout até aprovação
         logout(request)
-
-        messages.success(
-            request,
-            "Comprovante enviado! Aguarde aprovação. Você poderá acessar a loja após ativação."
-        )
+        messages.success(request, "✅ Comprovante enviado! Aguarde aprovação do administrador.")
         return redirect("login")
 
     return redirect("partner_payment")
+
 
 @login_required
 def entry_point(request):
