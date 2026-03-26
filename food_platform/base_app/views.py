@@ -109,8 +109,15 @@ def logout_view(request):
     return redirect('login')
     
 
+def superadmin_required(view_func):
+    def wrapper(request, *args, **kwargs):
+        if not request.user.is_superuser:
+            return HttpResponseForbidden("Acesso negado")
+        return view_func(request, *args, **kwargs)
+    return wrapper
 
 
+@superadmin_required
 def admin_platform_dashboard(request):
     if not request.user.is_superuser:
         return redirect("home")
@@ -128,6 +135,7 @@ def admin_platform_dashboard(request):
     }
 
     return render(request, "platform_admin/dashboard_admin.html", context)
+
 
 
 @login_required
@@ -229,7 +237,11 @@ def update_restaurant_status(request, restaurant_id):
 
     return redirect("platform_dashboard_admin")
 
+@login_required
 def update_payment_status(request, restaurant_id):
+
+    if not request.user.is_superuser:
+        return HttpResponseForbidden("Acesso negado")
 
     restaurant = get_object_or_404(Restaurant, id=restaurant_id)
 
@@ -241,53 +253,36 @@ def update_payment_status(request, restaurant_id):
     if status == "blocked":
         restaurant.is_active = False
         restaurant.save()
+
+    messages.success(request, "Status de pagamento atualizado!")
 
     return redirect("platform_dashboard_admin")
 
-def update_payment_status(request, restaurant_id):
 
-    restaurant = get_object_or_404(Restaurant, id=restaurant_id)
 
-    status = request.POST.get("payment_status")
-
-    restaurant.payment_status = status
-    restaurant.save()
-
-    if status == "blocked":
-        restaurant.is_active = False
-        restaurant.save()
-
-    return redirect("platform_dashboard")
 
 
 @login_required
 def store_dashboard(request):
-    # Superusuário (admin da plataforma)
-    if request.user.is_superuser:
-        return redirect("platform_dashboard_admin")
+
+
 
     try:
         profile = StoreProfile.objects.get(user=request.user)
     except StoreProfile.DoesNotExist:
-        # ✅ Gestor logado, mas sem vitrine → criar vitrine
-        return redirect("create_my_store")
+        return redirect("home")
+
+    if profile.role != "OWNER":
+        return redirect("home")
 
     restaurant = profile.restaurant
-
     if not restaurant.is_active:
-        return redirect("partner_payment")  
+        return redirect("partner_payment")
 
-    context = {
-        "restaurant": restaurant,
-        "total_categories": restaurant.categories.count(),
-        "total_items": restaurant.items.count(),
-        "public_url": request.build_absolute_uri(
-            f"/restaurant/{restaurant.slug}/"
-        ),
-        "role": profile.role,
-    }
+    return render(request, "platform/dashboard.html", {
+        "restaurant": restaurant
+    })
 
-    return render(request, "platform/dashboard.html", context)
 
 
 
@@ -296,8 +291,7 @@ def store_dashboard(request):
 @login_required
 def partner_payment(request):
 
-    profile = StoreProfile.objects.get(user=request.user)
-    restaurant = profile.restaurant
+    restaurant = get_store_restaurant(request.user)
 
     if restaurant.is_active:
         return redirect("store_dashboard")
@@ -311,8 +305,7 @@ def partner_payment(request):
 @login_required
 def upload_payment_proof(request):
 
-    profile = StoreProfile.objects.get(user=request.user)
-    restaurant = profile.restaurant
+    restaurant = get_store_restaurant(request.user)
 
     if request.method == "POST":
 
@@ -343,21 +336,18 @@ def upload_payment_proof(request):
 
 @login_required
 def entry_point(request):
+    try:
+        profile = StoreProfile.objects.get(user=request.user)
+    except StoreProfile.DoesNotExist:
+        return redirect("home")
 
-    # 1️⃣ Admin SEMPRE primeiro
-    if request.user.is_superuser:
+    if profile.role == "ADMIN":
         return redirect("platform_dashboard_admin")
-
-    # 2️⃣ Dono de loja
-    if StoreProfile.objects.filter(user=request.user).exists():
+    elif profile.role == "OWNER":
         return redirect("store_dashboard")
+    else:
+        return redirect("home")
 
-    # 3️⃣ Staff sem loja
-    if request.user.is_staff:
-        return redirect("create_my_store")
-
-    # 4️⃣ Cliente comum
-    return redirect("home")
 
 
 #Removi a autenticação de login porque o usuario está criando a loja, ou seja, não tem como estar logado. O login só acontece depois que o usuário é criado, ou seja, lá no final do processo de criação da loja.
@@ -388,7 +378,7 @@ def create_my_store(request):
                             password=pending_user["password"],
                             email=pending_user["email"]
                         )
-                        user.is_staff = True
+                        user.is_staff = False
                         user.is_superuser = False
                         user.is_active = True
                         user.save()
@@ -408,7 +398,7 @@ def create_my_store(request):
                     restaurant = form.save(commit=False)
                     restaurant.owner = user
                     restaurant.terms_accepted = True
-                    restaurant.terms_accepted_date = timezone.now()  # ← Corrigido o nome do campo
+                    restaurant.terms_accepted_at = timezone.now()  # ← Corrigido o nome do campo
                     restaurant.save()
 
                     # 3. Criar vínculo
@@ -442,6 +432,8 @@ def create_my_store(request):
 def termos_plataforma(request):
     return render(request, "platform/termos.html")
 
+
+#Funçao sem utlização agora, indeciso se tiro daqui ou se deixo para usar depois
 def confirm_email(request, uidb64, token):
     try:
         uid = force_str(urlsafe_base64_decode(uidb64))
@@ -537,10 +529,21 @@ def create_store_admin(request):
         "form": form
     })
 
+
+
 def get_store_restaurant(user):
-    if not hasattr(user, "storeprofile"):
-        raise PermissionDenied
-    return user.storeprofile.restaurant
+    try:
+        profile = StoreProfile.objects.get(user=user)  # ✅ Busca direta
+        # ou
+        # profile = getattr(user, 'storeprofile', None)  # ✅ lowercase
+    except (StoreProfile.DoesNotExist, AttributeError):
+        raise PermissionDenied("Usuário não possui loja")
+
+    if profile.role not in ["OWNER", "STAFF"]:
+        raise PermissionDenied("Sem permissão para acessar esta loja")
+
+    return profile.restaurant
+
 
 
 @login_required
@@ -703,19 +706,7 @@ def add_to_cart(request, item_id):
 
     return redirect("restaurant_home", slug=item.restaurant.slug)
 
-    
 
-
-from django.shortcuts import render
-from urllib.parse import quote
-from datetime import datetime
-from .models import Restaurant, StoreProfile
-
-
-from datetime import datetime
-from urllib.parse import quote
-from django.shortcuts import render
-from .models import Restaurant, StoreProfile
 
 
 def cart_detail(request):
