@@ -125,14 +125,19 @@ def admin_platform_dashboard(request):
         status="pending"
     ).select_related("restaurant__owner", "user").order_by('-created_at')
 
+    restaurants_pending_payments = restaurants.filter(payment_status='pending').count()
+
     context = {
         "restaurants": restaurants,
         "pending_payments": pending_payments,
         "total_restaurants": restaurants.count(),
         "active_restaurants": restaurants.filter(is_active=True).count(),
         "inactive_restaurants": restaurants.filter(is_active=False).count(),
-        "pending_payments_count": pending_payments.count(),
+        "pending_payments_count": pending_payments.count(), 
+        "restaurants_pending_payments": restaurants_pending_payments,
         "pending_activation_count": pending_activation_count,
+        
+        
     }
 
     return render(request, "platform_admin/dashboard_admin.html", context)

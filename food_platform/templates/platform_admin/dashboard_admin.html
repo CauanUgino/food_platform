@@ -1,306 +1,1029 @@
-{% extends "base.html" %}
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comaí - Gestão de Restaurantes</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
 {% block content %}
 <style>
-  :root {
-    --primary: #16a34a;
-    --primary-dark: #14532d;
-    --success: #10b981;
-    --warning: #f59e0b;
-    --danger: #ef4444;
-    --info: #3b82f6;
-    --dark: #111827;
-    --light: #f8fafc;
-    --shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
-    --shadow-hover: 0 25px 50px -12px rgba(0,0,0,0.25);
-  }
+    :root {
+        --primary: #10b981;
+        --primary-dark: #059669;
+        --primary-light: #34d399;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --info: #3b82f6;
+        --dark: #0f172a;
+        --glass: rgba(255, 255, 255, 0.25);
+        --glass-border: rgba(255, 255, 255, 0.18);
+        --gray-50: #f9fafb;
+        --gray-100: #f3f4f6;
+        --gray-200: #e5e7eb;
+        --gray-300: #d1d5db;
+        --gray-500: #6b7280;
+        --gray-600: #4b5563;
+        --gray-700: #374151;
+        --gray-800: #1f2937;
+        --gray-900: #111827;
+        --bg-body: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --bg-gradient: linear-gradient(145deg, #ffffff, #f0f0f0);
+    }
 
-  .dashboard-container {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 40px 20px;
-    font-family: 'Inter', -apple-system, sans-serif;
-    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-    min-height: 100vh;
-  }
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
 
-  .dashboard-header { text-align: center; margin-bottom: 50px; }
-  .dashboard-title {
-    font-size: 36px;
-    font-weight: 800;
-    background: linear-gradient(135deg, var(--primary), var(--success));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin-bottom: 10px;
-  }
-  .dashboard-subtitle { color: #64748b; font-size: 18px; font-weight: 500; }
+    body {
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        background: var(--bg-body);
+        color: var(--gray-900);
+        line-height: 1.6;
+        overflow-x: hidden;
+        min-height: 100vh;
+        position: relative;
+    }
 
-  /* Stats Cards */
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 24px;
-    margin-bottom: 50px;
-  }
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: 
+            radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+            radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.3) 0%, transparent 50%);
+        z-index: -1;
+        pointer-events: none;
+    }
 
-  .stat-card {
-    background: white;
-    padding: 25px;
-    border-radius: 20px;
-    box-shadow: var(--shadow);
-    transition: all 0.3s ease;
-    border-top: 4px solid transparent;
-  }
+    /* HEADER PREMIUM */
+    .header {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(25px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        padding: 1rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
 
-  .stat-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-hover); }
-  .stat-card.active { border-top-color: var(--success); }
-  .stat-card.pending { border-top-color: var(--warning); }
-  .stat-card.inactive { border-top-color: var(--danger); }
+    .header-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
 
-  .stat-number { font-size: 32px; font-weight: 800; color: var(--dark); }
-  .stat-label { color: #64748b; font-size: 14px; font-weight: 600; text-transform: uppercase; }
+    .logo {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: clamp(1.5rem, 4.5vw, 2rem);
+        font-weight: 800;
+        background: linear-gradient(135deg, var(--primary), var(--primary-light), #059669);
+        background-size: 200% 200%;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-decoration: none;
+        animation: shimmer 3s infinite;
+    }
 
-  /* Sections */
-  .section {
-    background: white;
-    border-radius: 20px;
-    padding: 32px;
-    box-shadow: var(--shadow);
-    margin-bottom: 32px;
-  }
+    @keyframes shimmer {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+    }
 
-  .section-title {
-    font-size: 22px;
-    font-weight: 700;
-    color: var(--dark);
-    margin-bottom: 24px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    border-bottom: 2px solid #f1f5f9;
-    padding-bottom: 15px;
-  }
+    .logo i {
+        font-size: clamp(1.75rem, 5vw, 2.25rem);
+        background: linear-gradient(135deg, var(--primary), var(--primary-light));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        filter: drop-shadow(0 2px 4px rgba(16, 185, 129, 0.3));
+    }
 
-  /* Table */
-  .table-container { overflow-x: auto; border-radius: 16px; }
-  .table { width: 100%; border-collapse: collapse; min-width: 900px; }
-  .table thead { background: #f8fafc; color: #64748b; }
-  .table th { padding: 16px; text-align: left; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
-  .table td { padding: 16px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+    .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
 
-  /* Status Badges */
-  .badge { padding: 6px 12px; border-radius: 50px; font-size: 11px; font-weight: 700; }
-  .badge.active { background: #dcfce7; color: #166534; }
-  .badge.inactive { background: #fee2e2; color: #991b1b; }
-  .badge.pending { background: #fef3c7; color: #92400e; }
-  .badge.paid { background: #d1fae5; color: #065f46; }
-  .badge.late { background: #fed7d7; color: #b91c1c; }
-  .badge.blocked { background: #1f2937; color: white; }
+    .header-btn {
+        padding: 0.75rem 1.5rem;
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white;
+        border: none;
+        border-radius: 16px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
 
-  /* Switch Custom UI */
-  .switch { position: relative; display: inline-block; width: 48px; height: 24px; }
-  .switch input { opacity: 0; width: 0; height: 0; }
-  .slider {
-    position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-    background: #cbd5e1; transition: 0.3s; border-radius: 24px;
-  }
-  .slider:before {
-    position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px;
-    background: white; transition: 0.3s; border-radius: 50%;
-  }
-  input:checked + .slider { background: var(--success); }
-  input:checked + .slider:before { transform: translateX(24px); }
+    .header-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        transition: left 0.5s;
+    }
 
-  /* Disabled Switch */
-  input:disabled + .slider { background: #e2e8f0; cursor: not-allowed; opacity: 0.6; }
-  .disabled-msg { font-size: 10px; color: var(--danger); display: block; margin-top: 4px; font-weight: 600; }
+    .header-btn:hover::before {
+        left: 100%;
+    }
 
-  .status-select {
-    padding: 8px 12px;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    font-size: 13px;
-    font-weight: 600;
-  }
+    .header-btn:hover {
+        transform: translateY(-3px) scale(1.05);
+        box-shadow: 0 12px 30px rgba(16, 185, 129, 0.4);
+    }
 
-  .btn { padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; text-decoration: none; font-size: 13px; }
-  .btn-success { background: var(--success); color: white; border: none; }
-  .btn-info { background: var(--info); color: white; border: none; }
-  .btn-danger { background: var(--danger); color: white; border: none; }
+    /* DASHBOARD WRAPPER */
+    .dashboard-wrapper {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem 1.5rem;
+        min-height: calc(100vh - 200px);
+    }
 
-  .empty-state { text-align: center; padding: 40px; color: #94a3b8; }
+    .dashboard-header {
+        text-align: center;
+        margin-bottom: 3rem;
+        position: relative;
+    }
+
+    .dashboard-header::after {
+        content: '';
+        position: absolute;
+        bottom: -20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80px;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary), var(--primary-light));
+        border-radius: 2px;
+    }
+
+    .dashboard-title {
+        font-size: clamp(2.25rem, 6vw, 3.5rem);
+        font-weight: 800;
+        background: linear-gradient(135deg, #ffffff, var(--gray-700));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 0.75rem;
+        letter-spacing: -0.02em;
+    }
+
+    .dashboard-subtitle {
+        font-size: clamp(1.125rem, 3vw, 1.375rem);
+        color: rgba(255, 255, 255, 0.9);
+        font-weight: 400;
+        backdrop-filter: blur(10px);
+    }
+
+    /* STATS GRID MODERNO */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+
+    .stat-card {
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--glass-border);
+        padding: 2.5rem 2rem;
+        border-radius: 24px;
+        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+        cursor: pointer;
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 5px;
+        border-radius: 24px 24px 0 0;
+    }
+
+    .stat-card:nth-child(1)::before { 
+        background: linear-gradient(90deg, var(--primary), var(--primary-light)); 
+    }
+    .stat-card:nth-child(2)::before { 
+        background: linear-gradient(90deg, var(--warning), #fbbf24); 
+    }
+    .stat-card:nth-child(3)::before { 
+        background: linear-gradient(90deg, var(--info), #60a5fa); 
+    }
+
+    .stat-card::after {
+        content: '';
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        opacity: 0.1;
+        z-index: 0;
+    }
+
+    .stat-card:nth-child(1)::after { background: var(--primary); }
+    .stat-card:nth-child(2)::after { background: var(--warning); }
+    .stat-card:nth-child(3)::after { background: var(--info); }
+
+    .stat-card:hover {
+        transform: translateY(-12px) scale(1.02);
+        background: rgba(255, 255, 255, 0.25);
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+    }
+
+    .stat-content {
+        position: relative;
+        z-index: 1;
+    }
+
+    .stat-label {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.8);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .stat-number {
+        font-size: clamp(2.5rem, 10vw, 3.5rem);
+        font-weight: 800;
+        background: linear-gradient(135deg, #ffffff, rgba(255,255,255,0.8));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        line-height: 1;
+    }
+
+    /* MAIN CONTENT */
+    .main-content-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    @media (min-width: 1024px) {
+        .main-content-grid { grid-template-columns: 2.5fr 1fr; }
+    }
+
+    /* SECTIONS GLASSMORPHISM */
+    .section {
+        background: rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(25px);
+        border: 1px solid var(--glass-border);
+        border-radius: 24px;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+
+    .section:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateY(-4px);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    }
+
+    .section-header {
+        padding: 1.75rem 2rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .section-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(220, 38, 38, 0.15); /* Vermelho bem transparente */
+    border-radius: 24px 24px 0 0;
+    padding: 1px;
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: xor;
+    mask-repeat: no-repeat;
+    -webkit-mask-composite: xor;
+    mask-position: 0% 0%, 100% 50%;
+    mask-size: 100% 100%, 0% 100%;
+    
+    }
+
+    .section-title {
+        font-size: 1.375rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #ffffff, rgba(255,255,255,0.8));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        z-index: 1;
+        position: relative;
+    }
+
+    .section-title i {
+        font-size: 1.5rem;
+        width: 32px;
+        height: 32px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        flex-shrink: 0;
+    }
+
+    /* TABLE PREMIUM */
+    .table-container {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding: 1rem 0;
+    }
+
+    .table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        background: transparent;
+    }
+
+    .table th {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        padding: 1.25rem 1.5rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.8);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        text-align: left;
+        border: none;
+    }
+
+    .table td {
+        padding: 1.5rem 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        vertical-align: middle;
+        transition: all 0.3s ease;
+    }
+
+    .table tr:hover td {
+        background: rgba(255, 255, 255, 0.1);
+        transform: scale(1.01);
+    }
+
+    /* MOBILE TABLE - CARDS MODERNOS */
+    @media (max-width: 768px) {
+        .table {
+            border-spacing: 0;
+        }
+        
+        .table thead {
+            display: none;
+        }
+        
+        .table tr {
+            display: block;
+            margin-bottom: 1.5rem;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .table tr:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 16px 48px rgba(0,0,0,0.2);
+        }
+        
+        .table td {
+            display: block;
+            padding: 1.25rem 1.5rem;
+            border: none;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+        
+        .table td::before {
+            content: attr(data-label) ":";
+            position: absolute;
+            left: 1.5rem;
+            top: 1.25rem;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.85rem;
+        }
+        
+        .table td span {
+            margin-left: 0;
+            display: block;
+            font-weight: 500;
+            color: white;
+            padding-left: 0;
+        }
+    }
+
+    /* BADGES MODERNOS */
+    .badge {
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        letter-spacing: 0.05em;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .badge.paid {
+        background: rgba(16, 185, 129, 0.2);
+        color: var(--primary);
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);
+    }
+
+    .badge.pending {
+        background: rgba(245, 158, 11, 0.2);
+        color: var(--warning);
+        box-shadow: 0 4px 15px rgba(245, 158, 11, 0.2);
+    }
+
+    .badge.blocked {
+        background: rgba(239, 68, 68, 0.2);
+        color: var(--danger);
+        box-shadow: 0 4px 15px rgba(239, 68, 68, 0.2);
+    }
+
+   
+    /* BUTTONS - RESPONSIVOS */
+    .btn {
+        padding: 0.625rem 1rem;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        text-decoration: none;
+        justify-content: center;
+        white-space: nowrap;
+        flex: 1;
+        min-height: 44px;
+    }
+
+    .btn-success {
+        background: var(--primary);
+        color: white;
+    }
+
+    .btn-success:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-info {
+        background: var(--info);
+        color: white;
+    }
+
+    /* SWITCH - RESPONSIVO */
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 48px;
+        height: 26px;
+        margin-right: 8px;
+        flex-shrink: 0;
+    }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: var(--gray-300);
+        transition: 0.4s;
+        border-radius: 26px;
+    }
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 20px;
+        width: 20px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: 0.4s;
+        border-radius: 50%;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    input:checked + .slider {
+        background: var(--primary);
+    }
+
+    input:checked + .slider:before {
+        transform: translateX(22px);
+    }
+
+    /* STATUS SELECT - RESPONSIVO */
+    .status-select {
+        padding: 0.625rem 1rem;
+        border: 2px solid var(--gray-200);
+        border-radius: 12px;
+        background: white;
+        font-weight: 600;
+        cursor: pointer;
+        min-width: 140px;
+        transition: all 0.3s ease;
+        font-size: 0.85rem;
+        width: 100%;
+        max-width: 200px;
+    }
+
+    .status-select:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+    }
+
+    /* RIGHT COLUMN CARDS - RESPONSIVOS */
+    .payment-card {
+        background: white;
+        border: 1px solid var(--gray-200);
+        border-radius: 16px;
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .payment-card:hover {
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+    }
+
+    .payment-amount {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: var(--primary);
+        margin: 0.5rem 0;
+    }
+
+    /* EMPTY STATES */
+    .empty-state {
+        text-align: center;
+        padding: 2rem 1rem;
+        color: var(--gray-500);
+        font-style: italic;
+    }
+
+    /* FOOTER - RESPONSIVO */
+    .footer {
+        background: var(--gray-900);
+        color: rgba(255, 255, 255, 0.9);
+        margin-top: 3rem;
+        padding: 2rem 1rem 1.5rem;
+    }
+
+    .footer-container {
+        max-width: 1440px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        margin-bottom: 1.5rem;
+    }
+
+    @media (min-width: 768px) {
+        .footer-container {
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        }
+    }
+
+    .footer-section h3 {
+        color: white;
+        margin-bottom: 1rem;
+        font-size: 1rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .footer-section a {
+        color: rgba(255, 255, 255, 0.8);
+        text-decoration: none;
+        display: block;
+        margin-bottom: 0.5rem;
+        transition: color 0.3s ease;
+        font-size: 0.9rem;
+    }
+
+    .footer-section a:hover {
+        color: white;
+    }
+
+    .footer-bottom {
+        text-align: center;
+        padding-top: 1.5rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.8rem;
+    }
+
+    /* RESPONSIVE BREAKPOINTS */
+    @media (max-width: 480px) {
+        .dashboard-wrapper {
+            padding: 0.75rem;
+        }
+        
+        .header-container {
+            padding: 0 0.75rem;
+            flex-direction: column;
+            gap: 1rem;
+            text-align: center;
+        }
+        
+        .header-actions {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .header-btn {
+            flex: 1;
+            max-width: 200px;
+        }
+        
+        .stats-grid {
+            grid-template-columns: 1fr;
+            gap: 0.75rem;
+        }
+        
+        .section-header {
+            padding: 1rem;
+        }
+        
+        .table td {
+            padding: 0.875rem;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .main-content-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        
+        .right-column {
+            order: -1;
+        }
+    }
 </style>
 
-<div class="dashboard-container">
-  <div class="dashboard-header">
-    <h1 class="dashboard-title">🚀 Gestão de Restaurantes</h1>
-    <p class="dashboard-subtitle">Monitoramento de ativações e conformidade financeira</p>
-  </div>
+<div class="dashboard-wrapper">
+    <!-- DASHBOARD HEADER -->
+    <header class="dashboard-header">
+        <h1 class="dashboard-title">Painel de Controle</h1>
+        <p class="dashboard-subtitle">Gerenciamento centralizado de restaurantes e finanças</p>
+        <div style="margin-top: 1rem;">
+            <span style="background: rgba(16, 185, 129, 0.1); padding: 0.5rem 1rem; border-radius: 20px; color: var(--primary); font-weight: 600;">
+                <i class="fas fa-calendar-day"></i> Hoje: {% now "d/m/Y" %}
+            </span>
+        </div>
+        <div>
+            <a href="{% url 'home' %}" class="header-btn" style="margin-top: 1.5rem;">
+                <i class="fas fa-arrow-left"></i> Voltar para o Site
+            </a>
+        </div>
 
-  <div class="stats-grid">
-    <div class="stat-card active">
-      <div class="stat-label">Total</div>
-      <div class="stat-number">{{ total_restaurants }}</div>
-    </div>
-    <div class="stat-card pending">
-      <div class="stat-label">Pagamentos pendentes</div>
-      <div class="stat-number">{{ pending_payments_count }}</div>
-    </div>
-    <div class="stat-card inactive">
-      <div class="stat-label">Aguardando Ativação</div>
-      <div class="stat-number">
-        {{ pending_activation_count }}
-      </div>
-    </div>
-  </div>
+    </header>
 
-  <div class="section" style="border-left: 6px solid var(--warning);">
-    <h2 class="section-title">🔔 Pedidos de Ativação <span class="badge pending">Novos</span></h2>
-    <div class="table-container">
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Restaurante</th>
-            <th>Proprietário</th>
-            <th>Status Financeiro</th>
-            <th>Ação de Ativação</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for rest in restaurants %}
-            {% if not rest.is_active %}
-            <tr>
-              <td><strong>{{ rest.name }}</strong></td>
-              <td>{{ rest.owner.username }}</td>
-              <td>
-                {% if rest.payment_status == "paid" %}
-                  <span class="badge paid">PAGO</span>
-                {% elif rest.payment_status == "blocked" %}
-                  <span class="badge blocked">BLOQUEADO</span>
-                {% else %}
-                  <span class="badge pending">{{ rest.payment_status|upper }}</span>
-                {% endif %}
-              </td>
-              <td>
-                {% if rest.payment_status == "blocked" %}
-                  <div class="switch-container">
-                    <label class="switch">
-                      <input type="checkbox" disabled>
-                      <span class="slider"></span>
-                    </label>
-                    <span class="disabled-msg">Libere o financeiro para ativar</span>
-                  </div>
-                {% else %}
-                  <form method="POST" action="{% url 'activate_restaurant' rest.id %}">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-success">Ativar Agora</button>
-                  </form>
-                {% endif %}
-              </td>
-            </tr>
-            {% endif %}
-          {% empty %}
-            <tr><td colspan="4" class="empty-state">Nenhum pedido de ativação pendente.</td></tr>
-          {% endfor %}
-        </tbody>
-      </table>
+<!-- SUBSTITUA a seção STATS por esta versão corrigida -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-label">
+            <i class="fas fa-store"></i>
+            Total de Unidades
+        </div>
+        <div class="stat-number">{{ total_restaurants|default:0 }}</div>
     </div>
-  </div>
-
-  <div class="section">
-    <h2 class="section-title">💳 Comprovantes para Revisão</h2>
-    {% if pending_payments %}
-    <div class="table-container">
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Restaurante</th>
-            <th>Valor</th>
-            <th>Arquivo</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for payment in pending_payments %}
-          <tr>
-            <td>{{ payment.restaurant.name }}</td>
-            <td>R$ {{ payment.amount|floatformat:2 }}</td>
-            <td><a href="{{ payment.proof.url }}" target="_blank" class="btn btn-info">Ver PDF/Imagem</a></td>
-            <td>
-              <a href="{% url 'approve_payment' payment.id %}" class="btn btn-success">Aprovar</a>
-              <a href="{% url 'reject_payment' payment.id %}" class="btn btn-danger">Negar</a>
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+    
+    <!-- CORRIGIDO: Conta restaurantes com payment_status == 'pending' -->
+    <div class="stat-card">
+        <div class="stat-label">
+            <i class="fas fa-clock"></i>
+            Pagamentos Pendentes
+        </div>
+        <div class="stat-number">{{ restaurants_pending_payments|default:0 }}</div>
     </div>
-    {% else %}
-    <p class="empty-state">Sem comprovantes pendentes.</p>
-    {% endif %}
-  </div>
-
-  <div class="section">
-    <h2 class="section-title">📋 Gestão de Status Geral</h2>
-    <div class="table-container">
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Nome</th>
-            <th>Alterar Pagamento</th>
-            <th>Status Operacional</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for restaurant in restaurants %}
-          <tr>
-            <td>{{ restaurant.name }}</td>
-            <td>
-              <form method="POST" action="{% url 'update_payment_status' restaurant.id %}">
-                {% csrf_token %}
-                <select name="payment_status" class="status-select" onchange="this.form.submit()">
-                  <option value="paid" {% if restaurant.payment_status == "paid" %}selected{% endif %}>✅ Em dia</option>
-                  <option value="pending" {% if restaurant.payment_status == "pending" %}selected{% endif %}>⏳ Pendente</option>
-                  <option value="late" {% if restaurant.payment_status == "late" %}selected{% endif %}>⚠️ Atrasado</option>
-                  <option value="blocked" {% if restaurant.payment_status == "blocked" %}selected{% endif %}>🚫 Bloqueado</option>
-                </select>
-              </form>
-            </td>
-            <td>
-              <div class="switch-container">
-                {% if restaurant.payment_status == "blocked" %}
-                  <label class="switch">
-                    <input type="checkbox" {% if restaurant.is_active %}checked{% endif %} disabled>
-                    <span class="slider"></span>
-                  </label>
-                  <span class="disabled-msg">🚫 Financeiro Bloqueado</span>
-                {% else %}
-                  <form method="POST" action="{% if restaurant.is_active %}{% url 'deactivate_restaurant' restaurant.id %}{% else %}{% url 'activate_restaurant' restaurant.id %}{% endif %}">
-                    {% csrf_token %}
-                    <label class="switch">
-                      <input type="checkbox" {% if restaurant.is_active %}checked{% endif %} onchange="this.form.submit()">
-                      <span class="slider"></span>
-                    </label>
-                  </form>
-                {% endif %}
-              </div>
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+    
+    <div class="stat-card">
+        <div class="stat-label">
+            <i class="fas fa-user-plus"></i>
+            Aguardando Ativação
+        </div>
+        <div class="stat-number">{{ pending_activation_count|default:0 }}</div>
     </div>
-  </div>
 </div>
 
+    <!-- MAIN CONTENT -->
+    <div class="main-content-grid">
+        <div class="left-column">
+            <!-- AGUARDANDO ATIVAÇÃO -->
+            <section class="section">
+                <div class="section-header">
+                    <i class="fas fa-clock" style="color: var(--warning);"></i>
+                    <h2 class="section-title">Aguardando Ativação</h2>
+                </div>
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Restaurante</th>
+                                <th>Status Financeiro</th>
+                                <th>Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for rest in restaurants %}
+                                {% if not rest.is_active %}
+                                <tr>
+                                    <td>
+                                        <div style="font-weight: 700; font-size: 1.1rem;">{{ rest.name }}</div>
+                                        <div style="font-size: 0.875rem; color: var(--gray-500); margin-top: 0.25rem;">
+                                            Prop: {{ rest.owner.username }}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if rest.payment_status == "paid" %}
+                                            <span class="badge paid">
+                                                <i class="fas fa-check"></i> PAGO
+                                            </span>
+                                        {% elif rest.payment_status == "blocked" %}
+                                            <span class="badge blocked">
+                                                <i class="fas fa-ban"></i> BLOQUEADO
+                                            </span>
+                                        {% else %}
+                                            <span class="badge pending">
+                                                <i class="fas fa-clock"></i> {{ rest.payment_status|upper }}
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if rest.payment_status == "blocked" %}
+                                            <span style="font-size: 0.875rem; color: var(--danger); font-weight: 600;">
+                                                <i class="fas fa-lock"></i> Libere o financeiro primeiro
+                                            </span>
+                                        {% else %}
+                                            <form method="POST" action="{% url 'activate_restaurant' rest.id %}">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-success">
+                                                    <i class="fas fa-play"></i> Ativar Unidade
+                                                </button>
+                                            </form>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endif %}
+                            {% empty %}
+                                <tr>
+                                    <td colspan="3" class="empty-state">
+                                        <i class="fas fa-check-circle" style="font-size: 3rem; color: var(--gray-300); margin-bottom: 1rem;"></i>
+                                        Nenhuma ativação pendente
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- STATUS OPERACIONAL -->
+            <section class="section">
+                <div class="section-header">
+                    <i class="fas fa-cogs" style="color: var(--info);"></i>
+                    <h2 class="section-title">Status Operacional Geral</h2>
+                </div>
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Nome da Unidade</th>
+                                <th>Status de Pagamento</th>
+                                <th>Operação</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for restaurant in restaurants %}
+                            <tr>
+                                <td style="font-weight: 700;">{{ restaurant.name }}</td>
+                                <td>
+                                    <form method="POST" action="{% url 'update_payment_status' restaurant.id %}">
+                                        {% csrf_token %}
+                                        <select name="payment_status" class="status-select" onchange="this.form.submit()">
+                                            <option value="paid" {% if restaurant.payment_status == "paid" %}selected{% endif %}>
+                                                ✅ Em dia
+                                            </option>
+                                            <option value="pending" {% if restaurant.payment_status == "pending" %}selected{% endif %}>
+                                                ⏳ Pendente
+                                            </option>
+                                            <option value="late" {% if restaurant.payment_status == "late" %}selected{% endif %}>
+                                                ⚠️ Atrasado
+                                            </option>
+                                            <option value="blocked" {% if restaurant.payment_status == "blocked" %}selected{% endif %}>
+                                                🚫 Bloqueado
+                                            </option>
+                                        </select>
+                                    </form>
+                                </td>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 12px;">
+                                        {% if restaurant.payment_status == "blocked" %}
+                                            <label class="switch" style="opacity: 0.5;">
+                                                <input type="checkbox" disabled {% if restaurant.is_active %}checked{% endif %}>
+                                                <span class="slider"></span>
+                                            </label>
+                                            <span style="font-size: 0.75rem; color: var(--danger); font-weight: 700;">
+                                                <i class="fas fa-lock"></i> BLOQUEADO
+                                            </span>
+                                        {% else %}
+                                            <form method="POST" action="{% if restaurant.is_active %}{% url 'deactivate_restaurant' restaurant.id %}{% else %}{% url 'activate_restaurant' restaurant.id %}{% endif %}">
+                                                {% csrf_token %}
+                                                <label class="switch">
+                                                    <input type="checkbox" {% if restaurant.is_active %}checked{% endif %} onchange="this.form.submit()">
+                                                    <span class="slider"></span>
+                                                </label>
+                                            </form>
+                                            <span style="font-size: 0.75rem; color: var(--gray-600); font-weight: 600;">
+                                                {% if restaurant.is_active %}
+                                                    <i class="fas fa-circle" style="color: var(--success);"></i> ATIVO
+                                                {% else %}
+                                                    <i class="fas fa-circle" style="color: var(--gray-400);"></i> INATIVO
+                                                {% endif %}
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+
+        <!-- RIGHT COLUMN - COMPROVANTES -->
+        <div class="right-column">
+            <section class="section">
+                <div class="section-header" style="background: linear-gradient(135deg, #fef2f2, #fee2e2);">
+                    <i class="fas fa-file-invoice-dollar" style="color: var(--danger);"></i>
+                    <h2 class="section-title">Revisão de Recibos</h2>
+                </div>
+                <div style="padding: 1.5rem;">
+                    {% if pending_payments %}
+                        {% for payment in pending_payments %}
+                        <div class="payment-card">
+                            <div style="font-weight: 700; font-size: 1.1rem; margin-bottom: 0.5rem;">{{ payment.restaurant.name }}</div>
+                            <div class="payment-amount">R$ {{ payment.amount|floatformat:2 }}</div>
+                            <div style="display: grid; grid-template-columns: 1fr; gap: 0.75rem;">
+                                <a href="{{ payment.proof.url }}" target="_blank" class="btn btn-info" style="justify-content: center;">
+                                    <i class="fas fa-eye"></i> Ver Documento
+                                </a>
+                                <div style="display: flex; gap: 0.75rem;">
+                                    <a href="{% url 'approve_payment' payment.id %}" class="btn btn-success" style="flex: 1; justify-content: center;">
+                                        <i class="fas fa-check"></i> Aprovar
+                                    </a>
+                                    <a href="{% url 'reject_payment' payment.id %}" class="btn" style="flex: 1; background: #fee2e2; color: var(--danger); border: 1px solid #fecaca; justify-content: center;" onmouseover="this.style.background='#fecaca'" onmouseout="this.style.background='#fee2e2'">
+                                        <i class="fas fa-times"></i> Negar
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="empty-state">
+                            <i class="fas fa-check-circle" style="font-size: 3rem; color: var(--success); margin-bottom: 1rem;"></i>
+                            Tudo em dia! Nenhum comprovante novo.
+                        </div>
+                    {% endif %}
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+    <div class="footer-container">
+        <div class="footer-section">
+            <h3><i class="fas fa-utensils" style="color: var(--primary);"></i> Comaí</h3>
+            <p>Plataforma completa de delivery que conecta restaurantes, entregadores e clientes com tecnologia de ponta.</p>
+        </div>
+        <div class="footer-section">
+            <h3><i class="fas fa-box"></i> Produto</h3>
+            <a href="#"><i class="fas fa-list"></i> Funcionalidades</a>
+            <a href="#"><i class="fas fa-tag"></i> Planos</a>
+            <a href="#"><i class="fas fa-chart-line"></i> Relatórios</a>
+        </div>
+        <div class="footer-section">
+            <h3><i class="fas fa-headset"></i> Suporte</h3>
+            <a href="#"><i class="fas fa-book"></i> Ajuda</a>
+            <a href="#"><i class="fas fa-life-ring"></i> Status</a>
+            <a href="#"><i class="fas fa-envelope"></i> Contato</a>
+        </div>
+        <div class="footer-section">
+            <h3><i class="fas fa-building"></i> Empresa</h3>
+            <a href="#"><i class="fas fa-users"></i> Sobre</a>
+            <a href="#"><i class="fas fa-briefcase"></i> Vagas</a>
+            <a href="#"><i class="fas fa-shield-alt"></i> Privacidade</a>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>&copy; 2026 Comaí. Todos os direitos reservados.</p>
+    </div>
+</footer>
+
 <script>
-  // Feedback simples ao clicar nos formulários
-  document.querySelectorAll('form').forEach(form => {
-    form.addEventListener('submit', () => {
-      const btn = form.querySelector('.btn');
-      if(btn) btn.style.opacity = '0.5';
+    // Feedback visual aprimorado
+    document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('submit', (e) => {
+            const btn = form.querySelector('.btn');
+            if (btn) {
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processando...';
+                btn.disabled = true;
+            }
+        });
     });
-  });
+
+    // Animações suaves
+    document.querySelectorAll('.stat-card, .section, .payment-card').forEach(el => {
+        el.addEventListener('mouseenter', () => {
+            el.style.transform = 'translateY(-4px)';
+        });
+        el.addEventListener('mouseleave', () => {
+            el.style.transform = 'translateY(0)';
+        });
+    });
 </script>
 {% endblock %}
+</body>
+</html>
