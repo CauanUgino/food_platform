@@ -40,6 +40,8 @@ class StoreProfile(models.Model):
         return f"{self.user.username} - {self.role}"
 
 
+
+
 class Category(models.Model):
     restaurant = models.ForeignKey(
         Restaurant,

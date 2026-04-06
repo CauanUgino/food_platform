@@ -93,6 +93,41 @@ def register_superuser(request):
 def logout_view(request):
     logout(request)
     return redirect('login')
+    
+
+def superadmin_required(view_func):
+    def wrapper(request, *args, **kwargs):
+        if not request.user.is_superuser:
+            return HttpResponseForbidden("Acesso negado")
+        return view_func(request, *args, **kwargs)
+    return wrapper
+
+
+@superadmin_required
+def admin_platform_dashboard(request):
+    restaurants = Restaurant.objects.select_related('owner').all()
+    pending_activation_count = restaurants.filter(is_active=False).count()
+    pending_payments = PartnerPayment.objects.filter(
+        status="pending"
+    ).select_related("restaurant__owner", "user").order_by('-created_at')
+
+    restaurants_pending_payments = restaurants.filter(payment_status='pending').count()
+
+    context = {
+        "restaurants": restaurants,
+        "pending_payments": pending_payments,
+        "total_restaurants": restaurants.count(),
+        "active_restaurants": restaurants.filter(is_active=True).count(),
+        "inactive_restaurants": restaurants.filter(is_active=False).count(),
+        "pending_payments_count": pending_payments.count(), 
+        "restaurants_pending_payments": restaurants_pending_payments,
+        "pending_activation_count": pending_activation_count,
+        
+        
+    }
+
+    return render(request, "platform_admin/dashboard_admin.html", context)
+
 
 
 @login_required
@@ -135,8 +170,14 @@ def store_dashboard(request):
 
 @login_required
 def entry_point(request):
-    # 1. Se tem loja, vai para o dashboard da loja
-    if StoreProfile.objects.filter(user=request.user).exists():
+    try:
+        profile = StoreProfile.objects.get(user=request.user)
+    except StoreProfile.DoesNotExist:
+        return redirect("home")
+
+    if profile.role == "ADMIN":
+        return redirect("platform_dashboard_admin")
+    elif profile.role == "OWNER":
         return redirect("store_dashboard")
     
     # 2. Se é superuser e NÃO tem loja, vai para o painel da plataforma

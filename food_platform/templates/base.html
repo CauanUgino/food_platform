@@ -32,8 +32,90 @@
             background: var(--nav-gradient) !important;
             box-shadow: 0 4px 12px rgba(234, 29, 44, 0.15);
             padding: 12px 0;
+<<<<<<< Updated upstream
         }
 
+=======
+            position: relative;
+            index: 1050;
+            overflow: hidden;
+        }
+
+        .navbar:has(.show) {
+            overflow: visible !important;
+        }
+
+        /* 3. Dropdown flutuante (Não empurra o layout) */
+        .dropdown-menu {
+            position: absolute !important;
+            top: 100%;
+            right: 0;
+            margin-top: 10px !important;
+            z-index: 9999 !important;
+        }
+
+        /* 4. Correção para o Menu Mobile (Collapse) */
+        @media (max-width: 991.98px) {
+            .navbar-collapse {
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background: var(--nav-gradient);
+                padding: 1rem;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+                border-radius: 0 0 15px 15px;
+                z-index: 1000;
+            }
+        }
+                
+
+        /* brilho suave passando */
+        .navbar::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -120%;
+            width: 80%;
+            height: 100%;
+            background: linear-gradient(
+                120deg,
+                transparent,
+                rgba(255,255,255,0.25),
+                transparent
+            );
+            animation: navbarGlow 5s infinite;
+        }
+
+        /* sombra pulsando */
+        .navbar {
+            animation: navbarShadow 4s ease-in-out infinite;
+        }
+
+        @keyframes navbarShadow {
+            0% {
+                box-shadow: 0 6px 18px rgba(234, 29, 44, 0.18);
+            }
+            50% {
+                box-shadow: 0 10px 28px rgba(234, 29, 44, 0.30);
+            }
+            100% {
+                box-shadow: 0 6px 18px rgba(234, 29, 44, 0.18);
+            }
+        }
+
+        @keyframes navbarGlow {
+            0% {
+                left: -120%;
+            }
+            60% {
+                left: 130%;
+            }
+            100% {
+                left: 130%;
+            }
+        }
+>>>>>>> Stashed changes
         .navbar-brand {
             font-weight: 800;
             color: white !important;
@@ -45,8 +127,17 @@
             color: rgba(255, 255, 255, 0.9) !important;
             font-weight: 500;
         }
+        .menu .nav-link:hover {
+            color: white !important;
+            text-shadow: 0 0 5px rgba(255,255,255,0.3);
 
-        /* CARRINHO UX */
+            
+        }
+
+
+        
+
+                /* CARRINHO UX */
         .cart-pill {
             background: rgba(255, 255, 255, 0.2);
             backdrop-filter: blur(5px);
@@ -159,12 +250,16 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.05);
         }
     </style>
-    {% block extra_css %}{% endblock %}
+        {% block extra_css %}{% endblock %}
 </head>
 
 <body class="d-flex flex-column min-vh-100">
 
+<<<<<<< Updated upstream
 <nav class="navbar navbar-expand-lg sticky-top">
+=======
+<nav class="navbar navbar-expand-lg" style="z-index: 1050;">
+>>>>>>> Stashed changes
     <div class="container">
         <a class="navbar-brand" href="{% url 'home' %}">
             <i class="bi bi-lightning-fill me-1"></i>COMAÍ
@@ -184,18 +279,46 @@
             </button>
         </div>
 
-        <div class="collapse navbar-collapse" id="navContent">
-            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+        <div class="collapse navbar-collapse" id="navContent" style="overflow: visible !important;">
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center">
                 {% if user.is_authenticated %}
-                    <li class="nav-item"><span class="nav-link">Olá, <strong>{{ user.username }}</strong></span></li>
-                    <li class="nav-item">
-                        <form method="POST" action="{% url 'logout' %}" class="d-inline">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-link nav-link border-0" style="text-decoration: none;">Sair</button>
-                        </form>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer;">
+                            Olá, <strong>{{ user.username }}</strong>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="userDropdown" style="z-index: 9999; position: absolute;">
+                            {% if user.restaurants.exists and not user.is_staff %}
+                                <li>                                    
+                                    <a class="dropdown-item py-2" href="{% url 'store_dashboard' %}">
+                                        <i class="bi bi-speedometer2 me-2 text-primary"></i>Painel
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider opacity-50"></li>
+                            {% endif %}
+
+                            {% if user.is_staff %}
+                                <li>
+                                    <a class="dropdown-item py-2" href="{% url 'platform_dashboard_admin' %}">
+                                        <i class="bi bi-shield-lock me-2"></i>Área Administrativa
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider opacity-50"></li>
+                            {% endif %}
+
+                            <li>
+                                <form method="POST" action="{% url 'logout' %}" class="m-0">
+                                    {% csrf_token %}
+                                    <button type="submit" class="dropdown-item py-2 text-danger d-flex align-items-center w-100 border-0 bg-transparent">
+                                        <i class="bi bi-box-arrow-right me-2"></i>Sair
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
                     </li>
                 {% else %}
-                    <li class="nav-item"><a class="nav-link fw-bold" href="{% url 'login' %}">Entrar</a></li>
+                    <li class="nav-item">
+                        <a class="nav-link fw-bold px-3" href="{% url 'login' %}">Entrar</a>
+                    </li>
                 {% endif %}
             </ul>
         </div>
