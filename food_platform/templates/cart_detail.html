@@ -676,45 +676,43 @@ trocoMensagem = " Troco: Não informado%0A";
 
 let mensagem = "";
 
-mensagem += " *NOVO PEDIDO RECEBIDO*%0A";
-mensagem += " Sistema: *COMAÍ*%0A";
-mensagem += "━━━━━━━━━━━━━━━━━━━━━━━%0A%0A";
+mensagem += "* NOVO PEDIDO RECEBIDO *%0A";
+mensagem += "*Sistema: COMAÍ*%0A";
+mensagem += "═══════════════%0A%0A";
 
-mensagem += " *DADOS DO CLIENTE*%0A";
-mensagem += "Nome: {{ request.user.get_full_name|default:request.user.username }}%0A";
-mensagem += " Data do pedido: " + dataHora + "%0A%0A";
+mensagem += "*📋 DADOS DO CLIENTE*%0A";
+mensagem += "• Nome: {{ request.user.get_full_name|default:request.user.username }}%0A";
+mensagem += "• Data/Hora: " + dataHora + "%0A%0A";
 
-mensagem += " *ITENS DO PEDIDO*%0A";
-mensagem += "━━━━━━━━━━━━━━━━━━━━━━━%0A";
+mensagem += "*🛒 ITENS DO PEDIDO*%0A";
+mensagem += "════════════════%0A";
 
 {% for item in cart %}
-
-mensagem += " {{ item.quantity }}x {{ item.name }}%0A";
-mensagem += "    Subtotal: R$ {{ item.subtotal|floatformat:2 }}%0A%0A";
-
+mensagem += "• {{ item.quantity }}x {{ item.name }}%0A";
+mensagem += "  Subtotal: R$ {{ item.subtotal|floatformat:2 }}%0A%0A";
 {% endfor %}
 
-mensagem += "━━━━━━━━━━━━━━━━━━━━━━━%0A";
+mensagem += "═════════════════%0A";
 
-mensagem += " *TOTAL DO PEDIDO*%0A";
-mensagem += "R$ {{ total|floatformat:2 }}%0A%0A";
+mensagem += "*💰 RESUMO FINANCEIRO*%0A";
+mensagem += "• *TOTAL:* R$ {{ total|floatformat:2 }}%0A%0A";
 
-mensagem += " *FORMA DE PAGAMENTO*%0A";
-mensagem += pagamento + "%0A";
+mensagem += "*💳 FORMA DE PAGAMENTO*%0A";
+mensagem += "• " + pagamento + "%0A";
 
 if(pagamento === "Dinheiro"){
-mensagem += trocoMensagem;
+    mensagem += "•" + trocoMensagem + "%0A";
 }
 
 mensagem += "%0A";
 
-mensagem += " *ENTREGA*%0A";
-mensagem += "Por favor informe o endereço de entrega.%0A%0A";
+mensagem += "*📍 INFORMAÇÕES DE ENTREGA*%0A";
+mensagem += "• *Aguardando endereço de entrega do cliente*%0A%0A";
 
-mensagem += "━━━━━━━━━━━━━━━━━━━━━━━%0A";
-
-mensagem += " Pedido enviado automaticamente pelo sistema *COMAÍ*%0A";
-mensagem += " Por favor confirme o pedido e informe o tempo estimado de entrega.%0A";
+mensagem += "═════════════════%0A";
+mensagem += "*✅ Pedido registrado automaticamente pelo sistema COMAÍ*%0A";
+mensagem += "*Por favor, confirme o pedido e informe o tempo estimado de entrega.*%0A";
+mensagem += "*Obrigado pela preferência!* ✨";
 
 
 /* WHATSAPP */

@@ -124,7 +124,10 @@ def admin_platform_dashboard(request):
         "payments": payments,
         "total_restaurants": restaurants.count(),
         "active_restaurants": restaurants.filter(is_active=True).count(),
-        "pending_payments": payments.count()
+        "pending_payments": payments.count(),
+        "pending_status_restaurants": restaurants.filter( payment_status="pending").count(),
+        "pending_activation_count": restaurants.filter(is_active=False).count(),
+        
     }
 
     return render(request, "platform_admin/dashboard_admin.html", context)
@@ -257,7 +260,7 @@ def update_payment_status(request, restaurant_id):
         restaurant.is_active = False
         restaurant.save()
 
-    return redirect("platform_dashboard")
+    return redirect("platform_dashboard_admin")
 
 
 @login_required

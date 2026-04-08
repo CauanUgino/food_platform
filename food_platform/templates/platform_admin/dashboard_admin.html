@@ -1,243 +1,756 @@
-{% extends "base.html" %}
 
-{% block content %}
-
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Comaí - Gestão de Restaurantes</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 
-.dashboard-container{
-max-width:1200px;
-margin:auto;
-padding:40px 20px;
-font-family:'Inter',sans-serif;
-}
+       
 
-.dashboard-title{
-font-size:28px;
-font-weight:800;
-margin-bottom:35px;
-color:#14532d;
-}
+        /* ================= ROOT ================= */
 
-/* CARDS */
+        :root {
 
-.cards{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-gap:20px;
-margin-bottom:40px;
-}
+            --primary: #2563eb;
+            --primary-dark: #1e3a8a;
+            --primary-light: #eff6ff;
 
-.card{
-background:white;
-padding:22px;
-border-radius:12px;
-box-shadow:0 10px 25px rgba(0,0,0,0.05);
-border-left:5px solid #16a34a;
-}
+            --success: #16a34a;
+            --warning: #f59e0b;
+            --danger: #ef4444;
 
-/* TABLE */
+            --dark: #020617;
 
-.table{
-width:100%;
-border-collapse:collapse;
-background:white;
-border-radius:12px;
-overflow:hidden;
-box-shadow:0 10px 25px rgba(0,0,0,0.05);
-}
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-400: #94a3b8;
+            --gray-500: #64748b;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-800: #1e293b;
+            --gray-900: #0f172a;
 
-.table thead{
-background:#16a34a;
-color:white;
-}
+            --white: #ffffff;
 
-.table th, .table td{
-padding:14px;
-}
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
+            --shadow-md: 0 8px 24px rgba(0,0,0,0.08);
+            --shadow-lg: 0 20px 40px rgba(0,0,0,0.10);
+            --shadow-xl: 0 30px 60px rgba(0,0,0,0.15);
 
-/* STATUS */
+            --radius: 14px;
+            --radius-lg: 22px;
+        }
 
-.status-active{ color:#16a34a; font-weight:600; }
-.status-inactive{ color:#ef4444; font-weight:600; }
+        /* ================= RESET ================= */
 
-/* PAYMENT */
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+        }
 
-.pay-ok{background:#dcfce7;color:#166534;padding:5px 10px;border-radius:6px;font-size:12px;font-weight:600;}
-.pay-pending{background:#fef9c3;color:#854d0e;padding:5px 10px;border-radius:6px;font-size:12px;font-weight:600;}
-.pay-late{background:#fee2e2;color:#991b1b;padding:5px 10px;border-radius:6px;font-size:12px;font-weight:600;}
-.pay-blocked{background:#111827;color:white;padding:5px 10px;border-radius:6px;font-size:12px;font-weight:600;}
+        body{
+            font-family:'Inter',system-ui,-apple-system,sans-serif;
+            background: radial-gradient(circle at top,#1e3a8a,#020617 70%);
+            min-height:100vh;
+            color:var(--gray-900);
+            -webkit-font-smoothing:antialiased;
+        }
 
-/* SELECT */
+        /* ================= HEADER ================= */
 
-.status-select{
-padding:6px 10px;
-border-radius:6px;
-border:1px solid #ddd;
-}
+        .header{
+            background:rgba(255,255,255,0.75);
+            backdrop-filter:blur(18px);
+            border-bottom:1px solid rgba(255,255,255,0.2);
+            position:sticky;
+            top:0;
+            z-index:1000;
+        }
 
-/* SWITCH */
+        .header-container{
+            max-width:1400px;
+            margin:auto;
+            padding:1rem 2rem;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+        }
 
-.switch{
-position:relative;
-display:inline-block;
-width:46px;
-height:24px;
-}
+        .logo{
+            font-weight:800;
+            font-size:1.6rem;
+            display:flex;
+            gap:10px;
+            align-items:center;
+            color:var(--primary);
+        }
 
-.switch input{
-opacity:0;
-width:0;
-height:0;
-}
+        .logo i{
+            font-size:1.8rem;
+            background:linear-gradient(135deg,#2563eb,#60a5fa);
+            -webkit-background-clip:text;
+            -webkit-text-fill-color:transparent;
+        }
 
-.slider{
-position:absolute;
-cursor:pointer;
-top:0;
-left:0;
-right:0;
-bottom:0;
-background:#ccc;
-transition:.3s;
-border-radius:34px;
-}
+        /* ================= PERFIL ================= */
 
-.slider:before{
-content:"";
-position:absolute;
-height:18px;
-width:18px;
-left:3px;
-bottom:3px;
-background:white;
-transition:.3s;
-border-radius:50%;
-}
+        .profile{
+            display:flex;
+            align-items:center;
+            gap:10px;
+            background:white;
+            padding:6px 14px;
+            border-radius:999px;
+            box-shadow:var(--shadow-sm);
+            transition:0.3s;
+        }
 
-input:checked + .slider{
-background:#16a34a;
-}
+        .profile:hover{
+            transform:translateY(-2px);
+            box-shadow:var(--shadow-md);
+        }
 
-input:checked + .slider:before{
-transform:translateX(22px);
-}
+        .profile-avatar{
+            width:36px;
+            height:36px;
+            border-radius:50%;
+            background:linear-gradient(135deg,#2563eb,#1e40af);
+            color:white;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+        }
+
+        /* ================= DASHBOARD ================= */
+
+        .dashboard-container{
+            max-width:1400px;
+            margin:auto;
+            padding:3rem 2rem;
+        }
+
+        .dashboard-title{
+            font-size:3rem;
+            font-weight:800;
+            text-align:center;
+            background:linear-gradient(to right,#fff,#c7d2fe);
+            -webkit-background-clip:text;
+            -webkit-text-fill-color:transparent;
+        }
+
+        .dashboard-subtitle{
+            text-align:center;
+            color:rgba(255,255,255,0.7);
+            margin-top:10px;
+        }
+
+        /* ================= CARDS ================= */
+
+        .stats-grid{
+            display:grid;
+            grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+            gap:24px;
+            margin-top:3rem;
+        }
+
+        .stat-card{
+            background:rgba(255,255,255,0.85);
+            backdrop-filter:blur(20px);
+            padding:2rem;
+            border-radius:var(--radius-lg);
+            box-shadow:var(--shadow-lg);
+            transition:0.4s;
+            position:relative;
+        }
+
+        .stat-card:hover{
+            transform:translateY(-6px) scale(1.01);
+        }
+
+        .stat-number{
+            font-size:3rem;
+            font-weight:800;
+        }
+
+        .stat-label{
+            color:var(--gray-600);
+        }
+
+        /* ================= SECTIONS ================= */
+
+        .section{
+            background:rgba(255,255,255,0.85);
+            backdrop-filter:blur(20px);
+            border-radius:var(--radius-lg);
+            padding:2rem;
+            margin-top:2rem;
+            box-shadow:var(--shadow-md);
+        }
+
+        .section-title{
+            font-size:1.3rem;
+            font-weight:700;
+            margin-bottom:1.5rem;
+        }
+
+        /* ================= TABLE ================= */
+
+        .table-container{
+            overflow:hidden;
+            border-radius:var(--radius);
+            box-shadow:var(--shadow-md);
+        }
+
+        .table{
+            width:100%;
+            border-collapse:collapse;
+        }
+
+        .table th{
+            background:var(--gray-100);
+            padding:1rem;
+            text-align:left;
+            font-size:0.8rem;
+            text-transform:uppercase;
+            color:var(--gray-600);
+        }
+
+        .table td{
+            padding:1rem;
+            border-top:1px solid var(--gray-200);
+        }
+
+        .table tr:hover{
+            background:var(--gray-50);
+        }
+
+        /* ================= BUTTONS ================= */
+
+        .btn{
+            border:none;
+            padding:8px 14px;
+            border-radius:10px;
+            font-weight:600;
+            cursor:pointer;
+            transition:0.3s;
+            text-decoration:none;
+            font-size:0.85rem;
+        }
+
+        .btn-success{
+            background:var(--success);
+            color:white;
+        }
+
+        .btn-info{
+            background:var(--primary);
+            color:white;
+        }
+
+        .btn-danger{
+            background:var(--danger);
+            color:white;
+        }
+
+        .btn:hover{
+            transform:translateY(-2px);
+            box-shadow:var(--shadow-md);
+        }
+
+        /* ================= BADGES ================= */
+
+        .badge{
+            padding:5px 12px;
+            border-radius:999px;
+            font-size:0.7rem;
+            font-weight:600;
+        }
+
+        .badge.pending{
+            background:#fef3c7;
+            color:#92400e;
+        }
+
+        .badge.paid{
+            background:#dcfce7;
+            color:#166534;
+        }
+
+        .badge.blocked{
+            background:#fee2e2;
+            color:#991b1b;
+        }
+
+        /* ================= SWITCH ================= */
+
+        .switch-container{
+            display:flex;
+            align-items:center;
+            gap:10px;
+        }
+
+        .switch{
+            position:relative;
+            display:inline-block;
+            width:50px;
+            height:26px;
+        }
+
+        .switch input{
+            opacity:0;
+            width:0;
+            height:0;
+        }
+
+        .slider{
+            position:absolute;
+            inset:0;
+            background:var(--gray-300);
+            border-radius:50px;
+            transition:0.3s;
+        }
+
+        .slider:before{
+            content:"";
+            position:absolute;
+            height:20px;
+            width:20px;
+            left:3px;
+            bottom:3px;
+            background:white;
+            border-radius:50%;
+            transition:0.3s;
+        }
+
+        .switch input:checked + .slider{
+            background:var(--success);
+        }
+
+        .switch input:checked + .slider:before{
+            transform:translateX(24px);
+        }
+
+        .switch input:disabled + .slider{
+            background:var(--gray-200);
+            cursor:not-allowed;
+        }
+
+        .disabled-msg{
+            font-size:0.75rem;
+            color:var(--danger);
+        }
+
+        /* ================= SELECT ================= */
+
+        .status-select{
+            padding:6px 10px;
+            border-radius:8px;
+            border:1px solid var(--gray-300);
+            background:white;
+            font-size:0.85rem;
+            cursor:pointer;
+        }
+
+        .status-select:focus{
+            outline:none;
+            border-color:var(--primary);
+        }
+
+        /* ================= EMPTY ================= */
+
+        .empty-state{
+            text-align:center;
+            padding:40px;
+            color:var(--gray-500);
+        }
+
+        /* ================= FOOTER ================= */
+
+        .footer{
+            margin-top:80px;
+            background:rgba(2,6,23,0.95);
+            backdrop-filter:blur(20px);
+            border-top:1px solid rgba(255,255,255,0.08);
+            padding:60px 20px 30px;
+            color:rgba(255,255,255,0.7);
+        }
+
+        .footer-container{
+            max-width:1400px;
+            margin:auto;
+            display:grid;
+            grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+            gap:40px;
+        }
+
+        .footer-logo{
+            font-size:1.5rem;
+            font-weight:800;
+            color:white;
+            display:flex;
+            gap:10px;
+            align-items:center;
+        }
+
+        .footer-description{
+            margin-top:12px;
+            font-size:0.9rem;
+            line-height:1.6;
+            color:rgba(255,255,255,0.6);
+        }
+
+        .footer-title{
+            font-weight:700;
+            margin-bottom:15px;
+            color:white;
+        }
+
+        .footer-links{
+            display:flex;
+            flex-direction:column;
+            gap:10px;
+        }
+
+        .footer-links a{
+            color:rgba(255,255,255,0.6);
+            text-decoration:none;
+            font-size:0.9rem;
+        }
+
+        .footer-links a:hover{
+            color:white;
+        }
+
+        .footer-bottom{
+            margin-top:40px;
+            padding-top:20px;
+            border-top:1px solid rgba(255,255,255,0.08);
+            text-align:center;
+            font-size:0.85rem;
+        }
+
+        /* ================= RESPONSIVO ================= */
+
+        @media(max-width:768px){
+
+        .dashboard-title{
+        font-size:2rem;
+        }
+
+        .dashboard-container{
+        padding:2rem 1rem;
+        }
+
+        .table th,
+        .table td{
+        padding:10px;
+        }
+
+        .switch-container{
+        flex-direction:column;
+        align-items:flex-start;
+        }
+
+        }
+
+        /* ================= SCROLL ================= */
+
+        ::-webkit-scrollbar{
+        width:6px;
+        }
+
+        ::-webkit-scrollbar-thumb{
+        background:var(--gray-400);
+        border-radius:10px;
+        }
 
 </style>
 
-
-<div class="dashboard-container">
-
-<div class="dashboard-title">
-📊 Painel da Plataforma — COMAÍ
-</div>
-
-<div class="cards">
-<div class="card">
-<h3>Total de Restaurantes</h3>
-<p>{{ total_restaurants }}</p>
-</div>
-
-<div class="card">
-<h3>Restaurantes Ativos</h3>
-<p>{{ active_restaurants }}</p>
-</div>
-
-<div class="card">
-<h3>Pagamentos Pendentes</h3>
-<p>{{ pending_payments }}</p>
-</div>
-</div>
+    </style>
+</head>
+<body>
+    <!-- Header -->
 
 
-<h2>🍽 Restaurantes cadastrados</h2>
+    <main class="dashboard-container">
+        <div class="dashboard-header">
+            <a btn href="{% url 'home' %}" class="dashboard-logo">
+                Voltar para o site
+            </a>
+            <h1 class="dashboard-title">Gestão de Restaurantes</h1>
+            <p class="dashboard-subtitle">Monitoramento de ativações e conformidade financeira</p>
+        </div>
 
-<table class="table">
+        <div class="stats-grid">
+            <div class="stat-card active">
+                <div class="stat-label">Total</div>
+                <div class="stat-number">{{ total_restaurants }}</div>
+            </div>
+            <div class="stat-card pending">
+                <div class="stat-label">Pagamentos pendentes</div>
+                <div class="stat-number">{{ pending_status_restaurants }}</div>
+            </div>
+            <div class="stat-card inactive">
+                <div class="stat-label">Aguardando Ativação</div>
+                <div class="stat-number">{{ pending_activation_count }}</div>
+            </div>
+        </div>
 
-<thead>
-<tr>
-<th>Restaurante</th>
-<th>Dono</th>
-<th>Status</th>
-<th>Pagamento</th>
-<th>Pagamento</th>
-<th>Ativar</th>
-</tr>
-</thead>
+        <div class="section" style="border-left: 6px solid var(--warning);">
+            <h2 class="section-title">
+                <i class="fas fa-clock"></i>
+                Pedidos de Ativação 
+                <span class="badge pending">Novos</span>
+            </h2>
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Restaurante</th>
+                            <th>Proprietário</th>
+                            <th>Status Financeiro</th>
+                            <th>Ação de Ativação</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for rest in restaurants %}
+                            {% if not rest.is_active %}
+                            <tr>
+                                <td><strong>{{ rest.name }}</strong></td>
+                                <td>{{ rest.owner.username }}</td>
+                                <td>
+                                    {% if rest.payment_status == "paid" %}
+                                        <span class="badge paid">PAGO</span>
+                                    {% elif rest.payment_status == "blocked" %}
+                                        <span class="badge blocked">BLOQUEADO</span>
+                                    {% else %}
+                                        <span class="badge pending">{{ rest.payment_status|upper }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if rest.payment_status == "blocked" %}
+                                        <div class="switch-container">
+                                            <label class="switch">
+                                                <input type="checkbox" disabled>
+                                                <span class="slider"></span>
+                                            </label>
+                                            <span class="disabled-msg">Libere o financeiro para ativar</span>
+                                        </div>
+                                    {% else %}
+                                        <form method="POST" action="{% url 'activate_restaurant' rest.id %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-success">
+                                                <i class="fas fa-play"></i>
+                                                Ativar Agora
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endif %}
+                        {% empty %}
+                            <tr><td colspan="4" class="empty-state">Nenhum pedido de ativação pendente.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
-<tbody>
+        <div class="section">
+            <h2 class="section-title">
+                <i class="fas fa-file-invoice-dollar"></i>
+                Comprovantes para Revisão
+            </h2>
+            {% if pending_payments %}
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Restaurante</th>
+                            <th>Valor</th>
+                            <th>Arquivo</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for payment in pending_payments %}
+                        <tr>
+                            <td>{{ payment.restaurant.name }}</td>
+                            <td>R$ {{ payment.amount|floatformat:2 }}</td>
+                            <td><a href="{{ payment.proof.url }}" target="_blank" class="btn btn-info"><i class="fas fa-eye"></i> Ver PDF/Imagem</a></td>
+                            <td>
+                                <a href="{% url 'approve_payment' payment.id %}" class="btn btn-success"><i class="fas fa-check"></i> Aprovar</a>
+                                <a href="{% url 'reject_payment' payment.id %}" class="btn btn-danger"><i class="fas fa-times"></i> Negar</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="empty-state">Sem comprovantes pendentes.</p>
+            {% endif %}
+        </div>
 
-{% for restaurant in restaurants %}
+        <div class="section">
+            <h2 class="section-title">
+                <i class="fas fa-cogs"></i>
+                Gestão de Status Geral
+            </h2>
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Alterar Pagamento</th>
+                            <th>Status Operacional</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for restaurant in restaurants %}
+                        <tr>
+                            <td>{{ restaurant.name }}</td>
+                            <td>
+                                <form method="POST" action="{% url 'update_payment_status' restaurant.id %}">
+                                    {% csrf_token %}
+                                    <select name="payment_status" class="status-select" onchange="this.form.submit()">
+                                        <option value="paid" {% if restaurant.payment_status == "paid" %}selected{% endif %}>✅ Em dia</option>
+                                        <option value="pending" {% if restaurant.payment_status == "pending" %}selected{% endif %}>⏳ Pendente</option>
+                                        <option value="late" {% if restaurant.payment_status == "late" %}selected{% endif %}>⚠️ Atrasado</option>
+                                        <option value="blocked" {% if restaurant.payment_status == "blocked" %}selected{% endif %}>🚫 Bloqueado</option>
+                                    </select>
+                                </form>
+                            </td>
+                            <td>
+                                <div class="switch-container">
+                                    {% if restaurant.payment_status == "blocked" %}
+                                        <label class="switch">
+                                            <input type="checkbox" {% if restaurant.is_active %}checked{% endif %} disabled>
+                                            <span class="slider"></span>
+                                        </label>
+                                        <span class="disabled-msg">🚫 Financeiro Bloqueado</span>
+                                    {% else %}
+                                        <form method="POST" action="{% if restaurant.is_active %}{% url 'deactivate_restaurant' restaurant.id %}{% else %}{% url 'activate_restaurant' restaurant.id %}{% endif %}">
+                                            {% csrf_token %}
+                                            <label class="switch">
+                                                <input type="checkbox" {% if restaurant.is_active %}checked{% endif %} onchange="this.form.submit()">
+                                                <span class="slider"></span>
+                                            </label>
+                                        </form>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
 
-<tr>
+<!-- Footer Comaí -->
+<footer class="footer">
 
-<td><strong>{{ restaurant.name }}</strong></td>
-<td>{{ restaurant.owner.username }}</td>
+    <div class="footer-container">
 
-<td>
-{% if restaurant.is_active %}
-<span class="status-active">🟢 Ativo</span>
-{% else %}
-<span class="status-inactive">🔴 Inativo</span>
-{% endif %}
-</td>
+        <!-- Marca -->
+        <div class="footer-section">
+            <h3 class="footer-logo">
+                 Comaí
+            </h3>
 
-<td>
-{% if restaurant.payment_status == "paid" %}
-<span class="pay-ok">Em dia</span>
-{% elif restaurant.payment_status == "pending" %}
-<span class="pay-pending">Pendente</span>
-{% elif restaurant.payment_status == "late" %}
-<span class="pay-late">Atrasado</span>
-{% elif restaurant.payment_status == "blocked" %}
-<span class="pay-blocked">Bloqueado</span>
-{% endif %}
-</td>
+            <p class="footer-description">
+                Plataforma inteligente para gestão de restaurantes. 
+                Controle financeiro, ativação automatizada e gestão completa 
+                para escalar seu negócio gastronômico.
+            </p>
 
-<td>
-<form method="POST" action="{% url 'update_payment_status' restaurant.id %}">
-{% csrf_token %}
-<select name="payment_status" class="status-select" onchange="this.form.submit()">
-<option value="paid" {% if restaurant.payment_status == "paid" %}selected{% endif %}>Em dia</option>
-<option value="pending" {% if restaurant.payment_status == "pending" %}selected{% endif %}>Pendente</option>
-<option value="late" {% if restaurant.payment_status == "late" %}selected{% endif %}>Atrasado</option>
-<option value="blocked" {% if restaurant.payment_status == "blocked" %}selected{% endif %}>Bloqueado</option>
-</select>
-</form>
-</td>
 
-<td>
+        </div>
 
-{% if restaurant.is_active %}
 
-<form method="POST" action="{% url 'deactivate_restaurant' restaurant.id %}">
-{% csrf_token %}
-<label class="switch">
-<input type="checkbox" checked onchange="this.form.submit()">
-<span class="slider"></span>
-</label>
-</form>
+        <!-- Produto -->
+        <div class="footer-section">
+            <h3 class="footer-title">Produto</h3>
 
-{% else %}
+            <div class="footer-links">
+                <a href="#">Dashboard</a>
+                <a href="#">Gestão de Pedidos</a>
+                <a href="#">Controle Financeiro</a>
+                <a href="#">Relatórios Inteligentes</a>
+                <a href="#">Integrações</a>
+            </div>
+        </div>
 
-<form method="POST" action="{% url 'activate_restaurant' restaurant.id %}">
-{% csrf_token %}
-<label class="switch">
-<input type="checkbox" onchange="this.form.submit()">
-<span class="slider"></span>
-</label>
-</form>
 
-{% endif %}
+        <!-- Suporte -->
+        <div class="footer-section">
+            <h3 class="footer-title">Suporte</h3>
 
-</td>
+            <div class="footer-links">
+                <a href="#">Central de Ajuda</a>
+                <a href="#">Documentação</a>
+                <a href="#">Status do Sistema</a>
+                <a href="#">Contato</a>
+            </div>
+        </div>
 
-</tr>
 
-{% endfor %}
+        <!-- Empresa -->
+        <div class="footer-section">
+            <h3 class="footer-title">Empresa</h3>
 
-</tbody>
-</table>
+            <div class="footer-links">
+                <a href="#">Sobre a Comaí</a>
+                <a href="#">Blog</a>
+                <a href="#">Carreiras</a>
+                <a href="#">Política de Privacidade</a>
+                <a href="#">Termos de Uso</a>
+            </div>
+        </div>
 
-</div>
+    </div>
 
-{% endblock %}
+
+    <div class="footer-bottom">
+
+        <p>
+            © 2026 <strong>Comaí</strong> — Plataforma de Gestão para Restaurantes
+        </p>
+
+    </div>
+
+</footer>
+
+    <script>
+        // Feedback suave nos formulários
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('submit', (e) => {
+                const btn = form.querySelector('.btn');
+                if (btn) {
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processando...';
+                    btn.style.opacity = '0.7';
+                }
+            });
+        });
+
+        // Animação de hover nas stat cards
+        document.querySelectorAll('.stat-card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-10px) scale(1.02)';
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+
+    </script>
+</body>
+</html>
