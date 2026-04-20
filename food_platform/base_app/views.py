@@ -38,6 +38,7 @@ from django.utils.encoding import force_str
 from django.utils import timezone
 from .models import PartnerPayment
 from django.contrib.sessions.exceptions import SessionInterrupted
+from PIL import Image
 # Create your views here.
 
 
@@ -45,7 +46,8 @@ from django.shortcuts import render
 
 @login_required(login_url='login')
 def home(request):
-    restaurants = Restaurant.objects.all()
+    
+    restaurants = Restaurant.objects.filter(is_active=True)
     return render(request, "home.html", {"restaurants": restaurants})
 
 
@@ -110,24 +112,35 @@ def logout_view(request):
     
 
 
-
+#### DEBUG ESTÁ FUNÇÃO, ESTÁ FUNCIONAL MAS NÃO EXIBE OS BOTÕES DE NAVEGAÇÃO NO NAVBAR. ######
+### A PARTE DE SUPER ADMINISTRADOR ESTÁ O BOTÃO FUNCIONAL E A PARTE DE STAFF NÃO. VERIFIQUEI O HTML E A LÓGICA LÁ ESTÁ CORRETA, ENTÃO O PROBLEMA PODE ESTAR NA FORMA COMO OS DADOS ESTÃO SENDO PASSADOS PARA O TEMPLATE OU NA LÓGICA DE EXIBIÇÃO DOS BOTÕES. ###
+### PLANO DE DEBUG É PEGAR A FUNÇÃO NO GITHUB E SUBSTITUIR PELA FUNÇÃO ANTIGA, VER SE OS BOTÕES APARECEM, SE APARECEREM O PROBLEMA ESTÁ NA LÓGICA DE EXIBIÇÃO DOS BOTÕES, SE NÃO APARECEREM O PROBLEMA ESTÁ NA FORMA COMO OS DADOS ESTÃO SENDO PASSADOS PARA O TEMPLATE. ###
 def admin_platform_dashboard(request):
     if not request.user.is_superuser:
         return redirect("home")
 
+    # Todos os registros sem filtrar ainda para as contagens serem reais
     restaurants = Restaurant.objects.all()
-    # Adicionei o status='pending' para não carregar todos os pagamentos da história de uma vez
-    payments = PartnerPayment.objects.filter(status="pending").select_related("restaurant", "user")
+
+    # Listas específicas
+    activate_restaurants_list = restaurants.filter(is_active=True)
+    pending_activation = restaurants.filter(is_active=False)
+
+    # Pagamentos pendentes 
+    payments_list = PartnerPayment.objects.filter(status="pending").select_related("restaurant", "user")
 
     context = {
-        "restaurants": restaurants,
-        "payments": payments,
-        "total_restaurants": restaurants.count(),
-        "active_restaurants": restaurants.filter(is_active=True).count(),
-        "pending_payments": payments.count(),
-        "pending_status_restaurants": restaurants.filter( payment_status="pending").count(),
-        "pending_activation_count": restaurants.filter(is_active=False).count(),
+        # 'restaurants' precisa conter TODOS (ou os ativos + inativos) 
+        # para que o seu loop {% if not rest.is_active %} no HTML funcione.
+        "restaurants": restaurants, 
         
+        "payments": payments_list, # Aqui devem ir os pagamentos, não os restaurantes
+        
+        "total_restaurants": restaurants.count(),
+        "active_restaurants": activate_restaurants_list.count(),
+        "pending_payments": payments_list.count(),
+        "pending_status_restaurants": restaurants.filter(payment_status="pending").count(),
+        "pending_activation_count": pending_activation.count(),
     }
 
     return render(request, "platform_admin/dashboard_admin.html", context)
@@ -284,6 +297,7 @@ def store_dashboard(request):
         "restaurant": restaurant,
         "total_categories": restaurant.categories.count(),
         "total_items": restaurant.items.count(),
+        "total_products": restaurant.products.count(),
         "public_url": request.build_absolute_uri(
             f"/restaurant/{restaurant.slug}/"
         ),
@@ -379,6 +393,7 @@ def create_my_store(request):
 
     if request.method == "POST":
         form = RestaurantCreateForm(request.POST, request.FILES)
+
 
         if form.is_valid():
             try:
@@ -504,7 +519,7 @@ def create_restaurant(request):
     if not request.user.is_superuser:
         return redirect("home")
 
-    form = RestaurantCreateForm(request.POST or None)
+    form = RestaurantCreateForm(request.POST or None, request.FILES or None)
 
     if form.is_valid():
         restaurant = form.save(commit=False)
@@ -623,12 +638,15 @@ def product_create(request):
     )
 
     if request.method == "POST":
+        image = request.FILES.get("image")
+
         Product.objects.create(
             restaurant=restaurant,
             category_id=request.POST["category"],
             name=request.POST["name"],
             description=request.POST.get("description", ""),
             price=request.POST["price"],
+            image=image
         )
         return redirect("product_list")
 
@@ -652,6 +670,13 @@ def product_edit(request, pk):
         product.category_id = request.POST.get("category")
         product.save()
         messages.success(request, "Produto atualizado com sucesso!")
+
+        if request.FILES.get("image"):
+            product.image = request.FILES["image"]
+            product.save()
+            messages.success(request, "Imagem atualizada com sucesso!")
+
+
         return redirect("product_list")
 
     return render(request, "store/products/create.html", { # Reaproveitamos o template de criar

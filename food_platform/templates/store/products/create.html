@@ -20,7 +20,7 @@
                         </div>
                     </div>
 
-                    <form method="post" class="needs-validation">
+                    <form method="POST" enctype="multipart/form-data" class="needs-validation">
                         {% csrf_token %}
                         
                         <div class="row">
@@ -59,6 +59,20 @@
                             </div>
                         </div>
 
+                        <div class="col-12 mb-4">
+                            
+                                {% csrf_token %}
+                                <input type="file" name="image" onchange="previewImage(event)" class="form-control ux-input" accept="image/*">
+
+                                    
+                                
+
+                                <!-- 👇 PREVIEW -->
+                                <img id="preview" style="display:none; height:150px; margin-top:10px;">
+                                                                                              
+                      
+                        </div>
+
                         <div class="d-flex flex-column flex-md-row justify-content-end gap-3 mt-4">
                             <a href="{% url 'product_list' %}" class="btn btn-light rounded-pill px-4 fw-bold text-muted border order-2 order-md-1">Descartar</a>
                             <button type="submit" class="btn btn-danger rounded-pill px-5 fw-bold shadow-danger border-0 py-3 order-1 order-md-2" style="background: var(--nav-gradient);">
@@ -93,68 +107,222 @@
 </div>
 
 <style>
-    /* TIPOGRAFIA */
-    .fw-800 { font-weight: 800; }
+    /* ========================================
+    DESIGN TOKENS - SEMÂNTICOS E ESCALÁVEIS
+    ======================================== */
 
-    /* EFEITO 3D E SOMBRAS */
-    .card-3d {
-        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-        box-shadow: 0 20px 40px rgba(0,0,0,0.05) !important;
-    }
+    /* CORES - Primitive → Semantic */
+    :root {
+    /* Brand Core */
+    --color-brand-50: 234 29 44;
+    --color-brand-500: 234 29 44;
+    --color-brand-600: 220 24 41;
     
+    /* Neutros */
+    --color-neutral-50: 255 255 255;
+    --color-neutral-100: 248 250 252;
+    --color-neutral-200: 241 245 249;
+    --color-neutral-900: 26 29 35;
+    
+    /* Gradientes */
+    --gradient-nav: 145deg, rgb(26 29 35 / 0.95), rgb(44 49 58 / 0.95);
+    --gradient-glass: 145deg, rgb(255 255 255 / 0.1), rgb(255 255 255 / 0.05);
+    }
+
+    /* UTILITÁRIOS DE COR */
+    .color-brand { color: rgb(var(--color-brand-500)); }
+    .bg-brand { background: rgb(var(--color-brand-500)); }
+    .shadow-brand { box-shadow: 0 10px 30px rgb(var(--color-brand-500) / 0.25); }
+
+    /* ========================================
+    TIPOGRAFIA & ESPAÇAMENTO
+    ======================================== */
+    .fw-800 { font-weight: 800; font-variation-settings: 'wght' 800; }
+    .ux-input { 
+    font-weight: 500; 
+    font-variation-settings: 'wght' 500;
+    letter-spacing: 0.025em;
+    }
+
+    /* ========================================
+    EFEITOS 3D PREMIUM - CARDS & ÍCONES
+    ======================================== */
+
+    /* Cards Glassmorphism 2.0 + 3D Tilt */
+    .card-3d {
+    background: rgb(var(--color-neutral-50) / 0.75);
+    backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgb(var(--color-neutral-100) / 0.4);
+    transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    perspective: 1000px;
+    position: relative;
+    }
+
+    .card-3d::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--gradient-glass);
+    border-radius: inherit;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    z-index: -1;
+    }
+
     .card-3d:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 30px 60px rgba(0,0,0,0.1) !important;
+    transform: translateY(-8px) rotateX(2deg) rotateY(2deg);
+    box-shadow: 
+        0 25px 50px rgb(0 0 0 / 0.15),
+        0 0 0 1px rgb(var(--color-neutral-100) / 0.5);
     }
 
+    .card-3d:hover::before { opacity: 1; }
+
+    /* Modo Dark */
     .card-3d-dark {
-        background: linear-gradient(145deg, #1a1d23 0%, #2c313a 100%);
+    background: rgb(var(--color-neutral-900) / 0.85);
+    border-color: rgb(75 85 99 / 0.3);
     }
 
-    /* ÍCONE COM VOLUME */
+    .card-3d-dark::before {
+    background: var(--gradient-nav);
+    }
+
+    /* Ícone 3D com Pulse */
     .icon-box-3d {
-        width: 60px;
-        height: 60px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 20px;
-        background: var(--nav-gradient);
+    width: clamp(56px, 4vw, 64px);
+    height: clamp(56px, 4vw, 64px);
+    display: grid;
+    place-items: center;
+    border-radius: 16px;
+    background: var(--gradient-nav);
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    position: relative;
+    overflow: hidden;
     }
 
-    .shadow-danger {
-        box-shadow: 0 10px 20px rgba(234, 29, 44, 0.2) !important;
+    .icon-box-3d::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: conic-gradient(from 0deg, transparent 0deg, rgb(var(--color-brand-500) / 0.1) 360deg);
+    animation: rotate 4s linear infinite paused;
     }
 
-    /* INPUTS PREMIUM */
+    .icon-box-3d:hover::before { animation-play-state: running; }
+    .icon-box-3d:hover {
+    transform: scale(1.1) rotate(5deg);
+    box-shadow: 0 15px 35px rgb(var(--color-brand-500) / 0.3);
+    }
+
+    @keyframes rotate { to { transform: rotate(360deg); } }
+
+    /* ========================================
+    INPUTS NEOMÓRFICOS + GLASS
+    ======================================== */
     .ux-input {
-        border: 2px solid #f1f3f5;
-        background-color: #f8f9fa;
-        padding: 0.85rem 1.25rem;
-        border-radius: 100px; /* Padrão Pill */
-        transition: all 0.3s ease;
-        font-weight: 500;
+    border: 2px solid rgb(var(--color-neutral-200) / 0.8);
+    background: rgb(var(--color-neutral-100) / 0.6);
+    padding: 1rem 1.5rem;
+    border-radius: 50px;
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    font-weight: 500;
+    backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
+    }
+
+    .ux-input::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgb(var(--color-brand-500) / 0.05), transparent);
+    transform: translateX(-100%);
+    transition: transform 0.6s;
     }
 
     .ux-input:focus {
-        background-color: #fff;
-        border-color: var(--brand-main);
-        box-shadow: 0 0 0 5px rgba(234, 29, 44, 0.1);
-        outline: none;
+    background: rgb(var(--color-neutral-50));
+    border-color: rgb(var(--color-brand-500));
+    box-shadow: 
+        0 0 0 4px rgb(var(--color-brand-500) / 0.15),
+        inset 0 2px 8px rgb(255 255 255 / 0.6);
+    outline: none;
+    }
+
+    .ux-input:focus::before,
+    .ux-input:hover::before {
+    transform: translateX(100%);
     }
 
     .ux-addon {
-        border: 2px solid #f1f3f5;
-        background-color: #f1f3f5;
-        border-radius: 100px 0 0 100px !important;
+    border: 2px solid rgb(var(--color-neutral-200) / 0.8);
+    background: rgb(var(--color-neutral-200) / 0.7);
+    border-radius: 50px 0 0 50px;
+    backdrop-filter: blur(10px);
     }
 
-    /* BOTÕES */
+    /* ========================================
+    BOTÕES MICRO-INTERAÇÕES 3D
+    ======================================== */
     .btn-danger {
-        transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    border-radius: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
     }
+
+    .btn-danger::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.3), transparent);
+    transition: left 0.6s;
+    }
+
     .btn-danger:hover {
-        transform: translateY(-3px) scale(1.02);
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 
+        0 20px 40px rgb(var(--color-brand-500) / 0.3),
+        0 8px 16px rgb(0 0 0 / 0.1);
+    }
+
+    .btn-danger:hover::before { left: 100%; }
+
+    .btn-danger:active {
+    transform: translateY(-1px) scale(0.98);
+    transition: transform 0.1s;
+    }
+
+    /* ========================================
+    RESPONSIVO & PERFORMANCE
+    ======================================== */
+    @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+    }
+
+    @supports (backdrop-filter: blur(1px)) {
+    .card-3d, .ux-input { will-change: transform; }
+    }
+
+    /* Container Queries (Modern Browsers) */
+    @container (min-width: 400px) {
+    .icon-box-3d { --size: 72px; width: var(--size); height: var(--size); }
     }
 </style>
+
+<!-- O código acima é um exemplo de como criar um formulário de criação/edição de produtos com um design moderno e interativo, utilizando técnicas avançadas de CSS para proporcionar uma experiência premium aos usuários. Ele inclui campos para nome, categoria, preço, descrição e imagem do produto, além de dicas de conversão e status da vitrine. -->
+<script>
+function previewImage(event) {
+    const img = document.getElementById('preview');
+    img.src = URL.createObjectURL(event.target.files[0]);
+    img.style.display = 'block';
+}
+</script>
 {% endblock %}  

@@ -3,247 +3,810 @@
 {% block title %}Painel de Controle | COMAÍ{% endblock %}
 
 {% block content %}
-<div class="container-fluid px-md-5 pb-5 animate-in">
-    
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-5 gap-3 pt-4">
-        <div>
-            <span class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-3 py-2 fw-bold small mb-2 text-uppercase tracking-wider">
-                <i class="bi bi-circle-fill me-1 small"></i> Painel em tempo real
-            </span>
-            <h1 class="fw-900 display-5 mb-0" style="letter-spacing: -1.5px;">Olá, {{ restaurant.name }}!</h1>
-            <p class="text-muted fs-5 mb-0">Aqui está o resumo da sua operação hoje.</p>
-        </div>
-        <div class="d-flex gap-2">
-            <button class="btn btn-light rounded-pill px-4 fw-bold border shadow-sm">
-                <i class="bi bi-printer me-2"></i>Imprimir Pedidos
-            </button>
-            <a href="{% url 'product_list' %}" class="btn btn-dark rounded-pill px-4 fw-bold shadow">
-                <i class="bi bi-plus-lg me-2"></i>Novo Item
-            </a>
-        </div>
-    </div>
-
-    <div class="row g-4 mb-5">
-        <div class="col-md-4">
-            <div class="card-metric">
-                <div class="metric-icon bg-danger-soft text-danger">
-                    <i class="bi bi-bag-heart"></i>
-                </div>
-                <div>
-                    <h6 class="metric-label">Vendas Totais</h6>
-                    <h2 class="metric-value">{{ orders.count }}</h2>
-                </div>
+<div class="dashboard-wrapper">
+    <!-- HEADER -->
+    <header class="dashboard-header">
+        <div class="header-content">
+            <div class="header-meta">
+                <span class="status-badge">
+                    <div class="status-dot"></div>
+                    Painel em tempo real
+                </span>
+                <h1 class="hero-title">Olá, {{ restaurant.name }}!</h1>
+                <p class="hero-subtitle">Gerencie seu cardápio e acompanhe suas vendas em tempo real.</p>
             </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card-metric">
-                <div class="metric-icon bg-orange-soft text-orange">
-                    <i class="bi bi-box-seam"></i>
-                </div>
-                <div>
-                    <h6 class="metric-label">Produtos Ativos</h6>
-                    <h2 class="metric-value">{{ total_items }}</h2>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card-metric border-dark-subtle">
-                <div class="metric-icon bg-dark text-white">
-                    <i class="bi bi-layers"></i>
-                </div>
-                <div>
-                    <h6 class="metric-label">Categorias</h6>
-                    <h2 class="metric-value">{{ total_categories }}</h2>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row g-4">
-        <div class="col-xl-8">
-            <div class="card border-0 shadow-sm rounded-5 overflow-hidden">
-                <div class="card-header bg-white p-4 border-0 d-flex justify-content-between align-items-center">
-                    <h5 class="fw-800 mb-0">Pedidos Recentes</h5>
-                    <a href="#" class="btn btn-sm btn-link text-danger text-decoration-none fw-bold">Ver todos</a>
-                </div>
-                <div class="table-responsive">
-                    <table class="table align-middle mb-0">
-                        <thead class="bg-light-subtle">
-                            <tr>
-                                <th class="ps-4 text-muted small fw-bold py-3">ID</th>
-                                <th class="text-muted small fw-bold py-3">CLIENTE</th>
-                                <th class="text-muted small fw-bold py-3">STATUS</th>
-                                <th class="text-muted small fw-bold py-3">VALOR</th>
-                                <th class="text-muted small fw-bold py-3 pe-4 text-end">AÇÃO</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for order in orders %}
-                            <tr class="order-row">
-                                <td class="ps-4 fw-bold text-muted">#{{ order.id }}</td>
-                                <td>
-                                    <div class="d-flex align-items-center gap-3">
-                                        <div class="avatar-text">{{ order.user.username|slice:":1"|upper }}</div>
-                                        <span class="fw-600 text-dark">{{ order.user.username }}</span>
-                                    </div>
-                                </td>
-                                <td>
-                                    <span class="badge-status {% if order.status == 'pending' %}status-pending{% elif order.status == 'confirmed' %}status-success{% else %}status-default{% endif %}">
-                                        {{ order.get_status_display }}
-                                    </span>
-                                </td>
-                                <td class="fw-800 text-dark">R$ {{ order.total_price }}</td>
-                                <td class="pe-4 text-end">
-                                    <button class="btn btn-icon" title="Ver Detalhes"><i class="bi bi-eye"></i></button>
-                                </td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="5" class="text-center py-5">
-                                    <img src="https://cdn-icons-png.flaticon.com/512/4076/4076432.png" width="80" class="opacity-25 mb-3">
-                                    <p class="text-muted">Nenhum pedido recebido hoje.</p>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-4">
-            <div class="card border-0 shadow-sm rounded-5 p-4 h-100">
-                <h5 class="fw-800 mb-4">Gestão do Cardápio</h5>
-                
-                <a href="{% url 'category_list' %}" class="action-item mb-3">
-                    <div class="action-icon"><i class="bi bi-tags"></i></div>
-                    <div class="flex-grow-1">
-                        <h6 class="fw-bold mb-0">Editar Categorias</h6>
-                        <small class="text-muted">Organize seu menu</small>
-                    </div>
-                    <i class="bi bi-chevron-right text-muted"></i>
+            <div class="header-actions">
+                <a href="{% url 'product_list' %}" class="btn btn-primary">
+                    <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 4v4m-8 4h16m-16 4h16"/>
+                    </svg>
+                    Novo Produto
                 </a>
-
-                <a href="{% url 'product_list' %}" class="action-item mb-3">
-                    <div class="action-icon"><i class="bi bi-journal-richtext"></i></div>
-                    <div class="flex-grow-1">
-                        <h6 class="fw-bold mb-0">Editar Produtos</h6>
-                        <small class="text-muted">Preços e descrições</small>
-                    </div>
-                    <i class="bi bi-chevron-right text-muted"></i>
+                <a href="{% url 'category_list' %}" class="btn btn-secondary">
+                    <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M5 5h14v2H5zM5 13h14v2H5z"/>
+                    </svg>
+                    Nova Categoria
                 </a>
-
-                <div class="mt-auto p-4 bg-light rounded-4 border border-dashed text-center">
-                    <p class="small text-muted mb-0">Precisa de ajuda com o painel?</p>
-                    <a href="#" class="small fw-bold text-danger text-decoration-none">Falar com Suporte</a>
-                </div>
             </div>
         </div>
-    </div>
+    </header>
+
+    <!-- METRICS GRID -->
+    <section class="metrics-grid">
+        <div class="metric-card" data-metric="sales">
+            <div class="metric-icon">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-4L4 7m12 10V7M4 7h16"/>
+                </svg>
+            </div>
+            <div class="metric-content">
+                <span class="metric-label">Vendas Totais</span>
+                <div class="metric-value">{{ orders.count }}</div>
+                <div class="metric-change positive">+12% este mês</div>
+            </div>
+        </div>
+        <div class="metric-card" data-metric="products">
+            <div class="metric-icon">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M20.54 5.23l-1.39-1.68C18.88 3.21 18.47 3 18 3H6c-.47 0-.88.21-1.16.55L3.46 4.77A6.015 6.015 0 003 6v12c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-.57-.21-1.08-.55-1.45zM6.24 5h11.52l.83 1H5.42l.82-1zM19 19H5V8h14v11z"/>
+                </svg>
+            </div>
+            <div class="metric-content">
+                <span class="metric-label">Produtos Ativos</span>
+                <div class="metric-value">{{ total_products }}</div>
+            </div>
+        </div>
+        <div class="metric-card" data-metric="categories">
+            <div class="metric-icon">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M10 18h5v-6h-5v6zm-6 0h5V5H4v13zm12 0h5v-6h-5v6z"/>
+                </svg>
+            </div>
+            <div class="metric-content">
+                <span class="metric-label">Categorias</span>
+                <div class="metric-value">{{ total_categories }}</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        <div class="content-grid">
+            <!-- PRODUCTS SECTION -->
+            <section class="section-card products-section">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M9 5v2h6V5h-6zm-2 0h-2v2h2V5zm10 10v2h2v-2h-2zM7 15v2H5v-2h2zm12-6h-2v2h2V9zm-2 0h-2v2h2V9zM9 17v2h6v-2h-6zm2-10h2v2h-2V7zm10-2v14c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2V5c0-1.1.9-2 2-2h14c1.1 0 2 .9 2 2z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="section-title">Gerenciar Produtos</h2>
+                        <p>Edite preços, descrições e estoque dos seus produtos</p>
+                    </div>
+                    <a href="{% url 'product_list' %}" class="btn btn-link">Ver Todos →</a>
+                </div>
+                <div class="action-grid">
+                    <a href="{% url 'product_list' %}" class="action-card edit-action">
+                        <div class="action-icon">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                            </svg>
+                        </div>
+                        <h3>Editar Produtos</h3>
+                        <p>Preços, fotos e descrições</p>
+                        <span class="action-arrow">→</span>
+                    </a>
+                    <a href="{% url 'product_list' %}new" class="action-card create-action">
+                        <div class="action-icon">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                            </svg>
+                        </div>
+                        <h3>Adicionar Novo</h3>
+                        <p>Crie novos itens pro menu</p>
+                        <span class="action-arrow">→</span>
+                    </a>
+                    <a href="{% url 'category_list' %}" class="action-card category-action">
+                        <div class="action-icon">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M4 6h16v2H4zm0 5h16v2H4z"/>
+                            </svg>
+                        </div>
+                        <h3>Gerenciar Categorias</h3>
+                        <p>Organize seus produtos por categorias</p>
+                        <span class="action-arrow">→</span>
+                    </a>
+                    <a href="{% url 'category_create' %}" class="action-card category-action">
+                        <div class="action-icon">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M4 6h16v2H4zm0 5h16v2H4z"/>
+                            </svg>
+                        </div>
+                        <h3>Adicionar Categoria</h3>
+                        <p>Crie novas categorias pro seu menu</p>
+                        <span class="action-arrow">→</span>
+                    </a>
+                </div>
+            </section>
+
+            <!-- HELP SECTION -->
+            <aside class="section-card help-section">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2.76 5.54h.02l.02.01.8 4h-1.6l.8-4h.02zm-1 10.03h2v-1.92h-2v1.92zm0-3.72h2V8.62h-2v4.25z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="section-title">Como Começar</h2>
+                        <p>Dicas rápidas para gerenciar seu restaurante</p>
+                    </div>
+                </div>
+                <div class="help-content">
+                    <div class="help-step active" data-step="1">
+                        <div class="step-number">1</div>
+                        <h3>Adicione seus produtos</h3>
+                        <p>Crie seu cardápio completo com fotos, preços e estoque. Use <strong>"Novo Produto"</strong> no topo.</p>
+                    </div>
+                    <div class="help-step" data-step="2">
+                        <div class="step-number">2</div>
+                        <h3>Organize por categorias</h3>
+                        <p>Separe lanches, bebidas, pratos principais. Facilita para os clientes encontrarem rápido.</p>
+                    </div>
+                    <div class="help-step" data-step="3">
+                        <div class="step-number">3</div>
+                        <h3>Acompanhe vendas</h3>
+                        <p>Todas as vendas aparecem aqui em tempo real. Veja o que está vendendo mais!</p>
+                    </div>
+                    <div class="help-step" data-step="4">
+                        <div class="step-number">4</div>
+                        <h3>Atualize preços</h3>
+                        <p>Mantenha os preços sempre atualizados. É só clicar em <strong>"Editar Produtos"</strong>.</p>
+                    </div>
+                    <div class="help-footer">
+                        <span class="help-indicator">
+                            <span class="indicator-dot active"></span>
+                            <span class="indicator-dot"></span>
+                            <span class="indicator-dot"></span>
+                            <span class="indicator-dot"></span>
+                        </span>
+                        <button class="help-btn">Próxima dica →</button>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </main>
 </div>
 
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
-    :root {
-        --comaí-red: #ea1d2c;
-        --comaí-orange: #ff8a00;
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    height: 100%;
+    overflow-x: hidden;
+}
+
+:root {
+    --primary: 25 100% 55%;
+    --primary-dark: 25 100% 45%;
+    --success: 158 80% 50%;
+    --warning: 44 100% 57%;
+    --gray-50: 12 100% 98%;
+    --gray-100: 12 85% 96%;
+    --gray-200: 12 75% 94%;
+    --gray-300: 210 25% 85%;
+    --gray-500: 210 20% 50%;
+    --gray-600: 215 20% 65%;
+    --gray-900: 222 47% 11%;
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    --radius-sm: 0.5rem;
+    --radius-md: 0.75rem;
+    --radius-lg: 1rem;
+    --radius-xl: 1.5rem;
+}
+
+.dashboard-wrapper {
+    min-height: 100vh;
+    
+    font-family: 'Inter', sans-serif;
+    padding: 2rem 0;
+    animation: slideUp 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* HEADER */
+.dashboard-header {
+    max-width: 1200px;
+    margin: 0 auto 4rem auto;
+    padding: 0 2rem;
+}
+
+.header-content {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 3rem;
+    align-items: start;
+}
+
+.header-meta .hero-title {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 900;
+    background: linear-gradient(135deg, hsl(var(--gray-900)), hsl(222 47% 15%));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0 0 0.5rem 0;
+    line-height: 1.1;
+}
+
+.hero-subtitle {
+    font-size: 1.25rem;
+    color: hsl(210 20% 50%);
+    font-weight: 400;
+    margin: 0;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, hsl(var(--gray-100)), hsl(var(--gray-200)));
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: hsl(var(--gray-900));
+    box-shadow: var(--shadow-sm);
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    background: hsl(158 80% 50%);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* BUTTONS */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.75rem;
+    border-radius: var(--radius-lg);
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(348 100% 60%));
+    color: white;
+    box-shadow: var(--shadow-lg);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-xl);
+}
+
+.btn-secondary {
+    background: hsl(var(--gray-100));
+    color: hsl(var(--gray-900));
+    box-shadow: var(--shadow-md);
+}
+
+.btn-secondary:hover {
+    background: white;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-lg);
+}
+
+.btn-link {
+    color: hsl(var(--primary));
+    font-weight: 600;
+    padding: 0.5rem 0;
+    font-size: 0.95rem;
+}
+
+.icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+/* METRICS */
+.metrics-grid {
+    max-width: 1200px;
+    margin: 0 auto 4rem auto;
+    padding: 0 2rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.metric-card {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(20px);
+    border: 1px solid hsl(var(--gray-200));
+    border-radius: var(--radius-xl);
+    padding: 2rem;
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.metric-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, hsl(var(--primary)), hsl(348 100% 60%));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.metric-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-xl);
+}
+
+.metric-card:hover::before {
+    opacity: 1;
+}
+
+.metric-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: var(--radius-lg);
+    background: linear-gradient(135deg, hsl(var(--gray-100)), hsl(var(--gray-200)));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: hsl(var(--gray-900));
+    flex-shrink: 0;
+}
+
+.metric-icon svg {
+    width: 28px;
+    height: 28px;
+}
+
+.metric-content .metric-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: hsl(var(--gray-500));
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.25rem;
+}
+
+.metric-value {
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: hsl(var(--gray-900));
+    line-height: 1;
+    margin-bottom: 0.25rem;
+}
+
+.metric-change {
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.metric-change.positive {
+    color: hsl(var(--success));
+}
+
+/* MAIN CONTENT */
+.main-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+.content-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+}
+
+.section-card {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(24px);
+    border: 1px solid hsl(var(--gray-200));
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.section-card:hover {
+    box-shadow: var(--shadow-xl);
+    transform: translateY(-2px);
+}
+
+.section-header {
+    padding: 2.5rem 2.5rem 0;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-shrink: 0;
+}
+
+.section-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: var(--radius-lg);
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(348 100% 60%));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    flex-shrink: 0;
+}
+
+.section-icon svg {
+    width: 24px;
+    height: 24px;
+}
+
+.section-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin: 0 0 0.25rem 0;
+    color: hsl(var(--gray-900));
+}
+
+.section-header p {
+    color: hsl(var(--gray-500));
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+/* ACTION GRID */
+.action-grid {
+    padding: 2rem 2.5rem 2.5rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    flex: 1;
+}
+
+.action-card {
+    padding: 2rem;
+    border-radius: var(--radius-lg);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 2px solid transparent;
+    position: relative;
+    overflow: hidden;
+}
+
+.action-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, hsl(var(--gray-100)), hsl(var(--gray-200)));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.action-card:hover {
+    transform: translateY(-4px);
+    border-color: hsl(var(--primary));
+    box-shadow: var(--shadow-lg);
+}
+
+.action-card:hover::before {
+    opacity: 1;
+}
+
+.action-card:hover .action-arrow {
+    transform: translateX(4px);
+}
+
+.action-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: var(--radius-md);
+    background: hsl(var(--gray-100));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: hsl(var(--gray-900));
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.action-card:hover .action-icon {
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(348 100% 60%));
+    color: white;
+}
+
+.action-icon svg {
+    width: 24px;
+    height: 24px;
+}
+
+.action-card h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem 0;
+    color: hsl(var(--gray-900));
+}
+
+.action-card p {
+    color: hsl(var(--gray-500));
+    margin: 0 0 1rem 0;
+    font-size: 0.95rem;
+    flex: 1;
+}
+
+.action-arrow {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: hsl(var(--primary));
+    transition: transform 0.3s ease;
+    align-self: flex-end;
+}
+
+/* HELP SECTION */
+.help-section { 
+    overflow: hidden; 
+}
+
+.help-content {
+    padding: 2.5rem 2.5rem 2.5rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.help-step {
+    display: none;
+    opacity: 0;
+    transform: translateX(20px);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 2rem 0;
+    flex-direction: column;
+}
+
+.help-step.active {
+    display: flex;
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.help-step h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: hsl(var(--gray-900));
+    margin: 0 0 0.75rem 0;
+}
+
+.help-step p {
+    color: hsl(var(--gray-600));
+    margin: 0 0 0 0;
+    font-size: 0.975rem;
+    line-height: 1.6;
+}
+
+.step-number {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(348 100% 60%));
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    font-weight: 800;
+    flex-shrink: 0;
+    box-shadow: 0 10px 25px hsl(var(--primary) / 0.3);
+    
+    left: 2.5rem;
+    top: 2.5rem;
+}
+
+.help-footer {
+    margin-top: auto;
+    padding-top: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid hsl(var(--gray-200));
+    padding-left: 2.5rem;
+    padding-right: 2.5rem;
+}
+
+.help-indicator {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.indicator-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: hsl(var(--gray-300));
+    transition: all 0.3s ease;
+}
+
+.indicator-dot.active {
+    background: hsl(var(--primary));
+    transform: scale(1.2);
+}
+
+.help-btn {
+    background: none;
+    border: none;
+    color: hsl(var(--primary));
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    padding: 0.5rem 0;
+    transition: all 0.3s ease;
+}
+
+.help-btn:hover {
+    color: hsl(var(--primary-dark));
+    transform: translateX(4px);
+}
+
+/* RESPONSIVE */
+@media (max-width: 1024px) {
+    .content-grid {
+        grid-template-columns: 1fr;
     }
+}
 
-    body {
-        background-color: #f8f9fa;
-        font-family: 'Plus Jakarta Sans', sans-serif;
-        color: #1a1d20;
+@media (max-width: 768px) {
+    .dashboard-wrapper {
+        padding: 1rem 0;
     }
+    
+    .dashboard-header,
+    .metrics-grid,
+    .main-content {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    
+    .header-content {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+    
+    .metrics-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .action-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1.5rem;
+        padding-top: 2rem;
+    }
+    
+    .help-content {
+        padding: 2rem 2rem 2rem;
+    }
+    
+    .step-number {
+        left: 2rem;
+        top: 2rem;
+    }
+    
+    .help-footer {
+        padding-left: 2rem;
+        padding-right: 2rem;
+    }
+}
 
-    .fw-900 { font-weight: 900; }
-    .fw-800 { font-weight: 800; }
-    .fw-600 { font-weight: 600; }
-
-    /* ANIMAÇÕES */
-    .animate-in { animation: slideUp 0.5s ease-out; }
-    @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-    /* CARDS DE MÉTRICA */
-    .card-metric {
-        background: white;
+@media (max-width: 480px) {
+    .btn {
+        padding: 0.875rem 1.5rem;
+        font-size: 0.9rem;
+    }
+    
+    .metric-card {
         padding: 1.5rem;
-        border-radius: 2rem;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.02);
-        display: flex;
-        align-items: center;
-        gap: 1.25rem;
-        border: 1px solid #f1f1f1;
-        transition: all 0.3s ease;
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
     }
-    .card-metric:hover { transform: translateY(-5px); box-shadow: 0 15px 35px rgba(0,0,0,0.05); }
     
     .metric-icon {
-        width: 64px; height: 64px;
-        border-radius: 1.25rem;
-        display: flex; align-items: center; justify-content: center;
-        font-size: 1.75rem;
+        width: 56px;
+        height: 56px;
     }
-
-    .bg-danger-soft { background-color: rgba(234, 29, 44, 0.1); }
-    .bg-orange-soft { background-color: rgba(255, 138, 0, 0.1); }
-    .text-orange { color: var(--comaí-orange); }
-
-    .metric-label { font-size: 0.85rem; font-weight: 700; color: #6c757d; text-transform: uppercase; margin-bottom: 0.25rem; letter-spacing: 0.5px; }
-    .metric-value { font-weight: 800; margin-bottom: 0; font-size: 2rem; }
-
-    /* TABELA E LINHAS */
-    .order-row { transition: background 0.2s; cursor: pointer; }
-    .order-row:hover { background-color: #fcfcfc; }
     
-    .avatar-text {
-        width: 38px; height: 38px;
-        background: #eee; color: #555;
-        border-radius: 50%; display: flex; align-items: center; justify-content: center;
-        font-weight: 700; font-size: 0.9rem;
+    .metric-value {
+        font-size: 2rem;
     }
-
-    /* STATUS BADGES REFINADOS */
-    .badge-status {
-        padding: 0.5rem 1rem;
-        border-radius: 50rem;
-        font-size: 0.75rem;
-        font-weight: 700;
-        display: inline-flex;
-        align-items: center;
-    }
-    .status-pending { background: #fff8e1; color: #b08900; }
-    .status-success { background: #e8f5e9; color: #2e7d32; }
-    .status-default { background: #f5f5f5; color: #757575; }
-
-    /* AÇÕES LATERAIS */
-    .action-item {
-        display: flex; align-items: center; gap: 1rem;
-        padding: 1.25rem; border-radius: 1.5rem;
-        background: #fff; border: 1px solid #f1f1f1;
-        text-decoration: none; color: inherit;
-        transition: all 0.2s ease;
-    }
-    .action-item:hover { border-color: var(--comaí-red); background: #fffafa; transform: translateX(5px); }
-    
-    .action-icon {
-        width: 44px; height: 44px; background: #f8f9fa;
-        border-radius: 12px; display: flex; align-items: center; justify-content: center;
-        font-size: 1.25rem; transition: all 0.2s;
-    }
-    .action-item:hover .action-icon { background: var(--comaí-red); color: white; }
-
-    .btn-icon {
-        width: 36px; height: 36px; border-radius: 10px;
-        border: none; background: #f8f9fa; color: #6c757d;
-        transition: all 0.2s;
-    }
-    .btn-icon:hover { background: #212529; color: white; }
-
-    .border-dashed { border-style: dashed !important; }
-
-    @media (max-width: 768px) {
-        .display-5 { font-size: 2.25rem; }
-    }
+}
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const steps = document.querySelectorAll('.help-step');
+    const dots = document.querySelectorAll('.indicator-dot');
+    const nextBtn = document.querySelector('.help-btn');
+    let currentStep = 0;
+    let autoInterval;
+    
+    function showStep(index) {
+        steps.forEach((step, i) => {
+            step.classList.toggle('active', i === index);
+        });
+        dots.forEach((dot, i) => {
+            dot.classList.toggle('active', i === index);
+        });
+    }
+    
+    function nextStep() {
+        currentStep = (currentStep + 1) % steps.length;
+        showStep(currentStep);
+    }
+    
+    nextBtn.addEventListener('click', nextStep);
+    
+    // Auto-advance a cada 5s
+    autoInterval = setInterval(nextStep, 5000);
+    
+    // Pause auto-advance on hover
+    document.querySelector('.help-section').addEventListener('mouseenter', () => {
+        clearInterval(autoInterval);
+    });
+    
+    document.querySelector('.help-section').addEventListener('mouseleave', () => {
+        autoInterval = setInterval(nextStep, 5000);
+    });
+});
+</script>
 {% endblock %}

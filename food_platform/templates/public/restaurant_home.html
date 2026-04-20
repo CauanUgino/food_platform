@@ -2,10 +2,9 @@
 
 {% block title %}{{ restaurant.name }} | Cardápio Digital{% endblock %}
 
-
 {% block header %}
 <section class="restaurant-hero"
-style="background-image: url('{% if restaurant.cover %}{{ restaurant.cover.url }}{% else %}/static/img/default-cover.jpg{% endif %}');">
+         style="background-image: url('{% if restaurant.cover %}{{ restaurant.cover.url }}{% else %}/static/img/default-cover.jpg{% endif %}');">
     <div class="hero-bg-animated"></div>
     <div class="container position-relative z-index-2">
         <div class="hero-content p-4 p-md-5 rounded-5 shadow-2xl animate__animated animate__fadeIn">
@@ -21,7 +20,7 @@ style="background-image: url('{% if restaurant.cover %}{{ restaurant.cover.url }
                     src="{% if restaurant.logo %}{{ restaurant.logo.url }}{% else %}/static/img/default-logo.png{% endif %}"
                     class="restaurant-logo"
                     alt="{{ restaurant.name }}">
-            </div
+            </div>
 
             <h1 class="display-3 fw-900 text-white mb-2 tracking-tight">{{ restaurant.name }}</h1>
             <div class="d-flex justify-content-center gap-3 mb-3 text-white-50">
@@ -46,10 +45,10 @@ style="background-image: url('{% if restaurant.cover %}{{ restaurant.cover.url }
                 <div class="d-flex gap-3 overflow-x-auto no-scrollbar pb-2 px-2">
                     {% for category in categories %}
                         {% if category.products.exists %}
-                        <a href="#cat-{{ category.id }}" class="cat-pill-modern">
-                            <span class="cat-icon"><i class="bi bi-tag-fill"></i></span>
-                            {{ category.name }}
-                        </a>
+                            <a href="#cat-{{ category.id }}" class="cat-pill-modern">
+                                <span class="cat-icon"><i class="bi bi-tag-fill"></i></span>
+                                {{ category.name }}
+                            </a>
                         {% endif %}
                     {% endfor %}
                 </div>
@@ -58,48 +57,66 @@ style="background-image: url('{% if restaurant.cover %}{{ restaurant.cover.url }
 
         {% for category in categories %}
             {% if category.products.exists %}
-            <div class="category-group pt-5" id="cat-{{ category.id }}">
-                <div class="category-header d-flex align-items-center mb-4">
-                    <div class="category-title-wrapper">
-                        <h3 class="fw-800 mb-0 category-title">{{ category.name }}</h3>
-                        <span class="category-count">{{ category.products.count }} itens</span>
+                <div class="category-group pt-5" id="cat-{{ category.id }}">
+                    <div class="category-header d-flex align-items-center mb-4">
+                        <div class="category-title-wrapper">
+                            <h3 class="fw-800 mb-0 category-title">{{ category.name }}</h3>
+                            <span class="category-count">{{ category.products.count }} itens</span>
+                        </div>
+                        <div class="flex-grow-1 ms-4 border-bottom border-2 opacity-10"></div>
                     </div>
-                    <div class="flex-grow-1 ms-4 border-bottom border-2 opacity-10"></div>
-                </div>
 
-                <div class="row g-4">
-                    {% for prod in category.products.all %}
-                    <div class="col-12 col-md-6 col-xl-4">
-                        <div class="card h-100 product-card-modern border-0">
-                            <div class="card-body p-4 d-flex flex-column">
-                                <div class="d-flex justify-content-between align-items-start mb-3">
-                                    <div class="product-info">
+                    <div class="row g-4">
+                        {% for prod in category.products.all %}
+                            <div class="col-12 col-md-6 col-xl-4">
+                                <div class="card h-100 product-card-modern border-0">
+                                    <div class="card-body p-4 d-flex flex-column">
+
+                                        <!--REDIMENSIONAR O TAMANHO DA IMAGEM VIDUSLMENTE PARA O CLIENTE-->
+
+                                        <div class="product-image-wrapper mb-3">
+                                            {% if prod.image %}
+                                                <img src="{{ prod.image.url }}" 
+                                                     class="product-img w-100 rounded-4"
+                                                     style="height:180px; object-fit:cover;"
+                                                     alt="{{ prod.name }}">
+                                            {% else %}
+                                                <img src="/static/img/default-food.png" 
+                                                     class="product-img w-100 rounded-4"
+                                                     style="height:180px; object-fit:cover;"
+                                                     alt="Sem imagem">
+                                            {% endif %}
+                                        </div>
+
                                         <h5 class="fw-bold text-dark mb-1">{{ prod.name }}</h5>
-                                        <div class="price-display">
-                                            <span class="currency">R$</span> {{ prod.price|floatformat:2 }}
+
+                                        <div class="price-tag mb-2">
+                                            <span class="currency">R$</span>
+                                            <span class="value">{{ prod.price|floatformat:2 }}</span>
+                                        </div>
+
+                                        <p class="product-desc flex-grow-1">
+                                            {{ prod.description|default:"Ingredientes frescos selecionados para saciar sua fome com o melhor sabor da região." }}
+                                        </p>
+
+                                        <div class="product-footer mt-3">
+                                            <form method="post" action="{% url 'add_to_cart' prod.id %}">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn-hunger-anim">
+                                                    <span class="btn-text">Quero matar minha fome!</span>
+                                                    <div class="icon-bite"><i class="bi bi-hand-index-thumb"></i></div>
+                                                </button>
+                                            </form>
                                         </div>
                                     </div>
                                 </div>
-                                <p class="product-desc flex-grow-1">
-                                    {{ prod.description|default:"Ingredientes frescos selecionados para saciar sua fome com o melhor sabor da região." }}
-                                </p>
-                                <div class="product-footer mt-3">
-                                    <form method="post" action="{% url 'add_to_cart' prod.id %}">
-                                        {% csrf_token %}
-                                        <button type="submit" class="btn-hunger-anim">
-                                            <span class="btn-text">Quero matar minha fome!</span>
-                                            <div class="icon-bite"><i class="bi bi-hand-index-thumb"></i></div>
-                                        </button>
-                                    </form>
-                                </div>
                             </div>
-                        </div>
+                        {% endfor %}
                     </div>
-                    {% endfor %}
                 </div>
-            </div>
             {% endif %}
         {% endfor %}
+
     {% else %}
         <div class="empty-menu-container text-center py-5 mt-5">
             <div class="empty-icon-box mb-4">
@@ -107,9 +124,12 @@ style="background-image: url('{% if restaurant.cover %}{{ restaurant.cover.url }
             </div>
             <h2 class="fw-800">Cardápio não encontrado</h2>
             <p class="text-muted">Parece que ainda estamos preparando nossas delícias. Volte mais tarde!</p>
-            {% if user.is_superuser %}
-                <a href="{% url 'dashboard' %}" class="btn btn-danger rounded-pill px-4 fw-bold mt-2">Configurar Cardápio</a>
-            {% endif %}
+            <div class="d-flex justify-content-center mt-4">
+                <a href="{% url 'home' %}" class="btn btn-outline-secondary rounded-pill px-4">
+                    <i class="bi bi-house-door me-1"></i> Continuar Buscando
+                </a>
+            </div>
+
         </div>
     {% endif %}
 </div>
@@ -120,7 +140,7 @@ style="background-image: url('{% if restaurant.cover %}{{ restaurant.cover.url }
         background: rgba(248, 249, 250, 0.95);
         backdrop-filter: blur(15px);
         margin: 0 -15px;
-        padding: 15px;
+        padding: 15px 15px;
         z-index: 1020;
     }
 
@@ -132,7 +152,7 @@ style="background-image: url('{% if restaurant.cover %}{{ restaurant.cover.url }
         border-radius: 20px;
         font-weight: 700;
         font-size: 0.9rem;
-        display: flex;
+        display: inline-flex;
         align-items: center;
         gap: 10px;
         white-space: nowrap;
@@ -158,7 +178,7 @@ style="background-image: url('{% if restaurant.cover %}{{ restaurant.cover.url }
         transform: scale(1.2);
     }
 
-    /* 2. MELHORIA DOS TÍTULOS DE CATEGORIA */
+    /* 2. TÍTULOS DE CATEGORIA */
     .category-title-wrapper {
         display: flex;
         flex-direction: column;
@@ -172,7 +192,7 @@ style="background-image: url('{% if restaurant.cover %}{{ restaurant.cover.url }
         letter-spacing: 1px;
     }
 
-    /* 3. ANIMAÇÕES DE FOME */
+    /* 3. BOTÃO "QUERO MATAR MINHA FOME" */
     @keyframes hunger-pulse {
         0%, 100% { transform: scale(1); }
         50% { transform: scale(1.04); }
@@ -216,7 +236,14 @@ style="background-image: url('{% if restaurant.cover %}{{ restaurant.cover.url }
         justify-content: center;
     }
 
-    /* 4. LAYOUT GERAL */
+    .icon-bite i {
+        margin: 0;
+    }
+
+    /* 4. CATEGORIAS E CARDS DE PRODUTO */
+    .category-group {
+        scroll-margin-top: 100px;
+    }
 
     .restaurant-hero {
         background: var(--nav-gradient);
@@ -241,6 +268,7 @@ style="background-image: url('{% if restaurant.cover %}{{ restaurant.cover.url }
         border-radius: 28px;
         box-shadow: 0 10px 30px rgba(0,0,0,0.03);
         transition: 0.4s;
+        overflow: hidden;
     }
 
     .product-card-modern:hover {
@@ -248,11 +276,54 @@ style="background-image: url('{% if restaurant.cover %}{{ restaurant.cover.url }
         box-shadow: 0 20px 40px rgba(0,0,0,0.08);
     }
 
-    /* 5. LOGO DO RESTAURANTE */
+    .product-image-wrapper {
+        width: 100%;
+        height: 180px;
+        overflow: hidden;
+    }
 
+    .product-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.4s ease;
+    }
+
+    .product-card-modern:hover .product-img {
+        transform: scale(1.08);
+    }
+
+    /* 5. PREÇO ESTILO IFood */
+    .price-tag {
+        font-weight: 800;
+        display: flex;
+        align-items: baseline;
+        gap: 4px;
+    }
+
+    .price-tag .currency {
+        font-size: 0.9rem;
+        color: #ea1d2c;
+    }
+
+    .price-tag .value {
+        font-size: 1.4rem;
+        color: #1a1d23;
+    }
+
+    /* 6. DESCRIÇÃO DO PRODUTO */
+    .product-desc {
+        font-size: 0.9rem;
+        color: #6c757d;
+        line-height: 1.4;
+        margin-bottom: 0;
+    }
+
+    /* 7. LOGO DO RESTAURANTE */
     .restaurant-logo-wrapper {
         display: flex;
         justify-content: center;
+        margin-bottom: 10px;
     }
 
     .restaurant-logo {
@@ -264,19 +335,23 @@ style="background-image: url('{% if restaurant.cover %}{{ restaurant.cover.url }
         box-shadow: 0 10px 30px rgba(0,0,0,0.35);
         background: white;
     }
-
 </style>
 
 <script>
-    // Script suave para scroll de categorias
+    // Rolar suave até a categoria selecionada
     document.querySelectorAll('.cat-pill-modern').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
             e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
-            window.scrollTo({
-                top: target.offsetTop - 100,
-                behavior: 'smooth'
-            });
+
+            const targetId = this.getAttribute('href');
+            const target = document.querySelector(targetId);
+
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
         });
     });
 </script>
