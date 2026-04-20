@@ -59,7 +59,7 @@ urlpatterns = [
     path("termos/", termos_plataforma, name="termos"),
     path("restaurant/<int:restaurant_id>/status/", views.update_restaurant_status, name="update_restaurant_status"),
     path("restaurant/<int:restaurant_id>/payment-status/", views.update_payment_status, name="update_payment_status"),
-    path('dashboard/', views.dashboard_view, name='dashboard'), # Mantida conforme pedido
+    
 
     # 🔽 CATEGORIES
     path("store/categories/", category_list, name="category_list"),

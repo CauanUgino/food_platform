@@ -33,6 +33,7 @@ class Restaurant(models.Model):
         null=True
     )
     is_active = models.BooleanField(default=False)
+    
     terms_accepted = models.BooleanField(default=False)
     terms_accepted_at = models.DateTimeField(blank=True, null=True)
 
@@ -129,7 +130,7 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
-
+####ESSA PARTE ESTÁ DUPLICADA, COM A CLASS PRODUCT. DELETAR ESSA CLAS ITEM MAS FUTURAMENTE####
 class Item(models.Model):
     restaurant = models.ForeignKey(
         Restaurant,
@@ -164,7 +165,11 @@ class Product(models.Model):
     description = models.TextField(blank=True)
     price = models.DecimalField(max_digits=8, decimal_places=2)
     available = models.BooleanField(default=True)
-    image = models.ImageField(upload_to="products/", blank=True, null=True)
+    
+    image = models.ImageField(
+        upload_to="products/", 
+        blank=True, 
+        null=True)
 
     def __str__(self):
         return self.name

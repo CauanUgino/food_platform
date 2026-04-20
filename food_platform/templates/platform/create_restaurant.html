@@ -322,18 +322,28 @@
                         {% csrf_token %}
                         
                         <div class="row mb-4">
-                            <!-- Campo LOGO -->
+                                                <!-- Campo LOGO -->
                             <div class="col-md-6 mb-3">
-                                <label class="form-label fw-700 small text-uppercase text-muted mb-2">Logo</label>
-                                <input type="file" name="logo" class="form-control" accept="image/*">
-                                {% if form.logo.errors %}<div class="text-danger small">{{ form.logo.errors }}</div>{% endif %}
+                                <label class="form-label fw-bold small text-uppercase text-muted mb-2">
+                                    Logo do Restaurante
+                                </label>
+                                {{ form.logo }}
+                                {% if form.logo.errors %}
+                                    <div class="text-danger small">{{ form.logo.errors }}</div>
+                                {% endif %}
+                                <div class="form-text">Tamanho recomendado: 300x300px</div>
                             </div>
 
                             <!-- Campo BANNER -->
                             <div class="col-md-6 mb-3">
-                                <label class="form-label fw-700 small text-uppercase text-muted mb-2">Banner</label>
-                                <input type="file" name="banner" class="form-control" accept="image/*">
-                                {% if form.banner.errors %}<div class="text-danger small">{{ form.banner.errors }}</div>{% endif %}
+                                <label class="form-label fw-bold small text-uppercase text-muted mb-2">
+                                    Banner Principal
+                                </label>
+                                {{ form.banner }}
+                                {% if form.banner.errors %}
+                                    <div class="text-danger small">{{ form.banner.errors }}</div>
+                                {% endif %}
+                                <div class="form-text">Tamanho recomendado: 1200x400px</div>
                             </div>
                         </div>
 

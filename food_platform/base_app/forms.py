@@ -79,9 +79,9 @@ class RestaurantCreateForm(forms.ModelForm):
                 "rows": 4
             }),
 
-            "logo":forms.ClearableFileInput(attrs={'class':'form-control'}),
+            'logo': forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/*'}),
             
-            "banner":forms.ClearableFileInput(attrs={'class':'form-control'})
+            'banner': forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/*'}),
         }
 
         # Nome que aparece na tela
@@ -98,6 +98,14 @@ class RestaurantCreateForm(forms.ModelForm):
         help_texts = {
             "slug": "Sua vitrine será acessada por este nome na URL.",
         }
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self.fields['logo'].required= False
+            self.fields['banner'].required= False
+
+
+           
         
 
 class StoreAdminCreationForm(forms.Form):
