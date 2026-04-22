@@ -1,509 +1,766 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> Comaí - Gestão de Restaurantes</title>
+    <title>Comaí - Gestão de Restaurantes</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<style>
-
-       
-
-        /* ================= ROOT ================= */
-
+    <style>
+        /* ======================================
+           ROOT - PADRÃO COMAÍ VERMELHO
+        ====================================== */
         :root {
-
-            --primary: #2563eb;
-            --primary-dark: #1e3a8a;
-            --primary-light: #eff6ff;
-
-            --success: #16a34a;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-
-            --dark: #020617;
-
-            --gray-50: #f8fafc;
-            --gray-100: #f1f5f9;
-            --gray-200: #e2e8f0;
-            --gray-300: #cbd5e1;
-            --gray-400: #94a3b8;
-            --gray-500: #64748b;
-            --gray-600: #475569;
-            --gray-700: #334155;
-            --gray-800: #1e293b;
-            --gray-900: #0f172a;
-
+            --primary: #ea1d2c;
+            --primary-dark: #c91a25;
+            --primary-light: #ffebee;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --dark: #1a1a1a;
+            --gray-50: #fafafa;
+            --gray-100: #f5f5f5;
+            --gray-200: #e9ecef;
+            --gray-300: #dee2e6;
+            --gray-400: #ced4da;
+            --gray-500: #adb5bd;
+            --gray-600: #6c757d;
+            --gray-700: #495057;
+            --gray-800: #343a40;
+            --gray-900: #212529;
             --white: #ffffff;
-
-            --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
-            --shadow-md: 0 8px 24px rgba(0,0,0,0.08);
-            --shadow-lg: 0 20px 40px rgba(0,0,0,0.10);
-            --shadow-xl: 0 30px 60px rgba(0,0,0,0.15);
-
-            --radius: 14px;
-            --radius-lg: 22px;
+            --shadow-sm: 0 4px 12px rgba(234,29,44,0.12);
+            --shadow-md: 0 12px 32px rgba(234,29,44,0.15);
+            --shadow-lg: 0 24px 64px rgba(234,29,44,0.2);
+            --shadow-xl: 0 32px 80px rgba(234,29,44,0.25);
+            --radius: 16px;
+            --radius-lg: 24px;
+            --gradient: linear-gradient(135deg, #ea1d2c, #ff4d5a);
+            --gradient-glow: linear-gradient(135deg, #ea1d2c, #ff4d5a, #ea1d2c);
         }
 
-        /* ================= RESET ================= */
-
-        *{
-            margin:0;
-            padding:0;
-            box-sizing:border-box;
+        /* ======================================
+           RESET & BASE
+        ====================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        body{
-            font-family:'Inter',system-ui,-apple-system,sans-serif;
-            background: radial-gradient(circle at top,#1e3a8a,#020617 70%);
-            min-height:100vh;
-            color:var(--gray-900);
-            -webkit-font-smoothing:antialiased;
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            color: var(--gray-900);
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+            position: relative;
         }
 
-        /* ================= HEADER ================= */
-
-        .header{
-            background:rgba(255,255,255,0.75);
-            backdrop-filter:blur(18px);
-            border-bottom:1px solid rgba(255,255,255,0.2);
-            position:sticky;
-            top:0;
-            z-index:1000;
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 80%, rgba(234,29,44,0.08) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(234,29,44,0.06) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
         }
 
-        .header-container{
-            max-width:1400px;
-            margin:auto;
-            padding:1rem 2rem;
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
+        /* ======================================
+           ANIMATIONS
+        ====================================== */
+        @keyframes float-glow {
+            0%, 100% { transform: translateY(0px) scale(1); }
+            50% { transform: translateY(-10px) scale(1.02); }
         }
 
-        .logo{
-            font-weight:800;
-            font-size:1.6rem;
-            display:flex;
-            gap:10px;
-            align-items:center;
-            color:var(--primary);
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(234,29,44,0.3); }
+            50% { box-shadow: 0 0 40px rgba(234,29,44,0.6); }
         }
 
-        .logo i{
-            font-size:1.8rem;
-            background:linear-gradient(135deg,#2563eb,#60a5fa);
-            -webkit-background-clip:text;
-            -webkit-text-fill-color:transparent;
+        @keyframes slide-up {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        /* ================= PERFIL ================= */
-
-        .profile{
-            display:flex;
-            align-items:center;
-            gap:10px;
-            background:white;
-            padding:6px 14px;
-            border-radius:999px;
-            box-shadow:var(--shadow-sm);
-            transition:0.3s;
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
         }
 
-        .profile:hover{
-            transform:translateY(-2px);
-            box-shadow:var(--shadow-md);
+        .animate-float { animation: float-glow 6s ease-in-out infinite; }
+        .animate-pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
+        .animate-slide-up { animation: slide-up 0.8s ease-out forwards; }
+        .shimmer { background: linear-gradient(90deg, var(--gray-200) 25%, #f0f0f0 50%, var(--gray-200) 75%); background-size: 400% 100%; animation: shimmer 1.5s infinite; }
+
+        /* ======================================
+           HEADER MODERNO
+        ====================================== */
+        .header {
+            background: rgba(255,255,255,0.92);
+            backdrop-filter: blur(24px);
+            border-bottom: 1px solid rgba(234,29,44,0.15);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow-sm);
         }
 
-        .profile-avatar{
-            width:36px;
-            height:36px;
-            border-radius:50%;
-            background:linear-gradient(135deg,#2563eb,#1e40af);
-            color:white;
-            display:flex;
-            align-items:center;
-            justify-content:center;
+        .header-container {
+            max-width: 1400px;
+            margin: auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        /* ================= DASHBOARD ================= */
-
-        .dashboard-container{
-            max-width:1400px;
-            margin:auto;
-            padding:3rem 2rem;
+        .logo {
+            font-weight: 800;
+            font-size: clamp(1.4rem, 3vw, 1.8rem);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            color: var(--primary);
+            text-decoration: none;
+            transition: all 0.3s ease;
         }
 
-        .dashboard-title{
-            font-size:3rem;
-            font-weight:800;
-            text-align:center;
-            background:linear-gradient(to right,#fff,#c7d2fe);
-            -webkit-background-clip:text;
-            -webkit-text-fill-color:transparent;
+        .logo:hover {
+            transform: scale(1.05);
         }
 
-        .dashboard-subtitle{
-            text-align:center;
-            color:rgba(255,255,255,0.7);
-            margin-top:10px;
+        .logo i {
+            font-size: clamp(1.6rem, 4vw, 2rem);
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
-        /* ================= CARDS ================= */
-
-        .stats-grid{
-            display:grid;
-            grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
-            gap:24px;
-            margin-top:3rem;
+        /* ======================================
+           DASHBOARD HEADER
+        ====================================== */
+        .dashboard-header {
+            text-align: center;
+            padding: 2rem 0;
+            position: relative;
         }
 
-        .stat-card{
-            background:rgba(255,255,255,0.85);
-            backdrop-filter:blur(20px);
-            padding:2rem;
-            border-radius:var(--radius-lg);
-            box-shadow:var(--shadow-lg);
-            transition:0.4s;
-            position:relative;
+        .dashboard-logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(12px);
+            padding: 10px 20px;
+            border-radius: 50px;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.2);
         }
 
-        .stat-card:hover{
-            transform:translateY(-6px) scale(1.01);
+        .dashboard-logo:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
         }
 
-        .stat-number{
-            font-size:3rem;
-            font-weight:800;
+        .dashboard-title {
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff 0%, #ffebee 50%, rgba(255,255,255,0.8) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
+            position: relative;
         }
 
-        .stat-label{
-            color:var(--gray-600);
+        .dashboard-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: var(--gradient);
+            border-radius: 2px;
         }
 
-        /* ================= SECTIONS ================= */
-
-        .section{
-            background:rgba(255,255,255,0.85);
-            backdrop-filter:blur(20px);
-            border-radius:var(--radius-lg);
-            padding:2rem;
-            margin-top:2rem;
-            box-shadow:var(--shadow-md);
+        .dashboard-subtitle {
+            color: rgba(255,255,255,0.85);
+            font-size: 1.1rem;
+            font-weight: 400;
         }
 
-        .section-title{
-            font-size:1.3rem;
-            font-weight:700;
-            margin-bottom:1.5rem;
+        /* ======================================
+           STATS CARDS 3D
+        ====================================== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin: 4rem 0;
         }
 
-        /* ================= TABLE ================= */
-
-        .table-container{
-            overflow:hidden;
-            border-radius:var(--radius);
-            box-shadow:var(--shadow-md);
+        .stat-card {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(28px);
+            padding: 2.5rem 2rem;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.2);
         }
 
-        .table{
-            width:100%;
-            border-collapse:collapse;
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient);
+            transform: scaleX(0);
+            transition: transform 0.4s ease;
         }
 
-        .table th{
-            background:var(--gray-100);
-            padding:1rem;
-            text-align:left;
-            font-size:0.8rem;
-            text-transform:uppercase;
-            color:var(--gray-600);
+        .stat-card:hover {
+            transform: translateY(-12px) rotateX(5deg) rotateY(5deg);
+            box-shadow: var(--shadow-xl);
         }
 
-        .table td{
-            padding:1rem;
-            border-top:1px solid var(--gray-200);
+        .stat-card:hover::before {
+            transform: scaleX(1);
         }
 
-        .table tr:hover{
-            background:var(--gray-50);
+        .stat-card.active { border-top: 4px solid var(--success); }
+        .stat-card.pending { border-top: 4px solid var(--warning); }
+        .stat-card.inactive { border-top: 4px solid var(--danger); }
+
+        .stat-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+            color: white;
         }
 
-        /* ================= BUTTONS ================= */
+        .stat-card.active .stat-icon { background: var(--gradient); }
+        .stat-card.pending .stat-icon { background: linear-gradient(135deg, var(--warning), #ffcd39); }
+        .stat-card.inactive .stat-icon { background: linear-gradient(135deg, var(--danger), #ff6b6b); }
 
-        .btn{
-            border:none;
-            padding:8px 14px;
-            border-radius:10px;
-            font-weight:600;
-            cursor:pointer;
-            transition:0.3s;
-            text-decoration:none;
-            font-size:0.85rem;
+        .stat-number {
+            font-size: clamp(2.5rem, 8vw, 4rem);
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), #ff4d5a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
         }
 
-        .btn-success{
-            background:var(--success);
-            color:white;
+        .stat-label {
+            color: var(--gray-600);
+            font-size: 1rem;
+            font-weight: 500;
         }
 
-        .btn-info{
-            background:var(--primary);
-            color:white;
+        /* ======================================
+           SECTIONS MODERNAS
+        ====================================== */
+        .section {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(28px);
+            border-radius: var(--radius-lg);
+            padding: 2.5rem;
+            margin-top: 3rem;
+            box-shadow: var(--shadow-md);
+            border: 1px solid rgba(255,255,255,0.2);
+            position: relative;
+            transition: all 0.4s ease;
         }
 
-        .btn-danger{
-            background:var(--danger);
-            color:white;
+        .section:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
         }
 
-        .btn:hover{
-            transform:translateY(-2px);
-            box-shadow:var(--shadow-md);
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--gray-900);
         }
 
-        /* ================= BADGES ================= */
-
-        .badge{
-            padding:5px 12px;
-            border-radius:999px;
-            font-size:0.7rem;
-            font-weight:600;
+        .section-title i {
+            width: 32px;
+            height: 32px;
+            border-radius: 12px;
+            background: var(--gradient);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
         }
 
-        .badge.pending{
-            background:#fef3c7;
-            color:#92400e;
+        /* ======================================
+           TABLE RESPONSIVA
+        ====================================== */
+        .table-container {
+            overflow: hidden;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-md);
+            background: white;
         }
 
-        .badge.paid{
-            background:#dcfce7;
-            color:#166534;
+        .table {
+            width: 100%;
+            border-collapse: collapse;
         }
 
-        .badge.blocked{
-            background:#fee2e2;
-            color:#991b1b;
+        .table th {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 1.25rem 1rem;
+            text-align: left;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--gray-700);
+            letter-spacing: 0.5px;
         }
 
-        /* ================= SWITCH ================= */
-
-        .switch-container{
-            display:flex;
-            align-items:center;
-            gap:10px;
+        .table td {
+            padding: 1.25rem 1rem;
+            border-top: 1px solid var(--gray-200);
+            vertical-align: middle;
         }
 
-        .switch{
-            position:relative;
-            display:inline-block;
-            width:50px;
-            height:26px;
+        .table tr {
+            transition: all 0.3s ease;
         }
 
-        .switch input{
-            opacity:0;
-            width:0;
-            height:0;
+        .table tr:hover {
+            background: linear-gradient(135deg, #fff 0%, var(--gray-50) 100%);
+            transform: scale(1.01);
         }
 
-        .slider{
-            position:absolute;
-            inset:0;
-            background:var(--gray-300);
-            border-radius:50px;
-            transition:0.3s;
+        /* ======================================
+           BUTTONS 3D
+        ====================================== */
+        .btn {
+            border: none;
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            text-decoration: none;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            position: relative;
+            overflow: hidden;
         }
 
-        .slider:before{
-            content:"";
-            position:absolute;
-            height:20px;
-            width:20px;
-            left:3px;
-            bottom:3px;
-            background:white;
-            border-radius:50%;
-            transition:0.3s;
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.6s;
         }
 
-        .switch input:checked + .slider{
-            background:var(--success);
+        .btn:hover::before {
+            left: 100%;
         }
 
-        .switch input:checked + .slider:before{
-            transform:translateX(24px);
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #20c997);
+            color: white;
+            box-shadow: 0 4px 15px rgba(40,167,69,0.4);
         }
 
-        .switch input:disabled + .slider{
-            background:var(--gray-200);
-            cursor:not-allowed;
+        .btn-info {
+            background: var(--gradient);
+            color: white;
+            box-shadow: 0 4px 15px rgba(234,29,44,0.4);
         }
 
-        .disabled-msg{
-            font-size:0.75rem;
-            color:var(--danger);
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger), #e74c3c);
+            color: white;
+            box-shadow: 0 4px 15px rgba(220,53,69,0.4);
         }
 
-        /* ================= SELECT ================= */
-
-        .status-select{
-            padding:6px 10px;
-            border-radius:8px;
-            border:1px solid var(--gray-300);
-            background:white;
-            font-size:0.85rem;
-            cursor:pointer;
+        .btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
         }
 
-        .status-select:focus{
-            outline:none;
-            border-color:var(--primary);
+        /* ======================================
+           BADGES & SWITCH
+        ====================================== */
+        .badge {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        /* ================= EMPTY ================= */
-
-        .empty-state{
-            text-align:center;
-            padding:40px;
-            color:var(--gray-500);
+        .badge.pending {
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            color: #856404;
         }
 
-        /* ================= FOOTER ================= */
-
-        .footer{
-            margin-top:80px;
-            background:rgba(2,6,23,0.95);
-            backdrop-filter:blur(20px);
-            border-top:1px solid rgba(255,255,255,0.08);
-            padding:60px 20px 30px;
-            color:rgba(255,255,255,0.7);
+        .badge.paid {
+            background: linear-gradient(135deg, #d4edda, #b8e6b8);
+            color: #155724;
         }
 
-        .footer-container{
-            max-width:1400px;
-            margin:auto;
-            display:grid;
-            grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-            gap:40px;
+        .badge.blocked {
+            background: linear-gradient(135deg, #f8d7da, #ff9999);
+            color: #721c24;
         }
 
-        .footer-logo{
-            font-size:1.5rem;
-            font-weight:800;
-            color:white;
-            display:flex;
-            gap:10px;
-            align-items:center;
+        .switch-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
-        .footer-description{
-            margin-top:12px;
-            font-size:0.9rem;
-            line-height:1.6;
-            color:rgba(255,255,255,0.6);
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 56px;
+            height: 28px;
         }
 
-        .footer-title{
-            font-weight:700;
-            margin-bottom:15px;
-            color:white;
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
         }
 
-        .footer-links{
-            display:flex;
-            flex-direction:column;
-            gap:10px;
+        .slider {
+            position: absolute;
+            inset: 0;
+            background: var(--gray-300);
+            border-radius: 28px;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            cursor: pointer;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
         }
 
-        .footer-links a{
-            color:rgba(255,255,255,0.6);
-            text-decoration:none;
-            font-size:0.9rem;
+        .slider:before {
+            content: "";
+            position: absolute;
+            height: 22px;
+            width: 22px;
+            left: 3px;
+            bottom: 3px;
+            background: white;
+            border-radius: 50%;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         }
 
-        .footer-links a:hover{
-            color:white;
+        .switch input:checked + .slider {
+            background: var(--gradient);
+            box-shadow: 0 0 12px rgba(234,29,44,0.4);
         }
 
-        .footer-bottom{
-            margin-top:40px;
-            padding-top:20px;
-            border-top:1px solid rgba(255,255,255,0.08);
-            text-align:center;
-            font-size:0.85rem;
+        .switch input:checked + .slider:before {
+            transform: translateX(28px);
         }
 
-        /* ================= RESPONSIVO ================= */
-
-        @media(max-width:768px){
-
-        .dashboard-title{
-        font-size:2rem;
+        .disabled-msg {
+            font-size: 0.8rem;
+            color: var(--danger);
+            font-weight: 500;
         }
 
-        .dashboard-container{
-        padding:2rem 1rem;
+        .status-select {
+            padding: 8px 16px;
+            border-radius: 12px;
+            border: 2px solid var(--gray-300);
+            background: white;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 140px;
         }
 
-        .table th,
-        .table td{
-        padding:10px;
+        .status-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(234,29,44,0.1);
         }
 
-        .switch-container{
-        flex-direction:column;
-        align-items:flex-start;
+        /* ======================================
+           EMPTY STATE
+        ====================================== */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--gray-500);
         }
 
+        .empty-state i {
+            font-size: 4rem;
+            color: var(--gray-400);
+            margin-bottom: 1rem;
         }
 
-        /* ================= SCROLL ================= */
+        /* ======================================
+           FOOTER MODERNO
+        ====================================== */
 
-        ::-webkit-scrollbar{
-        width:6px;
+        .footer {
+            margin-top: 6rem;
+            background: rgba(18,18,30,0.98);
+            backdrop-filter: blur(32px);
+            border-top: 1px solid rgba(234,29,44,0.2);
+            padding: 4rem 2rem 2rem;
+            color: rgba(255,255,255,0.8);
         }
 
-        ::-webkit-scrollbar-thumb{
-        background:var(--gray-400);
-        border-radius:10px;
+        .footer-container {
+            max-width: 1400px;
+            margin: auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+            margin-bottom: 3rem; /* Espaço para footer-bottom */
         }
 
-</style>
+        .footer-section {
+            /* Container para cada coluna */
+        }
 
+        .footer-logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: white;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .footer-logo i {
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 2rem;
+        }
+
+        .footer-description {
+            font-size: 0.95rem;
+            line-height: 1.7;
+            color: rgba(255,255,255,0.7);
+        }
+
+        .footer-title {
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: white;
+            font-size: 1.1rem;
+        }
+
+        .footer-links {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .footer-links a {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            padding: 4px 0;
+            position: relative;
+        }
+
+        .footer-links a::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 0;
+            height: 1px;
+            background: var(--primary);
+            transition: width 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary);
+            padding-left: 12px;
+        }
+
+        .footer-links a:hover::before {
+            width: 100%;
+        }
+
+        .footer-bottom {
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.6);
+            grid-column: 1 / -1; /* Span total width */
+        }
+
+        /* ======================================
+           RESPONSIVO PERFEITO
+        ====================================== */
+        @media (max-width: 768px) {
+            .header-container,
+            .dashboard-container {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+
+            .dashboard-title {
+                font-size: 2.25rem !important;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .section {
+                padding: 2rem 1.5rem;
+            }
+
+            .table-container {
+                overflow-x: auto;
+            }
+
+            .table th,
+            .table td {
+                padding: 12px 8px;
+                font-size: 0.85rem;
+            }
+
+            .switch-container {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+
+            .btn {
+                padding: 8px 16px;
+                font-size: 0.85rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stat-card,
+            .section {
+                padding: 1.5rem;
+            }
+
+            .footer-container {
+                grid-template-columns: 1fr;
+                text-align: center;
+                gap: 2rem;
+            }
+        }
+
+        /* ======================================
+           SCROLLBARS
+        ====================================== */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.1);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--gradient);
+            border-radius: 10px;
+        }
+
+        /* Safe area support */
+        @supports (padding-top: env(safe-area-inset-top)) {
+            .header {
+                padding-top: env(safe-area-inset-top);
+            }
+        }
     </style>
 </head>
 <body>
     <!-- Header -->
 
 
-    <main class="dashboard-container">
+    <main class="dashboard-container animate-slide-up">
         <div class="dashboard-header">
-            <a btn href="{% url 'home' %}" class="dashboard-logo">
+            <a href="{% url 'home' %}" class="dashboard-logo">
+                <i class="fas fa-arrow-left"></i>
                 Voltar para o site
             </a>
             <h1 class="dashboard-title">Gestão de Restaurantes</h1>
-            <p class="dashboard-subtitle">Monitoramento de ativações e conformidade financeira</p>
+            <p class="dashboard-subtitle">Monitoramento completo de ativações e conformidade financeira</p>
         </div>
 
         <div class="stats-grid">
-            <div class="stat-card active">
-                <div class="stat-label">Total</div>
-                <div class="stat-number">{{ total_restaurants }}</div>
+            <div class="stat-card active animate-slide-up" style="animation-delay: 0.1s;">
+                <div class="stat-icon">
+                    <i class="fas fa-store"></i>
+                </div>
+                <div class="stat-label">Total de Restaurantes</div>
+                <div class="stat-number">{{ total_restaurants|default:"0" }}</div>
             </div>
-            <div class="stat-card pending">
-                <div class="stat-label">Pagamentos pendentes</div>
-                <div class="stat-number">{{ pending_status_restaurants }}</div>
+            <div class="stat-card pending animate-slide-up" style="animation-delay: 0.2s;">
+                <div class="stat-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-label">Pagamentos Pendentes</div>
+                <div class="stat-number">{{ pending_status_restaurants|default:"0" }}</div>
             </div>
-            <div class="stat-card inactive">
+            <div class="stat-card inactive animate-slide-up" style="animation-delay: 0.3s;">
+                <div class="stat-icon">
+                    <i class="fas fa-pause-circle"></i>
+                </div>
                 <div class="stat-label">Aguardando Ativação</div>
-                <div class="stat-number">{{ pending_activation_count }}</div>
+                <div class="stat-number">{{ pending_activation_count|default:"0" }}</div>
             </div>
         </div>
 
-        <div class="section" style="border-left: 6px solid var(--warning);">
+        <div class="section animate-slide-up" style="animation-delay: 0.4s; border-left: 6px solid var(--warning);">
             <h2 class="section-title">
                 <i class="fas fa-clock"></i>
                 Pedidos de Ativação 
@@ -541,7 +798,7 @@
                                                 <input type="checkbox" disabled>
                                                 <span class="slider"></span>
                                             </label>
-                                            <span class="disabled-msg">Libere o financeiro para ativar</span>
+                                            <span class="disabled-msg">Libere o financeiro primeiro</span>
                                         </div>
                                     {% else %}
                                         <form method="POST" action="{% url 'activate_restaurant' rest.id %}">
@@ -556,14 +813,14 @@
                             </tr>
                             {% endif %}
                         {% empty %}
-                            <tr><td colspan="4" class="empty-state">Nenhum pedido de ativação pendente.</td></tr>
+                            <tr><td colspan="4" class="empty-state"><i class="fas fa-check-circle"></i> Nenhum pedido de ativação pendente.</td></tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
         </div>
 
-        <div class="section">
+        <div class="section animate-slide-up" style="animation-delay: 0.5s;">
             <h2 class="section-title">
                 <i class="fas fa-file-invoice-dollar"></i>
                 Comprovantes para Revisão
@@ -583,11 +840,13 @@
                         {% for payment in pending_payments %}
                         <tr>
                             <td>{{ payment.restaurant.name }}</td>
-                            <td>R$ {{ payment.amount|floatformat:2 }}</td>
-                            <td><a href="{{ payment.proof.url }}" target="_blank" class="btn btn-info"><i class="fas fa-eye"></i> Ver PDF/Imagem</a></td>
+                            <td><strong>R$ {{ payment.amount|floatformat:2 }}</strong></td>
+                            <td><a href="{{ payment.proof.url }}" target="_blank" class="btn btn-info"><i class="fas fa-eye"></i> Ver PDF</a></td>
                             <td>
-                                <a href="{% url 'approve_payment' payment.id %}" class="btn btn-success"><i class="fas fa-check"></i> Aprovar</a>
-                                <a href="{% url 'reject_payment' payment.id %}" class="btn btn-danger"><i class="fas fa-times"></i> Negar</a>
+                                <div style="display: flex; gap: 8px;">
+                                    <a href="{% url 'approve_payment' payment.id %}" class="btn btn-success"><i class="fas fa-check"></i></a>
+                                    <a href="{% url 'reject_payment' payment.id %}" class="btn btn-danger"><i class="fas fa-times"></i></a>
+                                </div>
                             </td>
                         </tr>
                         {% endfor %}
@@ -595,11 +854,14 @@
                 </table>
             </div>
             {% else %}
-            <p class="empty-state">Sem comprovantes pendentes.</p>
+            <div class="empty-state">
+                <i class="fas fa-file-check"></i>
+                <p>Sem comprovantes pendentes de análise.</p>
+            </div>
             {% endif %}
         </div>
 
-        <div class="section">
+        <div class="section animate-slide-up" style="animation-delay: 0.6s;">
             <h2 class="section-title">
                 <i class="fas fa-cogs"></i>
                 Gestão de Status Geral
@@ -608,8 +870,9 @@
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>Nome</th>
-                            <th>Alterar Pagamento</th>
+                            <th>Restaurante</th>
+                            <th>Proprietário</th>
+                            <th>Status Pagamento</th>
                             <th>Status Operacional</th>
                         </tr>
                     </thead>
@@ -617,6 +880,7 @@
                         {% for restaurant in restaurants %}
                         <tr>
                             <td>{{ restaurant.name }}</td>
+                            <td>{{ restaurant.owner.username }}</td>
                             <td>
                                 <form method="POST" action="{% url 'update_payment_status' restaurant.id %}">
                                     {% csrf_token %}
@@ -655,102 +919,115 @@
         </div>
     </main>
 
-<!-- Footer Comaí -->
-<footer class="footer">
-
-    <div class="footer-container">
-
-        <!-- Marca -->
-        <div class="footer-section">
-            <h3 class="footer-logo">
-                 Comaí
-            </h3>
-
-            <p class="footer-description">
-                Plataforma inteligente para gestão de restaurantes. 
-                Controle financeiro, ativação automatizada e gestão completa 
-                para escalar seu negócio gastronômico.
-            </p>
-
-
-        </div>
-
-
-        <!-- Produto -->
-        <div class="footer-section">
-            <h3 class="footer-title">Produto</h3>
-
-            <div class="footer-links">
-                <a href="#">Dashboard</a>
-                <a href="#">Gestão de Pedidos</a>
-                <a href="#">Controle Financeiro</a>
-                <a href="#">Relatórios Inteligentes</a>
-                <a href="#">Integrações</a>
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-section">
+                <a href="{% url 'home' %}" class="footer-logo">
+                    
+                    Comaí
+                </a>
+                <p class="footer-description">Comaí é a plataforma de gestão definitiva para restaurantes, oferecendo controle total sobre ativações, pagamentos e conformidade financeira. Simplifique sua operação e foque no que realmente importa: servir seus clientes.</p>
+            </div>
+            <div class="footer-section">
+                <h3 class="footer-title">Links Rápidos</h3>
+                <div class="footer-links">
+                    <a href="{% url 'home' %}">Início</a>
+                    
+                    
+  
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3 class="footer-title">Suporte</h3>
+                <p class="footer-description">Precisa de ajuda? Entre em contato com nossa equipe de suporte dedicada para assistência rápida e eficiente.</p>
+                <p class="footer-description"><strong>Email:</strong>
+                    <a href="mailto:suporte@comai.com.br">comaioficial@gmail.com</a>
+                    
+                </p>
             </div>
         </div>
-
-
-        <!-- Suporte -->
-        <div class="footer-section">
-            <h3 class="footer-title">Suporte</h3>
-
-            <div class="footer-links">
-                <a href="#">Central de Ajuda</a>
-                <a href="#">Documentação</a>
-                <a href="#">Status do Sistema</a>
-                <a href="#">Contato</a>
-            </div>
+        <div class="footer-bottom">
+            <p>© 2026 <strong>Comaí</strong> — Plataforma de Gestão para Restaurantes | Todos os direitos reservados</p>
         </div>
-
-
-        <!-- Empresa -->
-        <div class="footer-section">
-            <h3 class="footer-title">Empresa</h3>
-
-            <div class="footer-links">
-                <a href="#">Sobre a Comaí</a>
-                <a href="#">Blog</a>
-                <a href="#">Carreiras</a>
-                <a href="#">Política de Privacidade</a>
-                <a href="#">Termos de Uso</a>
-            </div>
-        </div>
-
-    </div>
-
-
-    <div class="footer-bottom">
-
-        <p>
-            © 2026 <strong>Comaí</strong> — Plataforma de Gestão para Restaurantes
-        </p>
-
-    </div>
-
-</footer>
+    </footer>
 
     <script>
-        // Feedback suave nos formulários
+        // Loading states para forms
         document.querySelectorAll('form').forEach(form => {
             form.addEventListener('submit', (e) => {
                 const btn = form.querySelector('.btn');
-                if (btn) {
+                if (btn && !btn.disabled) {
+                    const original = btn.innerHTML;
+                    btn.disabled = true;
                     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processando...';
-                    btn.style.opacity = '0.7';
+                    btn.style.opacity = '0.8';
+                    
+                    setTimeout(() => {
+                        btn.disabled = false;
+                        btn.innerHTML = original;
+                        btn.style.opacity = '1';
+                    }, 2000);
                 }
             });
         });
 
-        // Animação de hover nas stat cards
-        document.querySelectorAll('.stat-card').forEach(card => {
-            card.addEventListener('mouseenter', () => {
-                card.style.transform = 'translateY(-10px) scale(1.02)';
+        // 3D Tilt effect nos stat cards (desktop)
+        if (window.innerWidth >= 768) {
+            document.querySelectorAll('.stat-card').forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.1}s`;
+                
+                card.addEventListener('mousemove', (e) => {
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+                    const rotateX = (y - centerY) / 15;
+                    const rotateY = (centerX - x) / 15;
+                    
+                    card.style.transform = `translateY(-12px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+                });
+                
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = 'translateY(0) rotateX(0) rotateY(0) scale(1)';
+                });
             });
-            card.addEventListener('mouseleave', () => {
-                card.style.transform = 'translateY(0) scale(1)';
+        }
+
+        // Scroll animations
+        window.addEventListener('scroll', () => {
+            document.querySelectorAll('.section').forEach((section, index) => {
+                const rect = section.getBoundingClientRect();
+                if (rect.top < window.innerHeight && rect.bottom > 0) {
+                    section.style.opacity = '1';
+                    section.style.transform = 'translateY(0)';
+                }
             });
         });
 
+        // Particle background (subtil)
+        function createParticles() {
+            for (let i = 0; i < 20; i++) {
+                const particle = document.createElement('div');
+                particle.style.cssText = `
+                    position: fixed;
+                    width: 2px; height: 2px;
+                    background: rgba(234,29,44,0.6);
+                    border-radius: 50%;
+                    pointer-events: none;
+                    z-index: -1;
+                    left: ${Math.random() * 100}vw;
+                    top: ${Math.random() * 100}vh;
+                    animation: float 20s infinite linear;
+                    animation-delay: ${Math.random() * 20}s;
+                `;
+                document.body.appendChild(particle);
+            }
+        }
+
+        // Inicialização
+        setTimeout(createParticles, 500);
     </script>
 </body>
 </html>

@@ -4,30 +4,34 @@
 
 {% block header %}
 <section class="restaurant-hero"
-         style="background-image: url('{% if restaurant.cover %}{{ restaurant.cover.url }}{% else %}/static/img/default-cover.jpg{% endif %}');">
-    <div class="hero-bg-animated"></div>
+    style="background-image:
+        linear-gradient(to bottom, rgba(0,0,0,0.38), rgba(0,0,0,0.72)),
+        url('{% if restaurant.banner %}{{ restaurant.banner.url }}{% else %}/static/img/default-banner.jpg{% endif %}');">
+
     <div class="container position-relative z-index-2">
-        <div class="hero-content p-4 p-md-5 rounded-5 shadow-2xl animate__animated animate__fadeIn">
+        <div class="hero-content text-center p-4 p-md-5 rounded-5 shadow-2xl animate__animated animate__fadeIn">
+
+            <div class="restaurant-profile-wrap mb-4">
+                <img
+                    src="{% if restaurant.logo %}{{ restaurant.logo.url }}{% else %}/static/img/default-logo.png{% endif %}"
+                    class="restaurant-profile-img"
+                    alt="{{ restaurant.name }}">
+            </div>
+
             <div class="d-flex justify-content-center mb-3">
                 <span class="badge-status pulse-green">
                     <i class="bi bi-fire me-1"></i> Cozinha a todo vapor
                 </span>
             </div>
 
-            <!-- LOGO DO RESTAURANTE -->
-            <div class="restaurant-logo-wrapper mb-3">
-                <img
-                    src="{% if restaurant.logo %}{{ restaurant.logo.url }}{% else %}/static/img/default-logo.png{% endif %}"
-                    class="restaurant-logo"
-                    alt="{{ restaurant.name }}">
-            </div>
-
             <h1 class="display-3 fw-900 text-white mb-2 tracking-tight">{{ restaurant.name }}</h1>
-            <div class="d-flex justify-content-center gap-3 mb-3 text-white-50">
+
+            <div class="d-flex justify-content-center gap-3 mb-3 text-white-50 flex-wrap">
                 <span><i class="bi bi-star-fill text-warning"></i> 4.9</span>
                 <span>•</span>
                 <span><i class="bi bi-clock"></i> 25-40 min</span>
             </div>
+
             <p class="text-white-50 fs-5 mb-0 mx-auto" style="max-width: 650px; line-height: 1.6;">
                 {{ restaurant.description }}
             </p>
@@ -72,18 +76,14 @@
                                 <div class="card h-100 product-card-modern border-0">
                                     <div class="card-body p-4 d-flex flex-column">
 
-                                        <!--REDIMENSIONAR O TAMANHO DA IMAGEM VIDUSLMENTE PARA O CLIENTE-->
-
                                         <div class="product-image-wrapper mb-3">
                                             {% if prod.image %}
-                                                <img src="{{ prod.image.url }}" 
+                                                <img src="{{ prod.image.url }}"
                                                      class="product-img w-100 rounded-4"
-                                                     style="height:180px; object-fit:cover;"
                                                      alt="{{ prod.name }}">
                                             {% else %}
-                                                <img src="/static/img/default-food.png" 
+                                                <img src="/static/img/default-food.png"
                                                      class="product-img w-100 rounded-4"
-                                                     style="height:180px; object-fit:cover;"
                                                      alt="Sem imagem">
                                             {% endif %}
                                         </div>
@@ -129,216 +129,387 @@
                     <i class="bi bi-house-door me-1"></i> Continuar Buscando
                 </a>
             </div>
-
         </div>
     {% endif %}
 </div>
 
 <style>
-    /* 1. MELHORIA DAS CATEGORIAS (NAV) */
+    .restaurant-hero {
+        position: relative;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        padding: 120px 0 150px;
+        overflow: hidden;
+        min-height: 520px;
+        display: flex;
+        align-items: center;
+    }
+
+    .restaurant-hero .container {
+        position: relative;
+        z-index: 2;
+    }
+
+    .hero-content {
+        background: rgba(255, 255, 255, 0.14);
+        backdrop-filter: blur(18px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.24);
+        max-width: 920px;
+        margin: 0 auto;
+    }
+
+    .restaurant-profile-wrap {
+        display: flex;
+        justify-content: center;
+        margin-top: -80px;
+    }
+
+    .restaurant-profile-img {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        object-fit: cover;
+        background: #fff;
+        border: 6px solid rgba(255,255,255,0.92);
+        box-shadow: 0 18px 45px rgba(0,0,0,0.35);
+    }
+
+    .badge-status {
+        background: rgba(255,255,255,0.16);
+        color: #fff;
+        border: 1px solid rgba(255,255,255,0.22);
+        padding: 10px 18px;
+        border-radius: 999px;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        backdrop-filter: blur(10px);
+    }
+
     .category-nav-container {
-        background: rgba(248, 249, 250, 0.95);
-        backdrop-filter: blur(15px);
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(25px);
         margin: 0 -15px;
-        padding: 15px 15px;
+        padding: 20px 24px;
         z-index: 1020;
+        border-bottom: 1px solid rgba(0,0,0,0.06);
+        box-shadow: 0 2px 20px rgba(0,0,0,0.05);
+        top: 0;
     }
 
     .cat-pill-modern {
         background: white;
         color: #1a1d23;
         text-decoration: none;
-        padding: 12px 24px;
-        border-radius: 20px;
-        font-weight: 700;
-        font-size: 0.9rem;
+        padding: 16px 32px;
+        border-radius: 50px;
+        font-weight: 800;
+        font-size: 1rem;
         display: inline-flex;
         align-items: center;
-        gap: 10px;
+        gap: 12px;
         white-space: nowrap;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-        border: 1px solid rgba(0,0,0,0.05);
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 6px 24px rgba(0,0,0,0.08);
+        border: 2px solid transparent;
+        transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .cat-pill-modern::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+        transition: left 0.7s;
+    }
+
+    .cat-pill-modern:hover::before {
+        left: 100%;
     }
 
     .cat-pill-modern:hover {
-        background: var(--brand-main);
+        background: linear-gradient(135deg, #ea1d2c, #ff4757);
         color: white !important;
-        transform: translateY(-3px);
-        box-shadow: 0 8px 20px rgba(234, 29, 44, 0.2);
+        transform: translateY(-6px) scale(1.05);
+        box-shadow: 0 16px 40px rgba(234, 29, 44, 0.35);
+        border-color: rgba(255,255,255,0.3);
     }
 
     .cat-icon {
-        opacity: 0.3;
-        transition: 0.3s;
+        opacity: 0.4;
+        transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        font-size: 1.1rem;
     }
 
     .cat-pill-modern:hover .cat-icon {
         opacity: 1;
-        transform: scale(1.2);
+        transform: scale(1.3) rotate(10deg);
     }
 
-    /* 2. TÍTULOS DE CATEGORIA */
+    .category-group {
+        scroll-margin-top: 140px;
+    }
+
     .category-title-wrapper {
         display: flex;
         flex-direction: column;
+        gap: 6px;
+    }
+
+    .category-title {
+        font-size: 2rem;
+        background: linear-gradient(135deg, #1a1d23, #333);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
     }
 
     .category-count {
-        font-size: 0.75rem;
+        font-size: 0.85rem;
         text-transform: uppercase;
-        font-weight: 800;
-        color: var(--brand-main);
-        letter-spacing: 1px;
+        font-weight: 900;
+        color: #ea1d2c;
+        letter-spacing: 1.5px;
+        background: rgba(234,29,44,0.12);
+        padding: 8px 20px;
+        border-radius: 25px;
+        display: inline-block;
+        box-shadow: 0 4px 15px rgba(234,29,44,0.2);
     }
 
-    /* 3. BOTÃO "QUERO MATAR MINHA FOME" */
     @keyframes hunger-pulse {
         0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.04); }
+        50% { transform: scale(1.06); }
     }
 
-    @keyframes bite {
-        0% { transform: scale(1); }
-        50% { transform: scale(0.7); }
-        100% { transform: scale(1.1); }
+    @keyframes bite-shake {
+        0%, 100% { transform: translateX(0) rotate(0deg); }
+        25% { transform: translateX(-2px) rotate(-5deg); }
+        75% { transform: translateX(2px) rotate(5deg); }
     }
 
     .btn-hunger-anim {
         width: 100%;
-        background: #28a745;
+        background: linear-gradient(135deg, #28a745, #20c997);
         color: white;
         border: none;
-        padding: 10px 10px 10px 25px;
+        padding: 16px 20px;
         border-radius: 50px;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        font-weight: 800;
-        font-size: 0.8rem;
-        transition: 0.3s;
-        box-shadow: 0 6px 15px rgba(40,167,69,0.3);
+        font-weight: 900;
+        font-size: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        box-shadow: 0 10px 30px rgba(40,167,69,0.4);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-hunger-anim::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        background: rgba(255,255,255,0.3);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        transition: all 0.6s;
+    }
+
+    .btn-hunger-anim:hover::before {
+        width: 300px;
+        height: 300px;
     }
 
     .btn-hunger-anim:hover {
-        background: #ea1d2c;
-        animation: hunger-pulse 0.6s infinite;
+        background: linear-gradient(135deg, #ea1d2c, #ff4757);
+        animation: hunger-pulse 0.8s infinite, bite-shake 0.3s;
+        box-shadow: 0 15px 40px rgba(234,29,44,0.5);
+        transform: translateY(-3px);
     }
 
     .icon-bite {
-        width: 38px;
-        height: 38px;
-        background: white;
+        width: 50px;
+        height: 50px;
+        background: rgba(255,255,255,0.95);
         color: #28a745;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+        transition: all 0.4s;
+    }
+
+    .btn-hunger-anim:hover .icon-bite {
+        background: rgba(255,255,255,1);
+        color: #ea1d2c;
+        transform: scale(1.1);
     }
 
     .icon-bite i {
-        margin: 0;
+        font-size: 1.3rem;
+        animation: bite-shake 0.6s infinite;
     }
 
-    /* 4. CATEGORIAS E CARDS DE PRODUTO */
-    .category-group {
-        scroll-margin-top: 100px;
-    }
-
-    .restaurant-hero {
-        background: var(--nav-gradient);
-        padding-bottom: 100px !important;
-    }
-
-    .hero-content {
-        background: rgba(255, 255, 255, 0.1);
+    .product-card-modern {
+        border-radius: 32px;
+        background: white;
+        box-shadow:
+            0 12px 40px rgba(0,0,0,0.08),
+            0 1px 3px rgba(0,0,0,0.1);
+        transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        overflow: hidden;
+        border: 1px solid rgba(255,255,255,0.8);
         backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.15);
+        position: relative;
+    }
+
+    .product-card-modern::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #ea1d2c, #ff4757, #ea1d2c);
+        transform: scaleX(0);
+        transition: transform 0.4s;
+    }
+
+    .product-card-modern:hover::before {
+        transform: scaleX(1);
+    }
+
+    .product-card-modern:hover {
+        transform: translateY(-16px) scale(1.02);
+        box-shadow:
+            0 32px 80px rgba(0,0,0,0.15),
+            0 4px 20px rgba(234,29,44,0.1);
+    }
+
+    .product-image-wrapper {
+        width: 100%;
+        height: 200px;
+        overflow: hidden;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 24px;
+        margin-bottom: 20px;
+        position: relative;
+        box-shadow: inset 0 4px 20px rgba(0,0,0,0.05);
+    }
+
+    .product-img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        object-position: center;
+        transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        filter: saturate(1.1) contrast(1.05);
+    }
+
+    .product-card-modern:hover .product-img {
+        transform: scale(1.12) rotate(1deg);
+        filter: saturate(1.2) contrast(1.1) brightness(1.05);
+    }
+
+    .price-tag {
+        font-weight: 900;
+        display: flex;
+        align-items: baseline;
+        gap: 6px;
+        margin: 12px 0;
+        padding: 8px 16px;
+        background: linear-gradient(135deg, rgba(234,29,44,0.08), rgba(234,29,44,0.04));
+        border-radius: 20px;
+        border: 1px solid rgba(234,29,44,0.15);
+    }
+
+    .price-tag .currency {
+        font-size: 1.1rem;
+        color: #ea1d2c;
+        font-weight: 900;
+    }
+
+    .price-tag .value {
+        font-size: 2rem;
+        color: #1a1d23;
+        font-weight: 900;
+        letter-spacing: -1px;
+        background: linear-gradient(135deg, #1a1d23, #333);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .product-desc {
+        font-size: 0.95rem;
+        color: #6c757d;
+        line-height: 1.6;
+        margin-bottom: 20px;
+        font-weight: 500;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
     }
 
     .mt-n5 {
-        margin-top: -60px !important;
+        margin-top: -70px !important;
     }
 
     .no-scrollbar::-webkit-scrollbar {
         display: none;
     }
 
-    .product-card-modern {
-        border-radius: 28px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.03);
-        transition: 0.4s;
-        overflow: hidden;
-    }
+    @media (max-width: 768px) {
+        .restaurant-hero {
+            padding: 90px 0 120px;
+            min-height: 460px;
+        }
 
-    .product-card-modern:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 20px 40px rgba(0,0,0,0.08);
-    }
+        .restaurant-profile-wrap {
+            margin-top: -70px;
+        }
 
-    .product-image-wrapper {
-        width: 100%;
-        height: 180px;
-        overflow: hidden;
-    }
+        .restaurant-profile-img {
+            width: 120px;
+            height: 120px;
+        }
 
-    .product-img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 0.4s ease;
-    }
+        .product-image-wrapper {
+            height: 180px;
+            border-radius: 20px;
+        }
 
-    .product-card-modern:hover .product-img {
-        transform: scale(1.08);
-    }
+        .cat-pill-modern {
+            padding: 14px 24px;
+            font-size: 0.9rem;
+        }
 
-    /* 5. PREÇO ESTILO IFood */
-    .price-tag {
-        font-weight: 800;
-        display: flex;
-        align-items: baseline;
-        gap: 4px;
-    }
+        .price-tag .value {
+            font-size: 1.6rem;
+        }
 
-    .price-tag .currency {
-        font-size: 0.9rem;
-        color: #ea1d2c;
-    }
-
-    .price-tag .value {
-        font-size: 1.4rem;
-        color: #1a1d23;
-    }
-
-    /* 6. DESCRIÇÃO DO PRODUTO */
-    .product-desc {
-        font-size: 0.9rem;
-        color: #6c757d;
-        line-height: 1.4;
-        margin-bottom: 0;
-    }
-
-    /* 7. LOGO DO RESTAURANTE */
-    .restaurant-logo-wrapper {
-        display: flex;
-        justify-content: center;
-        margin-bottom: 10px;
-    }
-
-    .restaurant-logo {
-        width: 110px;
-        height: 110px;
-        border-radius: 50%;
-        object-fit: cover;
-        border: 4px solid white;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.35);
-        background: white;
+        .category-title {
+            font-size: 1.5rem;
+        }
     }
 </style>
 
 <script>
-    // Rolar suave até a categoria selecionada
     document.querySelectorAll('.cat-pill-modern').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
             e.preventDefault();

@@ -26,101 +26,163 @@
 
 {% block content %}
 <div class="container pb-5">
-
-    <div class="d-flex align-items-center justify-content-between mb-4 mt-3">
-        <h2 class="fw-800 mb-0 section-title">
+    <!-- Filtros com Scroll Indicators -->
+    <div class="d-flex align-items-center justify-content-between mb-5 mt-4 position-relative">
+        <h2 class="fw-800 mb-0 section-title animate-slide-left">
+            <i class="bi bi-fire text-danger me-2"></i>
             Restaurantes em Destaque
         </h2>
 
-        <div class="d-none d-md-flex gap-2">
-            <button class="filter-btn active">Mais Próximos</button>
-            <button class="filter-btn">Melhor Avaliados</button>
+        <div class="filters-wrapper">
+            <div class="scroll-indicator"></div>
+            <div class="d-flex gap-2">
+
+                <!-- Botões de filtro -->
+                 <!--Depois faço um filtro real para cada categoria -->
+                 <button class="filter-btn" data-filter="proximos">
+                    <i class="bi bi-list me-1"></i>Todos
+                </button>
+                <button class="filter-btn active" data-filter="proximos">
+                    <i class="bi bi-geo-alt me-1"></i>Mais Próximos
+                </button>
+                <button class="filter-btn" data-filter="proximos">
+                    <i class="bi bi-star me-1"></i>Melhor Avaliados
+                </button>
+                <button class="filter-btn" data-filter="proximos">
+                    <i class="bi bi-lightning me-1"></i>Novidades
+                </button>
+                <button class="filter-btn" data-filter="proximos">
+                    <i class="bi bi-percent me-1"></i>Promoções
+                </button>
+            </div>
         </div>
     </div>
 
-    <div class="row g-4">
-
+    <div class="row g-4" id="restaurant-grid">
         {% if restaurants %}
             {% for restaurant in restaurants %}
-            <div class="col-12 col-md-6 col-lg-4">
-                <div class="card restaurant-card h-100">
-
-                    <div class="restaurant-image">
-                        {% if restaurant.image %}
-                            <img src="{{ restaurant.image.url }}" alt="{{ restaurant.name }}">
+            <div class="col-12 col-md-6 col-lg-4 restaurant-item" data-category="{{ restaurant.category|default:'proximos' }}">
+                <div class="card restaurant-card h-100" data-tilt>
+                    <div class="restaurant-image position-relative overflow-hidden">
+                        {% if restaurant.banner %}
+                            <img src="{{ restaurant.banner.url }}" alt="{{ restaurant.name }}" class="restaurant-img">
+                            <div class="image-overlay"></div>
                         {% else %}
                             <div class="image-placeholder">
                                 <i class="bi bi-shop"></i>
                             </div>
                         {% endif %}
-                        <span class="restaurant-badge">
-                            <i class="bi bi-star-fill me-1"></i> 4.8
-                        </span>
-                    </div>
+                        
+                        <!-- Status dinâmicos -->
+                        <div class="status-badges">
+                            <span class="restaurant-badge animate-pulse">
+                                <i class="bi bi-star-fill me-1"></i> 
+                                <span class="rating">{{ restaurant.rating|floatformat:1|default:'4.8' }}</span>
+                            </span>
+                            <span class="delivery-badge">
+                                <i class="bi bi-bicycle me-1"></i>
+                                {{ restaurant.delivery_time|default:'20-30' }} min
+                            </span>
+                        </div>
 
-                    <div class="card-body p-4 d-flex flex-column">
-                        <h4 class="fw-800 mb-1">{{ restaurant.name }}</h4>
-
-                        <p class="text-muted small mb-3 flex-grow-1">
-                            {{ restaurant.description|truncatewords:14 }}
-                        </p>
-
-                        <div class="d-flex justify-content-between align-items-center mt-auto pt-3 border-top">
-                            <div class="small text-muted">
-                                <i class="bi bi-clock me-1"></i> 20–30 min
-                                <span class="mx-2">•</span>
-                                <span class="text-success fw-bold">Frete Grátis</span>
-                            </div>
-
-                            <a href="{% url 'restaurant_home' restaurant.slug %}" class="btn btn-cta">
-                                Cardápio
-                            </a>
+                        <!-- Quick actions -->
+                        <div class="quick-actions">
+                            <button class="quick-btn heart-btn" data-restaurant="{{ restaurant.id }}">
+                                <i class="bi bi-heart"></i>
+                            </button>
+                            <button class="quick-btn share-btn" data-slug="{{ restaurant.slug }}" data-url="{% url 'restaurant_home' restaurant.slug %}">
+                                <i class="bi bi-share"></i>
+                            </button>
                         </div>
                     </div>
 
+                    <div class="card-body p-4 d-flex flex-column">
+                        <div class="restaurant-header">
+                            <h4 class="fw-800 mb-2 restaurant-name">{{ restaurant.name }}</h4>
+                            <div class="category-tag">
+                                {{ restaurant.category|title|default:'Restaurante' }}
+                            </div>
+                        </div>
+
+                        <p class="text-muted small mb-4 flex-grow-1 restaurant-desc">
+                            {{ restaurant.description|truncatewords:14 }}
+                        </p>
+
+                        <div class="restaurant-footer mt-auto pt-3 border-top">
+                            <div class="delivery-info d-flex justify-content-between align-items-center mb-3">
+                                <div class="delivery-details small text-muted">
+                                    <i class="bi bi-clock me-1"></i> 
+                                    <span class="time">{{ restaurant.delivery_time|default:'20-30' }} min</span>
+                                    <span class="mx-2">•</span>
+                                    <span class="text-success fw-bold">Frete Grátis</span>
+                                </div>
+                                <div class="distance-badge">
+                                    <i class="bi bi-geo me-1"></i> 1.2km
+                                </div>
+                            </div>
+
+                            <div class="action-buttons d-flex gap-2">
+                                <a href="{% url 'restaurant_home' restaurant.slug %}" class="btn btn-cta flex-grow-1">
+                                    <i class="bi bi-card-list me-2"></i>Cardápio
+                                </a>
+                                <button class="btn btn-outline-cta">
+                                    <i class="bi bi-cart-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             {% endfor %}
         {% else %}
-
-        <!-- ===============================
-             SKELETON LOADING
-        ================================ -->
-        {% for i in "123456" %}
-        <div class="col-12 col-md-6 col-lg-4">
-            <div class="card restaurant-card h-100 p-3">
-                <div class="skeleton skeleton-image mb-4"></div>
-                <div class="skeleton skeleton-title mb-2"></div>
-                <div class="skeleton skeleton-text mb-2"></div>
-                <div class="skeleton skeleton-text w-75"></div>
+            <!-- Skeleton Loading Melhorado -->
+            {% for i in "123456" %}
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="card restaurant-card h-100 skeleton-container">
+                    <div class="skeleton-wave"></div>
+                    <div class="skeleton-content">
+                        <div class="skeleton skeleton-image"></div>
+                        <div class="skeleton skeleton-title mb-2"></div>
+                        <div class="skeleton skeleton-text mb-2"></div>
+                        <div class="skeleton skeleton-text w-75"></div>
+                        <div class="skeleton skeleton-footer"></div>
+                    </div>
+                </div>
             </div>
-        </div>
-        {% endfor %}
-
+            {% endfor %}
         {% endif %}
     </div>
-
 </div>
 
 <style>
-/* ===============================
+/* ======================================
    VARIÁVEIS
-================================ */
+====================================== */
 :root {
     --primary: #ea1d2c;
+    --primary-dark: #c91a25;
     --gradient: linear-gradient(135deg, #ea1d2c, #ff4d5a);
+    --gradient-glow: linear-gradient(135deg, #ea1d2c, #ff4d5a, #ea1d2c);
     --skeleton: #e9ecef;
+    --shadow-light: 0 15px 35px rgba(0,0,0,.06);
+    --shadow-hover: 0 30px 70px rgba(234,29,44,.18);
 }
 
-/* ===============================
-   TIPOGRAFIA
-================================ */
+/* ======================================
+   TIPOGRAFIA & BASE
+====================================== */
 .fw-800 { font-weight: 800; }
-.section-title { letter-spacing: -1.4px; }
+.section-title { 
+    letter-spacing: -1.4px; 
+    background: linear-gradient(135deg, var(--primary), #ff4d5a);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
 
-/* ===============================
-   HERO
-================================ */
+/* ======================================
+   HERO INTERATIVO
+====================================== */
 .hero-ux {
     background: linear-gradient(180deg, rgba(234,29,44,.08), #f8f9fa);
     border-bottom: 1px solid rgba(234,29,44,.05);
@@ -144,9 +206,6 @@
     right: -80px;
 }
 
-/* ===============================
-   ANIMAÇÕES
-================================ */
 .animate-fade-up {
     animation: fadeUp .8s ease forwards;
 }
@@ -157,126 +216,649 @@
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* ===============================
-   FILTROS
-================================ */
-.filter-btn {
-    background: #fff;
-    border: 1px solid #eee;
-    padding: 8px 18px;
-    border-radius: 30px;
-    font-weight: 600;
-    transition: .3s;
+/* ======================================
+   ANIMAÇÕES GERAIS
+====================================== */
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(40px); }
+    to { opacity: 1; transform: translateY(0); }
 }
+
+@keyframes slideLeft {
+    from { opacity: 0; transform: translateX(-40px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes reveal {
+    from { opacity: 0; transform: translateY(30px) scale(.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: .6; }
+    50% { transform: scale(1.1); opacity: 1; }
+}
+
+.animate-float { animation: float-badge 3s ease-in-out infinite; }
+@keyframes float-badge {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+
+.animate-slide-left { animation: slideLeft .8s ease forwards; }
+.animate-reveal { animation: reveal 1s ease forwards; }
+.animate-pulse { animation: pulse 2s ease-in-out infinite; }
+.delay-1 { animation-delay: .2s; }
+.delay-2 { animation-delay: .4s; }
+.delay-3 { animation-delay: .6s; }
+
+/* ======================================
+   FILTROS INTERATIVOS
+====================================== */
+.filters-wrapper {
+    position: relative;
+    padding: 12px 0;
+}
+
+.scroll-indicator {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 2px;
+    background: var(--gradient);
+    width: 80px;
+    border-radius: 1px;
+    transition: all .4s cubic-bezier(.25,.46,.45,.94);
+}
+
+.filter-btn {
+    background: rgba(255,255,255,.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(234,29,44,.2);
+    padding: 12px 24px;
+    border-radius: 30px;
+    font-weight: 700;
+    font-size: 14px;
+    transition: all .3s cubic-bezier(.25,.46,.45,.94);
+    position: relative;
+    overflow: hidden;
+}
+
+.filter-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.3), transparent);
+    transition: left .6s;
+}
+
+.filter-btn:hover::before { left: 100%; }
+
 .filter-btn.active,
 .filter-btn:hover {
     background: var(--gradient);
     color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(234,29,44,.3);
 }
 
-/* ===============================
-   CARD RESTAURANTE
-================================ */
+/* ======================================
+   CARDS RESTAURANTE 3D
+====================================== */
 .restaurant-card {
     border-radius: 28px;
     border: none;
     overflow: hidden;
-    box-shadow: 0 15px 35px rgba(0,0,0,.06);
-    transition: .45s cubic-bezier(.165,.84,.44,1);
-}
-.restaurant-card:hover {
-    transform: translateY(-12px);
-    box-shadow: 0 30px 70px rgba(234,29,44,.18);
+    background: white;
+    box-shadow: var(--shadow-light);
+    transition: all .5s cubic-bezier(.25,.46,.45,.94);
+    position: relative;
+    cursor: pointer;
 }
 
-/* ===============================
-   IMAGEM
-================================ */
+.restaurant-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--gradient);
+    opacity: 0;
+    transition: opacity .3s ease;
+    z-index: 1;
+}
+
+.restaurant-card:hover {
+    transform: translateY(-16px) rotateX(5deg) rotateY(5deg);
+    box-shadow: var(--shadow-hover);
+}
+
+.restaurant-card:hover::before { opacity: .07; }
+
 .restaurant-image {
-    height: 170px;
+    height: 200px;
     overflow: hidden;
     position: relative;
+    z-index: 2;
 }
-.restaurant-image img {
+
+.restaurant-img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform .6s;
+    transition: transform 1s cubic-bezier(.25,.46,.45,.94);
 }
-.restaurant-card:hover img {
-    transform: scale(1.12);
+
+.restaurant-card:hover .restaurant-img {
+    transform: scale(1.15) rotate(2deg);
 }
+
+.image-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(180deg, transparent 60%, rgba(0,0,0,.4) 100%);
+    opacity: 0;
+    transition: opacity .3s ease;
+}
+
+.restaurant-card:hover .image-overlay { opacity: 1; }
+
 .image-placeholder {
     height: 100%;
-    background: #f2f2f2;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 3rem;
-    color: #ccc;
+    font-size: 3.5rem;
+    color: rgba(255,255,255,.3);
 }
 
-/* ===============================
-   BADGE
-================================ */
-.restaurant-badge {
+/* Status Badges */
+.status-badges {
     position: absolute;
-    bottom: 12px;
-    right: 12px;
-    background: rgba(255,255,255,.95);
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-weight: 700;
-    color: var(--primary);
+    top: 16px;
+    left: 16px;
+    right: 16px;
+    display: flex;
+    gap: 12px;
+    z-index: 3;
 }
 
-/* ===============================
-   CTA
-================================ */
+.restaurant-badge,
+.delivery-badge {
+    background: rgba(255,255,255,.95);
+    backdrop-filter: blur(20px);
+    padding: 8px 16px;
+    border-radius: 25px;
+    font-weight: 700;
+    font-size: 13px;
+    box-shadow: 0 4px 20px rgba(0,0,0,.1);
+    border: 1px solid rgba(255,255,255,.3);
+}
+
+.delivery-badge {
+    margin-left: auto;
+    background: rgba(40,199,111,.95);
+    color: white;
+}
+
+/* Quick Actions */
+.quick-actions {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    display: flex;
+    gap: 8px;
+    z-index: 3;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all .3s ease;
+}
+
+.restaurant-card:hover .quick-actions {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.quick-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255,255,255,.9);
+    backdrop-filter: blur(20px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    cursor: pointer;
+    transition: all .3s cubic-bezier(.25,.46,.45,.94);
+    box-shadow: 0 4px 20px rgba(0,0,0,.1);
+}
+
+.quick-btn:hover {
+    transform: scale(1.15) translateY(-2px);
+    background: white;
+    box-shadow: 0 8px 30px rgba(0,0,0,.2);
+}
+
+.heart-btn i {
+    color: #ff4d5a;
+    transition: transform .2s ease;
+}
+
+.heart-btn.active i {
+    transform: scale(1.2);
+    color: #ea1d2c;
+}
+
+/* Card Body */
+.restaurant-header {
+    position: relative;
+    z-index: 2;
+}
+
+.category-tag {
+    background: var(--gradient);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-block;
+    margin-bottom: 8px;
+}
+
+.restaurant-footer {
+    position: relative;
+    z-index: 2;
+}
+
+.distance-badge {
+    background: rgba(234,29,44,.1);
+    color: var(--primary);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid rgba(234,29,44,.2);
+}
+
 .btn-cta {
     background: var(--gradient);
     color: white;
-    padding: 8px 22px;
+    padding: 14px 24px;
     border-radius: 30px;
     font-weight: 700;
-    transition: .3s;
-}
-.btn-cta:hover {
-    transform: scale(1.07);
+    font-size: 15px;
+    border: none;
+    transition: all .3s cubic-bezier(.25,.46,.45,.94);
+    position: relative;
+    overflow: hidden;
 }
 
-/* ===============================
-   SKELETON
-================================ */
+.btn-cta::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.3), transparent);
+    transition: left .6s;
+}
+
+.btn-cta:hover::before { left: 100%; }
+
+.btn-cta:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 15px 40px rgba(234,29,44,.4);
+}
+
+.btn-outline-cta {
+    width: 50px;
+    border: 2px solid var(--gradient);
+    background: transparent;
+    color: var(--primary);
+    border-radius: 50%;
+    transition: all .3s ease;
+}
+
+.btn-outline-cta:hover {
+    background: var(--gradient);
+    color: white;
+    transform: scale(1.1);
+}
+
+/* ======================================
+   SKELETON LOADING MELHORADO
+====================================== */
+.skeleton-container {
+    position: relative;
+    overflow: hidden;
+}
+
+.skeleton-wave {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--gradient);
+    animation: wave 2s linear infinite;
+}
+
+@keyframes wave {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.skeleton-content {
+    padding: 24px;
+}
+
 .skeleton {
-    background: linear-gradient(
-        90deg,
-        var(--skeleton) 25%,
-        #f5f5f5 37%,
-        var(--skeleton) 63%
-    );
+    background: linear-gradient(90deg, var(--skeleton) 25%, #f5f5f5 50%, var(--skeleton) 75%);
     background-size: 400% 100%;
-    animation: skeleton-loading 1.4s ease infinite;
+    animation: skeleton-loading 1.6s ease-in-out infinite;
     border-radius: 12px;
+    height: 16px;
+    margin-bottom: 12px;
 }
 
 .skeleton-image {
-    height: 170px;
+    height: 200px;
+    border-radius: 20px;
+    margin-bottom: 20px;
 }
 
 .skeleton-title {
-    height: 22px;
+    height: 24px;
     width: 70%;
 }
 
 .skeleton-text {
     height: 14px;
+    width: 90%;
+}
+
+.skeleton-footer {
+    height: 40px;
     width: 100%;
 }
 
 @keyframes skeleton-loading {
-    0% { background-position: 100% 0; }
-    100% { background-position: 0 0; }
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* ======================================
+   RESPONSIVO
+====================================== */
+@media (max-width: 768px) {
+    .hero-title { font-size: 2.5rem; }
+    .filters-wrapper .d-flex { flex-wrap: wrap; gap: 8px; }
+    .filter-btn { 
+        padding: 10px 16px; 
+        font-size: 13px; 
+    }
+    .status-badges { flex-direction: column; gap: 8px; }
+    .quick-actions { 
+        top: auto; 
+        bottom: 16px; 
+        right: 16px; 
+    }
+}
+
+/* ======================================
+   FILTRO DE CATEGORIAS
+====================================== */
+.restaurant-item {
+    transition: all .5s ease;
+    opacity: 1;
+    transform: scale(1);
+}
+
+.restaurant-item.hidden {
+    opacity: 0;
+    transform: scale(.9);
+    height: 0;
+    margin: 0;
+    padding: 0;
 }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Filtros interativos
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const restaurantItems = document.querySelectorAll('.restaurant-item');
+    const scrollIndicator = document.querySelector('.scroll-indicator');
+    
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            filterBtns.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Animação do scroll indicator
+            const btnRect = this.getBoundingClientRect();
+            scrollIndicator.style.width = btnRect.width + 'px';
+            scrollIndicator.style.left = btnRect.left + 'px';
+            
+            // Filtrar restaurantes
+            const filter = this.dataset.filter;
+            restaurantItems.forEach(item => {
+                if (filter === 'todos' || item.dataset.category === filter) {
+                    item.classList.remove('hidden');
+                    item.style.opacity = '1';
+                    item.style.transform = 'scale(1)';
+                } else {
+                    item.classList.add('hidden');
+                }
+            });
+        });
+    });
+    
+    // Quick actions (coração)
+    document.querySelectorAll('.heart-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            this.querySelector('i').classList.toggle('bi-heart');
+            this.querySelector('i').classList.toggle('bi-heart-fill');
+            this.classList.toggle('active');
+            
+            // Efeito de partículas
+            createHeartParticles(this);
+        });
+    });
+    
+    // Search input focus
+    const searchInput = document.querySelector('.search-input');
+    const searchWrapper = document.querySelector('.search-wrapper');
+    
+    searchInput.addEventListener('focus', () => {
+        searchWrapper.style.boxShadow = '0 25px 70px rgba(234,29,44,.3)';
+        searchWrapper.style.borderColor = 'var(--primary)';
+    });
+    
+    searchInput.addEventListener('blur', () => {
+        searchWrapper.style.boxShadow = '0 20px 60px rgba(0,0,0,.1)';
+        searchWrapper.style.borderColor = 'rgba(234,29,44,.1)';
+    });
+    
+    // Parallax no hero
+    window.addEventListener('scroll', () => {
+        const scrolled = window.pageYOffset;
+        const heroParticles = document.querySelector('.hero-particles');
+        if (heroParticles) {
+            heroParticles.style.transform = `translateY(${scrolled * 0.5}px)`;
+        }
+    });
+    
+    // Efeito de partículas no coração
+    function createHeartParticles(element) {
+        for (let i = 0; i < 6; i++) {
+            const particle = document.createElement('div');
+            particle.style.cssText = `
+                position: fixed;
+                width: 8px; height: 8px;
+                background: #ff4d5a;
+                border-radius: 50%;
+                pointer-events: none;
+                z-index: 9999;
+                left: ${element.offsetLeft + element.offsetWidth/2}px;
+                top: ${element.offsetTop + element.offsetHeight/2}px;
+                animation: heartFly 0.6s ease-out forwards;
+                animation-delay: ${i * 0.05}s;
+            `;
+            particle.style.setProperty('--rotation', Math.random() * 360);
+            document.body.appendChild(particle);
+            
+            setTimeout(() => particle.remove(), 600);
+        }
+    }
+});
+
+// Adicionar keyframes dinamicamente
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes heartFly {
+        to {
+            transform: translate(var(--dx, 50px), var(--dy, -50px)) rotate(var(--rotation, 360deg));
+            opacity: 0;
+        }
+    }
+`;
+document.head.appendChild(style);
+
+// Tilt effect 3D nos cards (simplificado)
+document.querySelectorAll('.restaurant-card').forEach(card => {
+    card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        const rotateX = (y - centerY) / 10;
+        const rotateY = (centerX - x) / 10;
+        
+        card.style.transform = `
+            translateY(-16px) 
+            rotateX(${rotateX}deg) 
+            rotateY(${rotateY}deg) 
+            scale(1.02)
+        `;
+    });
+    
+    card.addEventListener('mouseleave', () => {
+        card.style.transform = 'translateY(-16px) rotateX(0) rotateY(0) scale(1)';
+    });
+});
+
+// COPIAR LINK DO RESTAURANTE
+document.querySelectorAll('.share-btn').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        
+        const slug = this.dataset.slug;
+        const fullUrl = this.dataset.url;
+        
+        // Criar texto para copiar
+        const copyText = `${window.location.origin}${fullUrl}`;
+        
+        // Copiar para clipboard
+        navigator.clipboard.writeText(copyText).then(() => {
+            // Feedback visual
+            const originalIcon = this.querySelector('i').innerHTML;
+            this.querySelector('i').innerHTML = '<i class="bi bi-check-lg"></i>';
+            this.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
+            
+            // Toast notification
+            showCopyToast('Link copiado! 📱');
+            
+            // Reset após 2s
+            setTimeout(() => {
+                this.querySelector('i').innerHTML = originalIcon;
+                this.style.background = 'rgba(255,255,255,.9)';
+            }, 2000);
+            
+        }).catch(err => {
+            console.error('Erro ao copiar:', err);
+            // Fallback para navegadores antigos
+            fallbackCopyText(copyText);
+        });
+    });
+});
+
+// Fallback para navegadores antigos
+function fallbackCopyText(text) {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.style.position = 'fixed';
+    textArea.style.left = '-999999px';
+    textArea.style.top = '-999999px';
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    
+    try {
+        document.execCommand('copy');
+        showCopyToast('Link copiado! 📱');
+    } catch (err) {
+        console.error('Fallback falhou:', err);
+        alert('Falha ao copiar. Copie manualmente: ' + text);
+    }
+    
+    document.body.removeChild(textArea);
+}
+
+// Toast notification customizado
+function showCopyToast(message) {
+    // Remove toast anterior
+    const oldToast = document.querySelector('.copy-toast');
+    if (oldToast) oldToast.remove();
+    
+    const toast = document.createElement('div');
+    toast.className = 'copy-toast';
+    toast.textContent = message;
+    toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: linear-gradient(135deg, var(--primary), #ff4d5a);
+        color: white;
+        padding: 12px 24px;
+        border-radius: 25px;
+        font-weight: 600;
+        font-size: 14px;
+        box-shadow: 0 12px 40px rgba(234,29,44,0.4);
+        z-index: 99999;
+        transform: translateX(400px);
+        opacity: 0;
+        transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    `;
+    
+    document.body.appendChild(toast);
+    
+    // Animação de entrada
+    requestAnimationFrame(() => {
+        toast.style.transform = 'translateX(0)';
+        toast.style.opacity = '1';
+    });
+    
+    // Remove após 3s
+    setTimeout(() => {
+        toast.style.transform = 'translateX(400px)';
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 400);
+    }, 3000);
+}
+</script>
 {% endblock %}

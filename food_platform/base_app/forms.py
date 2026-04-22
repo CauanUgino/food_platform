@@ -99,10 +99,11 @@ class RestaurantCreateForm(forms.ModelForm):
             "slug": "Sua vitrine será acessada por este nome na URL.",
         }
 
-        def __init__(self, *args, **kwargs):
-            super().__init__(*args, **kwargs)
-            self.fields['logo'].required= False
-            self.fields['banner'].required= False
+    # ✅ FORA do Meta (CORRETO)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['logo'].required = False
+        self.fields['banner'].required = False
 
 
            
