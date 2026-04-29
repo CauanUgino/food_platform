@@ -35,25 +35,26 @@
 
         <div class="filters-wrapper">
             <div class="scroll-indicator"></div>
-            <div class="d-flex gap-2">
+                <div class="d-flex gap-2">
 
-                <!-- Botões de filtro -->
-                 <!--Depois faço um filtro real para cada categoria -->
-                 <button class="filter-btn" data-filter="proximos">
-                    <i class="bi bi-list me-1"></i>Todos
-                </button>
-                <button class="filter-btn active" data-filter="proximos">
-                    <i class="bi bi-geo-alt me-1"></i>Mais Próximos
-                </button>
-                <button class="filter-btn" data-filter="proximos">
-                    <i class="bi bi-star me-1"></i>Melhor Avaliados
-                </button>
-                <button class="filter-btn" data-filter="proximos">
-                    <i class="bi bi-lightning me-1"></i>Novidades
-                </button>
-                <button class="filter-btn" data-filter="proximos">
-                    <i class="bi bi-percent me-1"></i>Promoções
-                </button>
+                    <!-- Botões de filtro -->
+                    <!--Depois faço um filtro real para cada categoria -->
+                    <button class="filter-btn" data-filter="proximos">
+                        <i class="bi bi-list me-1"></i>Todos
+                    </button>
+                    <button class="filter-btn active" data-filter="proximos">
+                        <i class="bi bi-geo-alt me-1"></i>Mais Próximos
+                    </button>
+                    <button class="filter-btn" data-filter="proximos">
+                        <i class="bi bi-star me-1"></i>Melhor Avaliados
+                    </button>
+                    <button class="filter-btn" data-filter="proximos">
+                        <i class="bi bi-lightning me-1"></i>Novidades
+                    </button>
+                    <button class="filter-btn" data-filter="proximos">
+                        <i class="bi bi-percent me-1"></i>Promoções
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -603,20 +604,90 @@
    RESPONSIVO
 ====================================== */
 @media (max-width: 768px) {
-    .hero-title { font-size: 2.5rem; }
-    .filters-wrapper .d-flex { flex-wrap: wrap; gap: 8px; }
-    .filter-btn { 
-        padding: 10px 16px; 
-        font-size: 13px; 
-    }
-    .status-badges { flex-direction: column; gap: 8px; }
-    .quick-actions { 
-        top: auto; 
-        bottom: 16px; 
-        right: 16px; 
-    }
-}
+  .hero-title { 
+    font-size: 2.5rem; 
+  }
 
+  .filters-wrapper {
+    position: relative;
+    padding: 12px 0;
+    margin: 0 -16px; /* Extende para bordas da tela */
+    padding: 12px 16px; /* Padding interno */
+    overflow: hidden;
+  }
+
+  .filters-wrapper .d-flex { 
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 4px; /* Gap bem pequeno */
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-behavior: smooth;
+    padding: 4px 0;
+    -webkit-overflow-scrolling: touch;
+    /* Snap para alinhar botões perfeitamente */
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none; /* Firefox: esconde scrollbar */
+    -ms-overflow-style: none; /* IE/Edge */
+  }
+
+  .filters-wrapper .d-flex::-webkit-scrollbar {
+    display: none; /* Webkit: scrollbar invisível */
+  }
+
+  .filter-btn { 
+    flex: 0 0 auto; /* Não cresce nem encolhe */
+    padding: 10px 14px; /* Compacto para caber mais */
+    font-size: 13px;
+    white-space: nowrap;
+    scroll-snap-align: start; /* Snap no início de cada botão */
+    min-width: max-content;
+  }
+
+  /* Indicador de scroll customizado */
+  .filters-wrapper .scroll-indicator {
+    width: 24px; /* Menor em mobile */
+    opacity: 0.8;
+  }
+
+  .status-badges { 
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 6px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 4px 0;
+    margin: 0 -16px;
+    padding: 0 16px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .status-badges::-webkit-scrollbar {
+    display: none;
+  }
+
+  .status-badges > * {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  .quick-actions { 
+    position: fixed;
+    bottom: 24px;
+    right: 16px;
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    padding: 12px;
+    border-radius: 24px;
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--shadow-light);
+  }
+}
 /* ======================================
    FILTRO DE CATEGORIAS
 ====================================== */
