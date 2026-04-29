@@ -1,384 +1,337 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-<head>
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Parceiro | COMAÍ</title>
-
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-
-<style>
-
-:root{
---primary:#ea1d2c;
---primary-hover:#d91a27;
---bg-body:#f8f9fa;
-}
-
-body{
-font-family:'Plus Jakarta Sans',sans-serif;
-background:linear-gradient(180deg,#fafafa,#f3f4f6);
-min-height:100vh;
-display:flex;
-flex-direction:column;
-color:#1a1a1a;
-}
-
-/* BRAND */
-
-.brand-header{
-padding:40px 0;
-text-align:center;
-}
-
-.brand-name{
-font-weight:800;
-font-size:2.2rem;
-letter-spacing:-1.5px;
-color:#000;
-text-transform:uppercase;
-text-decoration:none;
-}
-
-.brand-name span{
-color:var(--primary);
-}
-
-/* MAIN */
-
-.main-content{
-flex:1;
-display:flex;
-align-items:center;
-justify-content:center;
-padding:20px;
-}
-
-/* CARD */
-
-.master-card{
-
-background:white;
-border-radius:40px;
-box-shadow:0 40px 80px rgba(0,0,0,0.07);
-width:100%;
-max-width:460px;
-padding:45px;
-animation:fadeInUp .8s ease-out;
-position:relative;
-}
-
-/* ICON */
-
-.master-icon{
-
-width:75px;
-height:75px;
-
-margin:auto;
-margin-bottom:20px;
-
-border-radius:22px;
-
-background:linear-gradient(135deg,#ea1d2c,#ff4d5a);
-
-display:flex;
-align-items:center;
-justify-content:center;
-
-font-size:32px;
-color:white;
-
-box-shadow:0 10px 30px rgba(234,29,44,0.3);
-
-}
-
-/* FORM */
-
-.form-group{
-margin-bottom:20px;
-position:relative;
-}
-
-.form-group i{
-
-position:absolute;
-left:16px;
-top:50%;
-transform:translateY(-50%);
-color:#999;
-font-size:14px;
-
-}
-
-/* INPUT DJANGO */
-
-.form-group input{
-
-width:100%;
-padding:15px 16px 15px 42px;
-
-border-radius:16px;
-border:2px solid #f1f1f1;
-
-background:#fafafa;
-
-font-size:14px;
-font-weight:500;
-
-transition:all .25s ease;
-
-}
-
-.form-group input:focus{
-
-border-color:var(--primary);
-background:white;
-
-box-shadow:0 10px 20px rgba(234,29,44,0.08);
-
-outline:none;
-
-}
-
-/* BUTTON */
-
-.btn-master{
-
-background:var(--primary);
-
-border:none;
-
-padding:16px;
-
-font-weight:700;
-
-border-radius:18px;
-
-width:100%;
-
-color:white;
-
-letter-spacing:.3px;
-
-transition:all .3s;
-
-box-shadow:0 12px 30px rgba(234,29,44,0.25);
-
-}
-
-.btn-master:hover{
-
-background:var(--primary-hover);
-
-transform:translateY(-3px);
-
-box-shadow:0 18px 40px rgba(234,29,44,0.35);
-
-}
-
-/* BACK LINK */
-
-.back-link{
-
-font-size:.85rem;
-
-text-decoration:none;
-
-color:#777;
-
-font-weight:600;
-
-}
-
-.back-link:hover{
-color:var(--primary);
-}
-
-/* DIVIDER */
-
-.form-divider{
-
-height:1px;
-
-background:#f1f1f1;
-
-margin:25px 0;
-
-}
-
-/* FOOTER */
-
-.footer-premium{
-
-background:#000;
-
-color:white;
-
-padding:60px 0 30px;
-
-margin-top:50px;
-
-border-radius:50px 50px 0 0;
-
-text-align:center;
-
-}
-
-.trust-badge{
-
-background:rgba(255,255,255,0.05);
-
-padding:10px 20px;
-
-border-radius:15px;
-
-font-size:.75rem;
-
-color:rgba(255,255,255,0.7);
-
-display:inline-flex;
-
-align-items:center;
-
-gap:10px;
-
-margin-bottom:25px;
-
-}
-
-</style>
-
-</head>
-
-<body>
-
-<header class="brand-header animate__animated animate__fadeInDown">
-
-<a href="/" class="brand-name">
-COMAÍ<span>.</span>
-</a>
-
-<p class="text-muted small">
-Sua jornada gastronômica começa aqui
-</p>
-
-</header>
-
-<main class="main-content">
-
-<div class="master-card">
-
-<div class="text-center">
-
-<div class="master-icon">
-<i class="bi bi-shield-lock-fill"></i>
-</div>
-
-<h2 class="fw-bold mb-1">
-Seja parceiro
-</h2>
-
-<p class="text-muted small mb-4">
-Tenha a visibilidade que seu restaurante merece. O futuro da gastronomia digital começa aqui!
-</p>
-
-</div>
-
-<div class="mb-3">
-<a href="{% url 'login' %}" class="back-link">
-<i class="bi bi-arrow-left"></i>
-Voltar ao login
-</a>
-</div>
-
-<div class="form-divider"></div>
-
-<form method="post">
-
-{% csrf_token %}
-
-{% for field in form %}
-
-<div class="form-group">
-
-<i class="bi bi-person"></i>
-
-{{ field }}
-
-{% if field.errors %}
-
-<div class="text-danger small mt-1">
-{{ field.errors|striptags }}
-</div>
-
-{% endif %}
-
-</div>
-
-{% endfor %}
-
-<button class="btn-master mt-3">
-
-CRIAR SUPERUSUÁRIO
-
-<i class="bi bi-person-check-fill ms-2"></i>
-
-</button>
-
-</form>
-
-</div>
-
-</main>
-
-<footer class="footer-premium">
-
-<div class="container">
-
-<div class="trust-badge">
-<i class="bi bi-shield-lock-fill text-success"></i>
-Ambiente 100% Seguro
-</div>
-
-<div class="mb-4">
-
-<a href="#" class="text-white-50 text-decoration-none mx-2 small">Sobre</a>
-
-<a href="#" class="text-white-50 text-decoration-none mx-2 small">Privacidade</a>
-
-<a href="#" class="text-white-50 text-decoration-none mx-2 small">Suporte</a>
-
-</div>
-
-<p class="text-white-50 mb-0" style="font-size:0.7rem;">
-© 2025 COMAÍ | Desenvolvido por Cauan Ugino Filho
-</p>
-
-</div>
-
-</footer>
-
-<script>
-
-document.addEventListener("DOMContentLoaded",function(){
-
-const inputs=document.querySelectorAll("input")
-
-inputs.forEach(input=>{
-
-input.classList.add("form-control")
-
-})
-
-})
-
-</script>
-
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Parceiro | COMAÍ</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
+
+    <style>
+      :root {
+        --primary: #ea1d2c;
+        --primary-hover: #d91a27;
+        --bg-body: #f8f9fa;
+      }
+      
+      body {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        background: linear-gradient(180deg, #fafafa, #f3f4f6);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        color: #1a1a1a;
+      }
+      
+      /* BRAND */
+      
+      .brand-header {
+        padding: 40px 0;
+        text-align: center;
+      }
+      
+      .brand-name {
+        font-weight: 800;
+        font-size: 2.2rem;
+        letter-spacing: -1.5px;
+        color: #000;
+        text-transform: uppercase;
+        text-decoration: none;
+      }
+      
+      .brand-name span {
+        color: var(--primary);
+      }
+      
+      /* MAIN */
+      
+      .main-content {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+      
+      /* CARD */
+      
+      .master-card {
+        background: #ffffff;
+        border-radius: 40px;
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.06);
+        width: 100%;
+        max-width: 450px;
+        padding: 40px;
+        animation: fadeInUp 0.8s ease-out;
+      }
+      
+      /* Correção para Inputs do Django */
+      .form-floating input {
+        display: block;
+        width: 100%;
+        padding: 1.6rem 1rem 0.6rem 1.2rem !important;
+        font-size: 1rem;
+        font-weight: 500;
+        line-height: 1.5;
+        color: #212529;
+        background-color: #f8f9fa !important;
+        background-clip: padding-box;
+        border: 2px solid #eee !important;
+        appearance: none;
+        border-radius: 18px !important;
+        transition: all 0.2s ease-in-out;
+      }
+      
+      .form-floating input:focus {
+        background-color: #fff !important;
+        border-color: var(--primary) !important;
+        outline: 0;
+        box-shadow: 0 10px 20px rgba(234, 29, 44, 0.05) !important;
+      }
+      
+      /* ICON */
+      
+      .master-icon {
+        width: 75px;
+        height: 75px;
+      
+        margin: auto;
+        margin-bottom: 20px;
+      
+        border-radius: 22px;
+      
+        background: linear-gradient(135deg, #ea1d2c, #ff4d5a);
+      
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      
+        font-size: 32px;
+        color: white;
+      
+        box-shadow: 0 10px 30px rgba(234, 29, 44, 0.3);
+      }
+      
+      /* FORM */
+      
+      .form-group {
+        margin-bottom: 20px;
+        position: relative;
+      }
+      
+      .form-group i {
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #999;
+        font-size: 14px;
+      }
+      
+      /* INPUT DJANGO */
+      
+      .form-group input {
+        width: 100%;
+        padding: 15px 16px 15px 42px;
+      
+        border-radius: 16px;
+        border: 2px solid #f1f1f1;
+      
+        background: #fafafa;
+      
+        font-size: 14px;
+        font-weight: 500;
+      
+        transition: all 0.25s ease;
+      }
+      
+      .form-group input:focus {
+        border-color: var(--primary);
+        background: white;
+      
+        box-shadow: 0 10px 20px rgba(234, 29, 44, 0.08);
+      
+        outline: none;
+      }
+      
+      /* BUTTON */
+      
+      .btn-master {
+        background: var(--primary);
+      
+        border: none;
+      
+        padding: 16px;
+      
+        font-weight: 700;
+      
+        border-radius: 18px;
+      
+        width: 100%;
+      
+        color: white;
+      
+        letter-spacing: 0.3px;
+      
+        transition: all 0.3s;
+      
+        box-shadow: 0 12px 30px rgba(234, 29, 44, 0.25);
+      }
+      
+      .btn-master:hover {
+        background: var(--primary-hover);
+      
+        transform: translateY(-3px);
+      
+        box-shadow: 0 18px 40px rgba(234, 29, 44, 0.35);
+      }
+      
+      /* BACK LINK */
+      
+      .back-link {
+        font-size: 0.85rem;
+      
+        text-decoration: none;
+      
+        color: #777;
+      
+        font-weight: 600;
+      }
+      
+      .back-link:hover {
+        color: var(--primary);
+      }
+      
+      /* DIVIDER */
+      
+      .form-divider {
+        height: 1px;
+      
+        background: #f1f1f1;
+      
+        margin: 25px 0;
+      }
+      
+      /* FOOTER */
+      
+      .footer-premium {
+        background: #000;
+      
+        color: white;
+      
+        padding: 60px 0 30px;
+      
+        margin-top: 50px;
+      
+        border-radius: 50px 50px 0 0;
+      
+        text-align: center;
+      }
+      
+      .trust-badge {
+        background: rgba(255, 255, 255, 0.05);
+      
+        padding: 10px 20px;
+      
+        border-radius: 15px;
+      
+        font-size: 0.75rem;
+      
+        color: rgba(255, 255, 255, 0.7);
+      
+        display: inline-flex;
+      
+        align-items: center;
+      
+        gap: 10px;
+      
+        margin-bottom: 25px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header class="brand-header animate__animated animate__fadeInDown">
+      <a href="/" class="brand-name">COMAÍ<span>.</span></a>
+
+      <p class="text-muted small">Sua jornada gastronômica começa aqui</p>
+    </header>
+
+    <main class="main-content">
+      <div class="master-card">
+        <div class="text-center">
+          <div class="master-icon">
+            <i class="bi bi-shield-lock-fill"></i>
+          </div>
+
+          <h2 class="fw-bold mb-1">Seja parceiro</h2>
+
+          <p class="text-muted small mb-4">Tenha a visibilidade que seu restaurante merece. O futuro da gastronomia digital começa aqui!</p>
+        </div>
+
+        <div class="mb-3">
+          <a href="{% url 'login' %}" class="back-link">
+            <i class="bi bi-arrow-left"></i>
+            Voltar ao login
+          </a>
+        </div>
+
+        <div class="form-divider"></div>
+
+        <form method="post">
+          {% csrf_token %}
+
+          {% for field in form %}
+            <div class="form-floating mb-3" style="font-size: 0.75rem; color: #666;">
+              {{ field }}
+              <label for="{{ field.id_for_label }}" class="form-label small text-muted">{{ field.label }}</label>
+
+              {% if field.errors %}
+                <div class="text-danger small mt-1">{{ field.errors|striptags }}</div>
+              {% endif %}
+            </div>
+          {% endfor %}
+
+          <button class="btn-master mt-3">
+            CRIAR SUPERUSUÁRIO
+
+            <i class="bi bi-person-check-fill ms-2"></i>
+          </button>
+        </form>
+      </div>
+    </main>
+
+    <footer class="footer-premium">
+      <div class="container">
+        <div class="trust-badge">
+          <i class="bi bi-shield-lock-fill text-success"></i>
+          Ambiente 100% Seguro
+        </div>
+
+        <div class="mb-4">
+          <a href="#" class="text-white-50 text-decoration-none mx-2 small">Sobre</a>
+
+          <a href="#" class="text-white-50 text-decoration-none mx-2 small">Privacidade</a>
+
+          <a href="#" class="text-white-50 text-decoration-none mx-2 small">Suporte</a>
+        </div>
+
+        <p class="text-white-50 mb-0" style="font-size:0.7rem;">© 2025 COMAÍ | Desenvolvido por Cauan Ugino Filho</p>
+      </div>
+    </footer>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        const inputs = document.querySelectorAll('input')
+      
+        inputs.forEach((input) => {
+          input.classList.add('form-control')
+        })
+      })
+    </script>
+  </body>
 </html>

@@ -118,6 +118,7 @@ def logout_view(request):
 def admin_platform_dashboard(request):
     if not request.user.is_superuser:
         return redirect("home")
+        
 
     # Todos os registros sem filtrar ainda para as contagens serem reais
     restaurants = Restaurant.objects.all()
@@ -438,6 +439,7 @@ def create_my_store(request):
 
                 # ✅ SESSÃO FINALIZADA com sucesso
                 messages.success(request, "Cadastro concluído com sucesso!")
+                messages.success(request, "Aguarde a aprovação do pagamento para ativar sua loja.")
                 
                 # Força salvar sessão antes do redirect
                 request.session.save()
