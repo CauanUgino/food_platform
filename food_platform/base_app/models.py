@@ -2,13 +2,10 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.conf import settings
 
-
-
-
-
+0
 # Create your models here.
 
-
+## ESSA CLASSE REPRESENTA UM RESTAURANTE NO SISTEMA, INCLUINDO INFORMAÇÕES COMO NOME, SLUG, WHATSAPP, DESCRIÇÃO, PROPRIETÁRIO, LOGO, BANNER, STATUS DE ATIVAÇÃO, ACEITE DOS TERMOS E STATUS DE PAGAMENTO. ELA TAMBÉM POSSUI RELACIONAMENTOS COM OUTROS MODELOS, COMO CATEGORIAS, ITENS E PEDIDOS.
 class Restaurant(models.Model):
     name = models.CharField(max_length=150)
     slug = models.SlugField(unique=True)
@@ -55,7 +52,7 @@ class Restaurant(models.Model):
     def __str__(self):
         return self.name
 
-
+#ESSA CLASSE REPRESENTA UM PAGAMENTO DE PARCEIRO NO SISTEMA, INCLUINDO INFORMAÇÕES COMO USUÁRIO, RESTAURANTE, VALOR, COMPROVANTE, STATUS E DATA DE CRIAÇÃO. ELA TAMBÉM POSSUI UM MÉTODO DE SALVAMENTO PERSONALIZADO QUE ATIVA O USUÁRIO E O RESTAURANTE SE O PAGAMENTO FOR APROVADO.
 class PartnerPayment(models.Model):
 
     STATUS = (
@@ -119,6 +116,7 @@ class StoreProfile(models.Model):
         return f"{self.user.username} - {self.role}"
 
 
+##CLASSE CATEGORY REPRESENTA UMA CATEGORIA DE PRODUTOS ASSOCIADA A UM RESTAURANTE, INCLUINDO INFORMAÇÕES COMO NOME E RELACIONAMENTO COM O MODELO RESTAURANT.
 class Category(models.Model):
     restaurant = models.ForeignKey(
         Restaurant,
@@ -150,6 +148,8 @@ class Item(models.Model):
     def __str__(self):
         return self.name
 
+
+##CLASSE PRODUCT REPRESENTA UM PRODUTO ASSOCIADO A UM RESTAURANTE E UMA CATEGORIA, INCLUINDO INFORMAÇÕES COMO NOME, DESCRIÇÃO, PREÇO, DISPONIBILIDADE E IMAGEM. ELA TAMBÉM POSSUI RELACIONAMENTOS COM OS MODELOS RESTAURANT E CATEGORY.
 class Product(models.Model):
     restaurant = models.ForeignKey(
         Restaurant,
@@ -175,6 +175,8 @@ class Product(models.Model):
         return self.name
 
 
+
+##CLASSE ORDER REPRESENTA UM PEDIDO FEITO POR UM USUÁRIO EM UM RESTAURANTE, INCLUINDO INFORMAÇÕES COMO USUÁRIO, RESTAURANTE, PREÇO TOTAL, STATUS E DATA DE CRIAÇÃO. ELA TAMBÉM POSSUI UM RELACIONAMENTO COM O MODELO ORDERITEM PARA GERENCIAR OS ITENS DO PEDIDO.
 class Order(models.Model):
     STATUS_CHOICES = (
         ("pending", "Pendente"),
@@ -214,6 +216,8 @@ class Order(models.Model):
         ordering = ["-created_at"]
 
 
+##CLASSE ORDERITEM REPRESENTA UM ITEM DE UM PEDIDO, INCLUINDO INFORMAÇÕES COMO PEDIDO ASSOCIADO, PRODUTO, QUANTIDADE E PREÇO. ELA TAMBÉM POSSUI UM MÉTODO PARA CALCULAR O SUBTOTAL DO ITEM.
+##ACHO QUE ESTÁ DUPLICADA, NÃO TENHO CERTEZA, PRECISO VERIFICAR.
 class OrderItem(models.Model):
     order = models.ForeignKey(
         Order,
