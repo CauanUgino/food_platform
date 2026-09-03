@@ -44,9 +44,11 @@ from PIL import Image
 
 from django.shortcuts import render
 
+
+#Função para a página inicial, que lista todos os restaurantes ativos.
 @login_required(login_url='login')
 def home(request):
-    
+    #Busca todos os restaurantes ativos no banco de dados e os passa para o template home.html.
     restaurants = Restaurant.objects.filter(is_active=True)
     return render(request, "home.html", {"restaurants": restaurants})
 
@@ -75,7 +77,7 @@ def custom_login(request):
     
     return render(request, "login.html")
 
-
+# View de Registro de Cliente
 def register_user(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
@@ -106,6 +108,7 @@ def register_superuser(request):
 
     return render(request, "base_app/register_superuser.html", {"form": form})
 
+#Função para sair do sistema, que limpa a sessão e redireciona para a página de login.
 def logout_view(request):
     logout(request)
     return redirect('login')
@@ -115,6 +118,8 @@ def logout_view(request):
 #### DEBUG ESTÁ FUNÇÃO, ESTÁ FUNCIONAL MAS NÃO EXIBE OS BOTÕES DE NAVEGAÇÃO NO NAVBAR. ######
 ### A PARTE DE SUPER ADMINISTRADOR ESTÁ O BOTÃO FUNCIONAL E A PARTE DE STAFF NÃO. VERIFIQUEI O HTML E A LÓGICA LÁ ESTÁ CORRETA, ENTÃO O PROBLEMA PODE ESTAR NA FORMA COMO OS DADOS ESTÃO SENDO PASSADOS PARA O TEMPLATE OU NA LÓGICA DE EXIBIÇÃO DOS BOTÕES. ###
 ### PLANO DE DEBUG É PEGAR A FUNÇÃO NO GITHUB E SUBSTITUIR PELA FUNÇÃO ANTIGA, VER SE OS BOTÕES APARECEM, SE APARECEREM O PROBLEMA ESTÁ NA LÓGICA DE EXIBIÇÃO DOS BOTÕES, SE NÃO APARECEREM O PROBLEMA ESTÁ NA FORMA COMO OS DADOS ESTÃO SENDO PASSADOS PARA O TEMPLATE. ###
+
+#Função para o dashboard do administrador da plataforma, que exibe informações sobre restaurantes e pagamentos pendentes.
 def admin_platform_dashboard(request):
     if not request.user.is_superuser:
         return redirect("home")
@@ -146,7 +151,7 @@ def admin_platform_dashboard(request):
 
     return render(request, "platform_admin/dashboard_admin.html", context)
 
-
+#Função de verificação de pagamentos pendentes, que exibe uma lista de pagamentos que ainda não foram aprovados ou rejeitados.
 @login_required
 def payments_list(request):
     if not request.user.is_superuser:
@@ -158,7 +163,7 @@ def payments_list(request):
         "payments": payments
     })
 
-
+#função para aprovar pagamentos pendentes, que altera o status do pagamento para "aprovado" e ativa o restaurante e o usuário associado.
 @login_required
 def approve_payment(request, payment_id):
 
@@ -182,7 +187,7 @@ def approve_payment(request, payment_id):
 
     return redirect("payments_list")
 
-
+#Função para rejeitar pagamentos pendentes, que altera o status do pagamento para "rejeitado" e mantém o restaurante e o usuário inativos.
 @login_required
 def reject_payment(request, payment_id):
 
@@ -199,7 +204,7 @@ def reject_payment(request, payment_id):
     return redirect("payments_list")
 
 
-
+#Função para desativar um restaurante, que altera o status do restaurante para inativo e exibe uma mensagem de aviso.
 @login_required
 def deactivate_restaurant(request, restaurant_id):
 
@@ -215,7 +220,7 @@ def deactivate_restaurant(request, restaurant_id):
 
     return redirect("platform_dashboard_admin")
 
-
+#Função que ativa o restaurante
 @login_required
 def activate_restaurant(request, restaurant_id):
 
@@ -231,6 +236,7 @@ def activate_restaurant(request, restaurant_id):
 
     return redirect("platform_dashboard_admin")
 
+# Função que atualiza o status do restaurante
 def update_restaurant_status(request, restaurant_id):
 
     restaurant = get_object_or_404(Restaurant, id=restaurant_id)
@@ -246,6 +252,7 @@ def update_restaurant_status(request, restaurant_id):
 
     return redirect("platform_dashboard_admin")
 
+#Função que atualiza o status de pagamento do restaurante, que altera o status de pagamento do restaurante e, se o status for "bloqueado", também desativa o restaurante.
 def update_payment_status(request, restaurant_id):
 
     restaurant = get_object_or_404(Restaurant, id=restaurant_id)
@@ -261,6 +268,7 @@ def update_payment_status(request, restaurant_id):
 
     return redirect("platform_dashboard_admin")
 
+#Função que atualiza o status do pagamento do restaurante
 def update_payment_status(request, restaurant_id):
 
     restaurant = get_object_or_404(Restaurant, id=restaurant_id)
@@ -276,7 +284,7 @@ def update_payment_status(request, restaurant_id):
 
     return redirect("platform_dashboard_admin")
 
-
+#Função do painel administrativo do cardapio do restaurante
 @login_required
 def store_dashboard(request):
     # Superusuário (admin da plataforma)
@@ -310,7 +318,8 @@ def store_dashboard(request):
 
 
 
-
+#Função que define quanto o parceiro vai pagar 
+#Talvez essa função não seja tão necessaria, observar e caso não afete o desenvolvimento do sistema vamos excluila para deixar o código masi limpo e claro.
 @login_required
 def partner_payment(request):
 
@@ -325,7 +334,7 @@ def partner_payment(request):
         "price": 49
     })
 
-
+#Função que faz com que seja possivel anexar o comprovante de pagamento na parte da assinatura do parceiroo. mas mudando o fluxo de pagamento paara paamento automatico isso provavelmente ira mudar.
 @login_required
 def upload_payment_proof(request):
 
@@ -359,6 +368,8 @@ def upload_payment_proof(request):
 
     return redirect("partner_payment")
 
+##Função de tomada de decisão para redirecionar o usuário para o dashboard correto, dependendo do seu perfil (superusuário, dono de loja, staff sem loja ou cliente comum).
+###ESSA FUNÇÃO É EXTREMAMENTE IMPORTANTE, SEM ELA O SISTEMA NÃO CONSEGUE DECIDIR O NEVIEL DE ACESSO DO USUARIO QUE ESTÁ ACESSANDO.
 @login_required
 def entry_point(request):
 
@@ -383,7 +394,7 @@ def entry_point(request):
 ####Essa função ainda possui um erro na hora de concluir o cadastro ela não está sendo direcionada para o dashboard da loja, isso acontece porque o login só é feito depois de criar o usuário, e o redirecionamento para o dashboard da loja acontece antes do login, ou seja, ele não reconhece que o usuário acabou de ser criado e logado. Para resolver isso, basta fazer o login do usuário logo após criar a conta, dentro da mesma transação atômica. Assim, quando chegar no redirecionamento para o dashboard da loja, ele já vai reconhecer que o usuário está autenticado e tem uma loja vinculada.
 
 
-
+##Função da criação da vitrine, pede as informações necssarias para criar um perfil de uma restaurante
 def create_my_store(request):
     pending_user = request.session.get("pending_superuser")
 
@@ -458,10 +469,11 @@ def create_my_store(request):
 
     return render(request, "platform/create_restaurant.html", {"form": form})
 
-
+###ESSA FUNÇÃO EXIBE OS TERMOS DE CONTRATO PARA SEREM ACEITOS PARA TER ACESSO AO SISTEMA
 def termos_plataforma(request):
     return render(request, "platform/termos.html")
 
+#ESSA FUNÇÃO É PARA CONFIRMAÇÃ DE EMAIL. ESTÁ AQUI MAS NO MOMENTO NÃO ESTAR SENDO UTLIZADA, DEIXAREMOS FUNCIONAL PARA QUE O BANCO DE DADOS NÃO RECEBA EMAIL´S FANTASMA E COM ESSAS INFORMAÇÕES A GENTE POSSA ENVIAR COISA DO TIPO DE PROMOÇÕES ETC...
 def confirm_email(request, uidb64, token):
     try:
         uid = force_str(urlsafe_base64_decode(uidb64))
@@ -501,7 +513,7 @@ def dashboard_view(request):
 
     return render(request, "platform/dashboard.html", context)
 
-
+##Função que exibe a página inicial do restaurante, mostrando as categorias e produtos disponíveis para o cliente.
 def restaurant_home(request, slug):
     restaurant = get_object_or_404(Restaurant, slug=slug)
 
@@ -556,13 +568,14 @@ def create_store_admin(request):
     return render(request, "platform/create_store_admin.html", {
         "form": form
     })
-
+##Coleta informações dos restaurantes cadastrados e exibe na página de administração da plataforma, permitindo que o superusuário gerencie os restaurantes e seus respectivos administradores.
 def get_store_restaurant(user):
     if not hasattr(user, "storeprofile"):
         raise PermissionDenied
     return user.storeprofile.restaurant
 
-
+##CRIANDO AS FUNÇÕES DE CATEGORIA E PRODUTOS PARA O PAINEL DE ADMINISTRAÇÃO DO RESTAURANTE, ESSAS FUNÇÕES SÃO RESPONSÁVEIS POR LISTAR, CRIAR, EDITAR E EXCLUIR CATEGORIAS E PRODUTOS DO RESTAURANTE.
+#Listandoas categorias.
 @login_required
 def category_list(request):
     profile = StoreProfile.objects.get(user=request.user)
@@ -576,6 +589,8 @@ def category_list(request):
 
 
 @login_required
+
+#Criando a categoria, essa função permite que o usuário crie uma nova categoria para o restaurante, associando-a ao restaurante do usuário logado.
 def category_create(request):
     restaurant = get_store_restaurant(request.user)
 
@@ -589,7 +604,7 @@ def category_create(request):
 
     return render(request, "store/category_form.html")
 
-
+#Editando a categoria, essa função permite que o usuário edite uma categoria existente, garantindo que a categoria pertença ao restaurante do usuário logado.
 @login_required
 def category_edit(request, pk):
     restaurant = get_store_restaurant(request.user)
@@ -604,6 +619,7 @@ def category_edit(request, pk):
         "category": category
     })
 
+#Excluindo a categoria, essa função permite que o usuário exclua uma categoria existente, garantindo que a categoria pertença ao restaurante do usuário logado.
 @login_required
 def category_delete(request, pk):
     restaurant = get_store_restaurant(request.user)
@@ -617,7 +633,8 @@ def category_delete(request, pk):
         "category": category
     })
 
-
+####CRIANDO AS FUNÇÕES DE PRODUTOS, ESSAS FUNÇÕES SÃO RESPONSÁVEIS POR LISTAR, CRIAR, EDITAR E EXCLUIR PRODUTOS DO RESTAURANTE.
+##Listando produtos, essa função permite que o usuário veja todos os produtos associados ao restaurante do usuário logado.
 @login_required
 def product_list(request):
     restaurant = get_store_restaurant(request.user)
@@ -630,7 +647,7 @@ def product_list(request):
         "products": products
     })
 
-
+#Criando produto, essa função permite que o usuário crie um novo produto para o restaurante, associando-o ao restaurante do usuário logado e a uma categoria existente.
 @login_required
 def product_create(request):
     restaurant = get_store_restaurant(request.user)
@@ -656,7 +673,7 @@ def product_create(request):
         "categories": categories
     })
 
-
+#Editando produto, essa função permite que o usuário edite um produto existente, garantindo que o produto pertença ao restaurante do usuário logado.
 @login_required
 def product_edit(request, pk):
     restaurant = get_store_restaurant(request.user)
@@ -685,7 +702,7 @@ def product_edit(request, pk):
         "product": product,
         "categories": categories
     })
-
+#Excluindo produto, essa função permite que o usuário exclua um produto existente, garantindo que o produto pertença ao restaurante do usuário logado.
 @login_required
 def product_delete(request, pk):
     restaurant = get_store_restaurant(request.user)
@@ -705,7 +722,9 @@ def product_delete(request, pk):
 
 
 
+####GERENCIANDO O CARRINHO DE COMPRAS, ESSAS FUNÇÕES SÃO RESPONSÁVEIS POR ADICIONAR, REMOVER E EXIBIR ITENS NO CARRINHO DE COMPRAS DO CLIENTE.
 
+##Adicionando item ao carrinho, essa função permite que o usuário adicione um produto ao carrinho de compras, armazenando as informações do produto na sessão do usuário.
 @require_POST
 def add_to_cart(request, item_id):
     item = get_object_or_404(Product, id=item_id)
@@ -734,20 +753,10 @@ def add_to_cart(request, item_id):
     return redirect("restaurant_home", slug=item.restaurant.slug)
 
     
-
-
-from django.shortcuts import render
-from urllib.parse import quote
-from datetime import datetime
-from .models import Restaurant, StoreProfile
-
-
-from datetime import datetime
-from urllib.parse import quote
-from django.shortcuts import render
-from .models import Restaurant, StoreProfile
-
-
+##Detalhando o carrinho, essa função exibe os itens do carrinho de compras do cliente, calcula o total e gera um link para enviar o pedido via WhatsApp para o restaurante.
+#####DENTRO DESSA A FUNCIONALIDADE QUE SERÁ ENVIADA COMO MENSAGEM .TXT NO WHATSAPP..
+#MAS QUANDO MUDAR O FLUXO DE PAGAMENTO ESSA FUNÇÃO MUDARÁ E ISSO SAIRÁ, UMA DESSA DUAS FUNÇÕES NÃO ESTÃO SENDO UTILIZADAS
+## ACHO QUE EU ESTOU ENVIANDO COLETANDO NO FRONT END AS INFORMAÇÕES DOO PEDIDO E DE LÁ GERANDO A MENSAGEM PARA ENVIO EXTERNO NO WHATSAPP.
 def cart_detail(request):
 
     cart = request.session.get("cart", {})
@@ -849,7 +858,7 @@ def cart_detail(request):
 
     return render(request, "cart_detail.html", context)
 
-
+##Removendo item do carrinho, essa função permite que o usuário remova um produto específico do carrinho de compras, atualizando a sessão do usuário.
 def remove_from_cart(request, item_id):
     cart = request.session.get("cart", {})
     item_id_str = str(item_id)
@@ -875,6 +884,8 @@ def clear_cart(request):
 
 ####Trabalhar nessa parte pra quando finalizar o pedido por whatsApp o carrinho esvaziar
 #### order Quem é o cabeça dessaa função
+
+#Criando pedido, essa função cria um pedido a partir do carrinho da sessão, salva os itens no banco de dados e limpa o carrinho imediatamente após a criação do pedido.
 @login_required
 @never_cache
 def create_order(request):
@@ -938,7 +949,7 @@ def create_order(request):
         #Provavelmente eu terei que remover esse order succes.html por conta que o Redirect usa nome da URL, não template.
         return redirect("orders/order_sucess.html")
 
-
+##Essa função é responsável por exibir a página de sucesso do pedido, mostrando os detalhes do pedido e gerando o link para enviar a confirmação via WhatsApp para o restaurante.
 @login_required
 @never_cache
 def order_success(request, order_id):
